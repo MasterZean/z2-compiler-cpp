@@ -1,0 +1,22 @@
+uses
+	Core;
+
+file
+	Assembly.h,
+	Assembly.cpp,
+	ZClass.cpp,
+	source.h,
+	Source.cpp,
+	objecttype.h,
+	objecttype.cpp,
+	entities.h,
+	ZParser.h,
+	ZParser.cpp,
+	BuildMethod.h,
+	BuildMethod.cpp,
+	StopWatch.h,
+	Scanner.h,
+	Scanner.cpp,
+	ErrorReporter.h,
+	ErrorReporter.cpp;
+
