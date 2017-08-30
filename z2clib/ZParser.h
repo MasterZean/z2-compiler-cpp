@@ -29,7 +29,7 @@ public:
 	ZSyntaxError(const String& path, const String& error): Path(path), Error(error) {
 	}
 	
-	void PrettyPrint(Context* con);
+	void PrettyPrint(Context* con, Stream& stream);
 };
 
 class ZParser: public CParser {
@@ -63,7 +63,7 @@ public:
 	void Expect(char ch, char ch2);
 	int ExpectNum();
 	
-	int ReadInt64(int64& oInt, double& oDub);
+	int ReadInt64(int64& oInt, double& oDub, int& base);
 	
 	bool IsCharConst() {
 		return term[0] == '\'';

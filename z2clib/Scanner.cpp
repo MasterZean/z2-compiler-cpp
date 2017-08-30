@@ -860,7 +860,8 @@ void Scanner::ScanToken() {
 	if (parser.IsInt()) {
 		int64 oInt;
 		double oDub;
-		parser.ReadInt64(oInt, oDub);
+		int base;
+		parser.ReadInt64(oInt, oDub, base);
 	}
 	else if (parser.IsString())
 		parser.ReadString();

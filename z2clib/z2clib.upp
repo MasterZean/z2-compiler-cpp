@@ -10,6 +10,7 @@ file
 	objecttype.h,
 	objecttype.cpp,
 	entities.h,
+	Node.h,
 	ZParser.h,
 	ZParser.cpp,
 	BuildMethod.h,
@@ -18,5 +19,9 @@ file
 	Scanner.h,
 	Scanner.cpp,
 	ErrorReporter.h,
-	ErrorReporter.cpp;
+	ErrorReporter.cpp,
+	NodeWalker.h,
+	CppNodeWalker.h,
+	CppNodeWalker.cpp,
+	from-z readonly separator;
 

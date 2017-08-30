@@ -4,11 +4,11 @@ bool Node::IsZero(Assembly& ass) {
 	if (IsCT == false)
 		return false;
 	if (ass.IsInteger(Tt) || Tt.Class == ass.CBool || Tt.Class == ass.CChar) {
-		if (dInt == 0)
+		if (IntVal == 0)
 			return true;
 	}
 	else if (Tt.Class == ass.CFloat || Tt.Class == ass.CDouble) {
-		if (dDouble == 0)
+		if (DblVal == 0)
 			return true;
 	}
 	else
@@ -19,14 +19,14 @@ bool Node::IsZero(Assembly& ass) {
 
 void Node::PromoteToFloatValue(Assembly& ass) {
 	if (Tt.Class == ass.CQWord)
-		dDouble = (double)(uint32)dInt;
+		DblVal = (double)(uint32)IntVal;
 	else if (ass.IsInteger(Tt) || Tt.Class == ass.CBool || Tt.Class == ass.CChar)
-		dDouble = (double)dInt;
+		DblVal = (double)IntVal;
 }
 
 bool ObjectInfo::CanAssign(Assembly& ass, Node* node) {
 	return CanAssign(ass, *node,
-		node->Tt.Class == ass.CInt && node->NT == NodeType::Const && node->dInt >= 0);
+		node->Tt.Class == ass.CInt && node->NT == NodeType::Const && node->IntVal >= 0);
 }
 
 Variable& Variable::operator=(const Node& o) {

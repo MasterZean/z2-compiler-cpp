@@ -2,6 +2,7 @@
 #define _z2clib_enitites_h_
 
 #include "objecttype.h"
+#include "source.h"
 
 class Constant: public Entity, public Moveable<Constant> {
 public:
@@ -9,6 +10,7 @@ public:
 	bool InUse = false;
 	ZClass* Parent = nullptr;
 	CParser::Pos Skip;
+	int Base = 10;
 
 	String StringValue(const Assembly& assembly) const;
 
@@ -36,7 +38,7 @@ public:
 
 class Block: Moveable<Block> {
 public:
-	WithDeepCopy<VectorMap<String, Variable>> Vars;
+	WithDeepCopy<VectorMap<String, Variable*>> Vars;
 	int Temps = 0;
 };
 
@@ -111,6 +113,7 @@ public:
 	int Loops = 0;
 	Variable* ZeroFirstVar = nullptr;
 	WithDeepCopy<Index<ZClass*>> CDeps;
+	WithDeepCopy<Array<Variable>> Variables;
 };
 
 class Def: public Entity, public Moveable<Def> {

@@ -145,8 +145,8 @@ public:
 	bool HasSe = false;
 	bool LValue = false;
 
-	double dDouble = 0;
-	int64  dInt = 0;
+	double DblVal = 0;
+	int64  IntVal = 0;
 	// TODO: fix
 	int reg;
 
@@ -169,8 +169,8 @@ public:
 	}
 	
 	void SetValue(int i, double d) {
-		dInt = i;
-		dDouble = d;
+		IntVal = i;
+		DblVal = d;
 	}
 
 	void Add(Node* node) {

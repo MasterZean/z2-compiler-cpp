@@ -158,7 +158,7 @@ bool ZParser::IsZId() {
 	return IsId();
 }
 
-int ZParser::ReadInt64(int64& oInt, double& oDub) {
+int ZParser::ReadInt64(int64& oInt, double& oDub, int& base) {
 	Point p = GetPoint();
 	int sign = Sgn();
 	double nf = 0;
@@ -167,16 +167,19 @@ int ZParser::ReadInt64(int64& oInt, double& oDub) {
 		if (*term == 'x' || *term == 'X') {
 			term++;
 			oInt = ReadNumber64Core(p, 16);
+			base = 16;
 			return ReadI(p, sign, oInt);
 		}
 		else if (*term == 'o' || *term == 'O') {
 			term++;
 			oInt = ReadNumber64Core(p, 8);
+			base = 8;
 			return ReadI(p, sign, oInt);
 		}
 		else if (*term == 'b' || *term == 'B') {
 			term++;
 			oInt = ReadNumber64Core(p, 2);
+			base = 2;
 			return ReadI(p, sign, oInt);
 		}
 		else if (IsAlNum(*term) && (*term != 'u' && *term != 's' && *term != 'l' && *term != 'p'))
@@ -184,10 +187,12 @@ int ZParser::ReadInt64(int64& oInt, double& oDub) {
 		else {
 			if (*term == '.' && IsDigit(*(term + 1))) {
 				oDub = 0;
+				base = 10;
 				return ReadF(p, sign, oDub);
 			}
 			else {
 				oInt = 0;
+				base = 10;
 				if (IsDigit(*term))
 					oInt = ReadNumber64Core(p, 10);
 				return ReadI(p, sign, oInt);
@@ -198,6 +203,7 @@ int ZParser::ReadInt64(int64& oInt, double& oDub) {
 	}
 	else {
 		//back = term;
+		base = 10;
 		oInt = ReadNumber64Core(p, 10);
 		if (*term == '.' && IsDigit(*(term + 1))) {
 			oDub = (double)oInt;
@@ -438,7 +444,7 @@ inline void SetConsoleTextAttribute(int, int) {
 
 #endif
 
-void ZSyntaxError::PrettyPrint(Context* con) {
+void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 #ifdef PLATFORM_WIN32
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Get handle to standard output
 	WORD                        m_currentConsoleAttr;
@@ -465,46 +471,46 @@ void ZSyntaxError::PrettyPrint(Context* con) {
 	while (con) {
 		SetConsoleTextAttribute(hConsole, cWhite);
 
-		Cout() << con->S->Package->Path << con->S->Path;
-		Cout() << "(" << con->P.x << ", " << con->P.y << "): ";
+		stream << con->S->Package->Path << con->S->Path;
+		stream << "(" << con->P.x << ", " << con->P.y << "): ";
 		SetConsoleTextAttribute(hConsole, cCyan);
-		Cout() << "context: ";
+		stream << "context: ";
 		SetConsoleTextAttribute(hConsole, cWhite);
 		if (!con->O) {
-			Cout() << "instantiating class '";
+			stream << "instantiating class '";
 			SetConsoleTextAttribute(hConsole, cCyan);
-			Cout() << con->C1->Scan.Name << "<" << con->C2->Scan.Name << ">";
+			stream << con->C1->Scan.Name << "<" << con->C2->Scan.Name << ">";
 			SetConsoleTextAttribute(hConsole, cWhite);
 			
-			Cout() << "'\n";
+			stream << "'\n";
 		}
 		else {
 			if (con->O->IsCons == 1) {
-				Cout() << "instantiating constructor '";
+				stream << "instantiating constructor '";
 				SetConsoleTextAttribute(hConsole, cCyan);
-				Cout() << con->C1->Scan.Name << "{" << con->O->PSig << "}";
+				stream << con->C1->Scan.Name << "{" << con->O->PSig << "}";
 				SetConsoleTextAttribute(hConsole, cWhite);
 			}
 			else if (con->O->IsCons == 2) {
-				Cout() << "instantiating constructor '";
+				stream << "instantiating constructor '";
 				SetConsoleTextAttribute(hConsole, cCyan);
-				Cout() << con->C1->Scan.Name << "." << con->O->Name << "{" << con->O->PSig << "}";
+				stream << con->C1->Scan.Name << "." << con->O->Name << "{" << con->O->PSig << "}";
 				SetConsoleTextAttribute(hConsole, cWhite);
 			}
 			else if (con->O->IsDest) {
-				Cout() << "instantiating destructor '";
+				stream << "instantiating destructor '";
 				SetConsoleTextAttribute(hConsole, cCyan);
-				Cout() << con->C1->Scan.Name << ".~{}";
+				stream << con->C1->Scan.Name << ".~{}";
 				SetConsoleTextAttribute(hConsole, cWhite);
 			}
 			else {
-				Cout() << "instantiating method '";
+				stream << "instantiating method '";
 				SetConsoleTextAttribute(hConsole, cCyan);
-				Cout() << con->C1->Scan.Name << "." << con->O->Name << "(" << con->O->PSig << ")";
+				stream << con->C1->Scan.Name << "." << con->O->Name << "(" << con->O->PSig << ")";
 				SetConsoleTextAttribute(hConsole, cWhite);
 			}
 			
-			Cout() << "'\n";
+			stream << "'\n";
 		}
 				
 		con = con->Next;
@@ -512,23 +518,23 @@ void ZSyntaxError::PrettyPrint(Context* con) {
 	
 	SetConsoleTextAttribute(hConsole, cWhite);
 
-	Cout() << Path;
-	Cout() << ": ";
+	stream << Path;
+	stream << ": ";
 	SetConsoleTextAttribute(hConsole, cRed);
-	Cout() << "error:\n\t";
+	stream << "error:\n\t";
 	
 	Vector<String> v = Split(Error, '\f', false);
 	int col = cWhite;
 	
 	for (int i = 0; i < v.GetCount(); i++) {
 		SetConsoleTextAttribute(hConsole, col);
-		Cout() << v[i];
+		stream << v[i];
 		if (col == cWhite)
 			col = cCyan;
 		else
 			col = cWhite;
 	}
-	Cout() << "\n";
+	stream << "\n";
 
 	SetConsoleTextAttribute(hConsole, m_currentConsoleAttr);
 }
