@@ -232,7 +232,7 @@ void Assembly::AddSource(ZSource& src) {
 				src.Declarations.Add(&cls2);
 			}
 			else
-				ErrorReporter::Dup(src, cls.Position, cls2.Position, cls.Scan.Name, GetFileName(src.Path));
+				ErrorReporter::Dup(src, cls.Position, cls2.Position, cls.Scan.Name, cls2.Source->Package->Path + cls2.Source->Path);
 		}
 		else {
 			ZClass& cls2 = Classes.Add(fullName, cls);

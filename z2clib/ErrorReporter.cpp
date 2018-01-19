@@ -1,5 +1,6 @@
 #include "ErrorReporter.h"
 #include <z2clib/Assembly.h>
+#include <z2clib/Node.h>
 
 void ErrorReporter::CantAccess(const ZSource& src, const Point& p, Overload& over, const String& cls) {
 	String err;
@@ -75,7 +76,6 @@ void ErrorReporter::CallError(const ZClass& cls, Point& p, Assembly& ass, Object
 			s << def->Name;
 		else
 			s << z;
-		
 	}
 	
 	if (cons)
@@ -99,7 +99,7 @@ void ErrorReporter::CallError(const ZClass& cls, Point& p, Assembly& ass, Object
 		for (int i = 0; i < def->Overloads.GetCount(); i++) {
 			Overload& ol = def->Overloads[i];
 			if (ol.IsCons == 1)
-				s << '\t\t' << "{" << ol.PSig << "}\n";
+				s << "\t\t" << "{" << ol.PSig << "}\n";
 			else if (ol.IsCons == 2)
 				s << "\t\t" << ol.Name << "{" << ol.PSig << "}\n";
 			else

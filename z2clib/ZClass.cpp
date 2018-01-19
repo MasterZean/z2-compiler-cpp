@@ -29,8 +29,10 @@ void ZClass::AddDefCons(ZParser& parser) {
 ZClass::~ZClass() {
 	for (int i = 0; i < Raws.GetCount(); i++)
 		delete Raws.GetValues()[i];
+	
 	for (int j = 0; j < Temps.GetCount(); j++)
 		delete Temps[j];
+	
 	delete Dest;
 	Dest = nullptr;
 }

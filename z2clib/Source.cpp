@@ -30,6 +30,7 @@ String s[] = {
 
 	"sys.core.lang.Intrinsic",
 	"sys.core.lang.Slice",
+	"sys.core.lang.ReadSlice",
 };
 
 void ZSource::AddStdClassRefs() {

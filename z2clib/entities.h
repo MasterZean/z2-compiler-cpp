@@ -84,12 +84,17 @@ public:
 	bool IsStdCall = false;
 	int IsVirtual = false;
 	bool IsConst = false;
+	bool IsNoDoc = false;
+	bool IsCDecl = false;
 	Def* Parent = nullptr;
 	String BackendName;
 	String BackendSuffix;
 	String PSig;
 	String PBSig;
 	String PCSig;
+	String BindName;
+	bool BindForce = false;
+	Point BindPoint;
 	WithDeepCopy<Index<String>> Initializes;
 	int IIndex = 0;
 	bool IsDest = false;
@@ -105,6 +110,8 @@ public:
 	AutoMode IsAuto = amNotAuto;
 	String AliasClass;
 	String AliasName;
+	Overload* Alias = nullptr;
+
 	Point AliasPos;
 	
 	int Score = 0;
@@ -114,6 +121,15 @@ public:
 	Variable* ZeroFirstVar = nullptr;
 	WithDeepCopy<Index<ZClass*>> CDeps;
 	WithDeepCopy<Array<Variable>> Variables;
+	
+	inline bool IsClassCopyCon() const;
+	inline bool IsClassMoveCon() const;
+	inline bool IsClassCopyOperator() const;
+	inline bool IsClassMoveOperator() const;
+	inline bool IsClassEqOperator() const;
+	inline bool IsClassNeqOperator() const;
+	
+	inline ZClass& Class();
 };
 
 class Def: public Entity, public Moveable<Def> {
@@ -168,6 +184,13 @@ public:
 		return over;
 	}
 };
+
+ZClass& Overload::Class() {
+	ASSERT(Parent);
+	ASSERT(Parent->Class);
+	
+	return *Parent->Class;
+}
 
 class ZClassSuper {
 public:
@@ -341,5 +364,29 @@ public:
 		return c;
 	}
 };
+
+bool Overload::IsClassCopyCon() const {
+	return IsCons == 1 && Parent->Class->Meth.CopyCon == this;
+}
+
+bool Overload::IsClassMoveCon() const {
+	return IsCons == 1 && Parent->Class->Meth.MoveCon == this;
+}
+
+bool Overload::IsClassCopyOperator() const {
+	return IsCons == 0 && Parent->Class->Meth.Copy == this;
+}
+
+bool Overload::IsClassMoveOperator() const {
+	return IsCons == 0 && Parent->Class->Meth.Move == this;
+}
+
+bool Overload::IsClassEqOperator() const {
+	return IsCons == 0 && Parent->Class->Meth.Eq == this;
+}
+
+bool Overload::IsClassNeqOperator() const {
+	return IsCons == 0 && Parent->Class->Meth.Neq == this;
+}
 
 #endif

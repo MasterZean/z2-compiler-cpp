@@ -5,7 +5,7 @@
 
 using namespace Upp;
 
-#include "Source.h"
+#include "source.h"
 #include <z2clib/Assembly.h>
 
 class Def;
@@ -26,10 +26,17 @@ protected:
 	ZSource& source;
 	String nameSpace;
 	Entity::AccessType insertAccess;
+	String bindName;
 	bool win;
+	bool isIntrinsic = false;
+	bool isDllImport = false;
+	bool isStdCall = false;
+	bool isNoDoc = false;
+	bool isForce = false;
+	bool isCDecl = false;
 
 	void ScanUsing();
-	void ScanClass();
+	void ScanClass(bool foreceStatic = false);
 	void ScanEnum();
 	void ScanNamespace();
 	void ScanAlias();
@@ -39,11 +46,15 @@ protected:
 	Def& ScanDef(ZClass& cls, bool cons, bool stat = false, int virt = 0, bool cst = false);
 	void ScanToken();
 	void ScanBlock();
-	void ClassLoop(ZClass& cls, bool cond = true);
+	void ClassLoop(ZClass& cls, bool cond = true, bool foreceStatic = false);
 	void EnumLoop(ZClass& cls);
 	void ScanType();
 	void ScanIf();
 	void ScanIf(ZClass& cls);
+	
+	void InterpretTrait(const String& trait);
+	void ScanDefAlias(Overload& over);
+	void TraitLoop();
 };
 
 #endif

@@ -62,6 +62,37 @@ struct BuildMethod: public Moveable<BuildMethod> {
 	#endif
 	}
 	
+	static int ErrorCode(int code) {
+	#ifdef PLATFORM_WIN32
+		return code;
+	#endif
+	#ifdef PLATFORM_POSIX
+		byte c = (byte)code;
+		if (c == 0)
+			c = 1;
+		
+		return c;
+	#endif
+	}
+	
+	static int SuccessCode(int code) {
+	#ifdef PLATFORM_WIN32
+		return code;
+	#endif
+	#ifdef PLATFORM_POSIX
+		return 0;
+	#endif
+	}
+	
+	static bool IsSuccessCode(int code) {
+	#ifdef PLATFORM_WIN32
+		return code >= 0;
+	#endif
+	#ifdef PLATFORM_POSIX
+		return code == 0;
+	#endif
+	}
+	
 private:
 	bool TestLib(bool px86, bool px64);
 	

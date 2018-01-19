@@ -124,7 +124,7 @@ void BaseCppNodeWalker::Walk(ConstNode& node, Stream& stream) {
 		stream << "::Class(" << ccc.RTTIIndex << ")";
 	}
 	else if (node.Tt.Class == ass.CNull)
-		stream << 0;
+		stream << "nullptr";
 	else if (node.Tt.Class == ass.CString)
 		stream << "S_[" << (int)node.IntVal << ']';
 	else if (node.Tt.Class->Scan.IsEnum) {
@@ -156,10 +156,10 @@ void BaseCppNodeWalker::WriteLocalCArrayLiteralElement(Stream& cs, const ZClass&
 		return;
 	}
 	
-	if ((n.NT == NodeType::Temporary && ((TempNode&)n).ol->IsCons == 2)) {
+	if ((n.NT == NodeType::Temporary && ((TempNode&)n).Overload->IsCons == 2)) {
 		TempNode& t = (TempNode&)n;
 		cs << name << "[" << indexStr << "].";
-		cs << t.ol->BackendName;
+		cs << t.Overload->BackendName;
 		
 		cs << '(';
 		Node* pp = t.First;
@@ -193,9 +193,19 @@ void BaseCppNodeWalker::WriteLocalCArrayLiteral(Stream& cs, const ZClass& ce, co
 		cs << "[" << countStr << ']';
 	}
 	else {
-		cs << "alignas(";
+		/*cs << "alignas(";
 		WriteClassName(ce);
-		cs << ") char _" << name;
+		cs << ") ";*/
+		
+		/*cs << "__declspec(align(sizeof(";
+		WriteClassName(ce);
+		cs << ")) ";*/
+		
+		/*cs << "__declspec(align(4";
+		//WriteClassName(ce);
+		cs << ")) ";*/
+		
+		cs << "char _" << name;
 		cs << "[" << countStr << " * sizeof(";
 		WriteClassName(ce);
 		cs << ")]";
@@ -243,5 +253,297 @@ void BaseCppNodeWalker::WriteLocalCArrayLiteral(Stream& cs, const ZClass& ce, co
 	
 	rawSize = temprawSize;
 	rawIndex = temprawIndex;
+}
+
+bool BaseCppNodeWalker::WriteReturnType(Stream& cs, Overload &over) {
+	ZClass& cls = over.Class();
+	
+	// constructors
+	if (over.IsCons == 1) {
+		if (cls.CoreSimple) {
+			if (cls.MIsRawVec)
+				cs << "void";
+			else
+				cs << cls.BackendName;
+			
+			return true;
+		}
+		
+		return false;
+	}
+	else if (over.IsCons == 2) {
+		cs << cls.BackendName;
+		
+		if (cls.CoreSimple == false)
+			cs << "&";
+		
+		return true;
+	}
+
+	// normal functions
+	if (over.IsClassCopyOperator())
+		cs << cls.BackendName << "&";
+	else if (over.IsClassMoveOperator())
+		cs << cls.BackendName << "&";
+	else if (!over.IsDest) {
+		if (ass.IsPtr(over.Return.Tt))
+			cs << over.Return.Tt.Next->Class->BackendName << "*";
+		else if (over.Return.IsRef)
+			cs << over.Return.Tt.Class->BackendName << "*";
+		else {
+			cs << over.Return.Tt.Class->BackendName;
+			if (over.Return.Tt.Class->Scan.IsEnum)
+				cs << "::Type";
+		}
+	}
+	
+	return true;
+}
+
+void BaseCppNodeWalker::WriteOverloadDefinition(Stream& cs, Overload &over) {
+	ZClass& cls = over.Class();
+	
+	if (over.IsVirtual)
+		cs << "virtual ";
+	else if (over.IsInline)
+		cs << "inline ";
+	// TODO: fix
+	else if (over.IsClassCopyCon() || over.IsClassMoveCon() || over.IsClassCopyOperator() || over.IsClassMoveOperator() || over.IsClassEqOperator() || over.IsClassNeqOperator())
+		cs << "inline ";
+	
+	if (cls.CoreSimple || over.IsStatic)
+		cs << "static ";
+	
+	if (WriteReturnType(cs, over))
+		cs << " ";
+	
+	WriteOverloadNameParams(cs, over);
+}
+
+void BaseCppNodeWalker::WriteOverloadDeclaration(Stream& cs, Overload &over) {
+	ZClass& cls = over.Class();
+	
+	// TODO: fix for BindName
+	if (over.BindName.GetCount())
+		cs << "extern \"C\" ";
+	
+	// write return type
+	if (WriteReturnType(cs, over))
+		cs << " ";
+	
+	// write call convention
+	if (over.IsStdCall)
+		 cs << "__stdcall ";
+	if (over.IsCDecl)
+		 cs << "__CDECL ";
+	
+	// write class name
+	if (cls.CoreSimple) {
+		if (cls.FromTemplate)
+			cs << cls.BackendName;
+		else
+			cs << cls.Scan.Name;
+	}
+	else if (over.BindName.GetCount() == 0)
+		cs << cls.BackendName;
+	
+	// TODO: fix for BindName
+	if (over.BindName.GetCount() == 0)
+		cs << "::";
+	
+	WriteOverloadNameParams(cs, over);
+}
+
+void BaseCppNodeWalker::WriteOverloadVoidingList(Stream& cs, Overload &over) {
+	ZClass& cls = over.Class();
+	
+	// write initializers
+	if (over.IsCons == 1 && cls.Vars.GetCount()) {
+		bool first = true;
+		
+		for (int i = 0; i < cls.Vars.GetCount(); i++) {
+			Variable& c = cls.Vars[i];
+			
+			if (!c.IsStatic && !c.I.Tt.Class->CoreSimple) {
+				if (first)
+					cs << ": ";
+				else
+					cs << ", ";
+				
+				cs << c.Name << "(_Void)";
+				
+				first = false;
+			}
+		}
+	}
+}
+
+void BaseCppNodeWalker::WriteOverloadNameParams(Stream& cs, Overload &over) {
+	ZClass& cls = over.Class();
+	
+	// name and parameters
+	// special functions
+	if (over.IsClassCopyCon()) {
+		cs << cls.BackendName << "(const " << cls.BackendName << "& _copy)";
+		return;
+	}
+	else if (over.IsClassMoveCon()) {
+		cs << cls.BackendName << "(" << cls.BackendName << "&& _copy)";
+		return;
+	}
+	else if (over.IsClassCopyOperator()) {
+		cs << "operator=" << "(const " << cls.BackendName << "& _copy)";
+		return;
+	}
+	else if (over.IsClassMoveOperator()) {
+		cs << "operator=" << "(" << cls.BackendName << "&& _copy)";
+		return;
+	}
+	else if (EqOperator && over.IsClassEqOperator()) {
+		cs << "operator==" << "(const " << cls.BackendName << "& _copy)";
+		if (WriteCtQual && over.IsConst)
+			cs << " const ";
+		
+		return;
+	}
+	else if (EqOperator && over.IsClassNeqOperator()) {
+		cs << "operator!=" << "(const " << cls.BackendName << "& _copy)";
+		if (WriteCtQual && over.IsConst)
+			cs << " const ";
+		
+		return;
+	}
+	
+	// write parameters
+	// normal functions
+	if (over.IsCons == 1) {
+		if (cls.CoreSimple)
+			cs << over.BackendName;
+		else
+			cs << cls.BackendName;
+		cs << "(";
+		WriteParams(cs, over, cls, false);
+	}
+	else if (over.IsCons == 2) {
+		cs << over.BackendName;
+		cs << "(";
+		WriteParams(cs, over, cls, false);
+	}
+	else if (cls.CoreSimple) {
+		if (cls.Scan.Name != over.Name)
+			cs << over.BackendName;
+		cs << "(";
+		WriteParams(cs, over, cls, true);
+		
+	}
+	else if (over.BindName.GetCount()) {
+		cs << over.BindName << "(";
+		WriteParams(cs, over, cls, false);
+	}
+	else {
+		cs << over.BackendName << '(';
+		WriteParams(cs, over, cls, false);
+	}
+}
+
+void BaseCppNodeWalker::WriteParams(Stream& cs, Overload& over, ZClass& cls, bool ths) {
+	if (ths) {
+		if (cls.MIsRawVec) {
+			if (over.IsStatic == false) {
+				cs << cls.T->BackendName << "*";
+				cs << " " << "_this";
+				cs << ", size_t _" << "this" << "_len";
+				
+				if (over.Params.GetCount())
+					cs << ", ";
+			}
+		}
+		else {
+			if (ass.IsPtr(cls.Tt))
+				cs << "void" << '*';
+			else {
+				cs << cls.BackendName;
+				if (cls.Scan.IsEnum)
+					cs << "::Type";
+				
+				if (!cls.CoreSimple)
+					cs << '&';
+				cs << ' ';
+			}
+			cs << "_this";
+			if (over.Params.GetCount())
+				cs << ", ";
+		}
+	}
+	else if (cls.MIsRawVec) {
+		cs << cls.T->BackendName << "* _this, size_t _this_len";
+		if (over.Params.GetCount())
+			cs << ", ";
+	}
+	
+	for (int j = 0; j < over.Params.GetCount(); j++) {
+		Variable& p = over.Params[j];
+
+		if (ass.IsPtr(p.I.Tt)) {
+			if (p.I.Tt.Next->Class->MIsRawVec)
+				cs << p.I.Tt.Class->T->BackendName << "*";
+			else
+				cs << p.I.Tt.Next->Class->BackendName << "*";
+			cs << " " << p.Name;
+		}
+		else if (p.I.IsRef) {
+			if (p.I.Tt.Class->MIsRawVec) {
+				cs << p.I.Tt.Class->T->BackendName << "*";
+				cs << " " << p.Name;
+				if (p.I.Tt.Param == -1)
+					cs << ", size_t _" << p.Name << "_len";
+			}
+			// TODO: ADD OPT
+			else if (p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
+				cs << p.I.Tt.Class->T->BackendName << "*";
+				cs << " " << p.Name;
+				//if (p.I.Tt.Param == -1)
+				cs << ", size_t *_" << p.Name << "_len";
+			}
+			else {
+				cs << p.I.Tt.Class->BackendName << "*";
+				cs << " " << p.Name;
+			}
+		}
+		else if (p.I.Tt.Class->MIsRawVec) {
+			cs << p.I.Tt.Next->Class->BackendName << "*";
+			cs << " " << p.Name;
+			if (p.I.Tt.Param == -1)
+				cs << ", size_t _" << p.Name << "_len";
+		}
+		else if (p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
+			cs << p.I.Tt.Class->T->BackendName << "*";
+			cs << " " << p.Name;
+			//if (p.I.Tt.Param == -1)
+			cs << ", size_t *_" << p.Name << "_len";
+		}
+		else if (p.IsCppRef) {
+			if (WriteCtQual && p.I.IsConst)
+				cs << "const ";
+			cs << p.I.Tt.Class->BackendName;
+			if (!p.I.Tt.Class->CoreSimple)
+				cs << "&";
+			cs << " " << p.Name;
+		}
+		else {
+			cs << p.I.Tt.Class->BackendName;
+			if (p.I.Tt.Class->Scan.IsEnum)
+				cs << "::Type";
+			cs << " " << p.Name;
+		}
+
+		if (j < over.Params.GetCount() - 1)
+			cs << ", ";
+	}
+
+	cs << ")";
+	
+	if (WriteCtQual && over.IsConst && !cls.CoreSimple && !over.IsStatic)
+		cs << " const";
 }
 

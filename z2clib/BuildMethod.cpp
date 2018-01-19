@@ -284,7 +284,9 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 	}
 	bool res = lp.GetExitCode() == 0;
 	
-	if (res && tt.GetLength()) {
+	String cppExe = TrimBoth(tt);
+	
+	if (res && cppExe.GetLength()) {
 		String p = GetTempPath();
 		String pc = p + "/A42.cpp";
 		String po = p + "/A42";
@@ -297,10 +299,10 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 		BuildMethod gcc;
 		gcc.Name = "GCC";
 		gcc.Type = btGCC;
-		gcc.Compiler = TrimBoth(tt);
+		gcc.Compiler = cppExe;
 		
 		{
-			LocalProcess lp("c++ " + pc + " -m32 -o " + po);
+			LocalProcess lp(cppExe + " " + pc + " -m32 -o " + po);
 			tt = "";
 			while (lp.Read(t)) {
 				if (t.GetCount())
@@ -314,7 +316,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 		
 		
 		{
-			LocalProcess lp("c++ " + pc + " -m64 -o " + po);
+			LocalProcess lp(cppExe + " " + pc + " -m64 -o " + po);
 			tt = "";
 			while (lp.Read(t)) {
 				if (t.GetCount())
@@ -383,8 +385,10 @@ bool BuildMethod::TestLib(bool px86, bool px64) {
 		for (int i = x86ucrt.GetCount() - 1; i >= 0; i--) {
 			Lib32 << Sdk + x86ucrt[i];
 		}
-		if (FileExists(Compiler + "\\VC\\lib\\*.lib"))
+		if (FileExists(Compiler + "\\VC\\lib\\LIBCMT.lib"))
 			Lib32 << Compiler + "\\VC\\lib\\";
+		else
+			Lib32.Clear();
 	}
 	
 	
@@ -426,10 +430,13 @@ bool BuildMethod::TestLib(bool px86, bool px64) {
 		for (int i = x86ucrt.GetCount() - 1; i >= 0; i--) {
 			Lib64 << Sdk + x86ucrt[i];
 		}
-		if (FileExists(Compiler + "\\VC\\lib\\amd64\\*.lib"))
+		
+		if (FileExists(Compiler + "\\VC\\lib\\amd64\\LIBCMT.lib"))
 			Lib64 << Compiler + "\\VC\\lib\\amd64\\";
-		else if (FileExists(Compiler + "\\VC\\lib\\*.lib"))
+		else if (FileExists(Compiler + "\\VC\\lib\\LIBCMT.lib"))
 			Lib64 << Compiler + "\\VC\\lib\\";
+		else
+			Lib64.Clear();
 	}
 	
 	return !Lib32.IsEmpty() || !Lib64.IsEmpty();

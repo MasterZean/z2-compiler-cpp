@@ -158,7 +158,7 @@ bool ZParser::IsZId() {
 	return IsId();
 }
 
-int ZParser::ReadInt64(int64& oInt, double& oDub, int& base) {
+ZParser::NumberType ZParser::ReadInt64(int64& oInt, double& oDub, int& base) {
 	Point p = GetPoint();
 	int sign = Sgn();
 	double nf = 0;
@@ -198,8 +198,10 @@ int ZParser::ReadInt64(int64& oInt, double& oDub, int& base) {
 				return ReadI(p, sign, oInt);
 			}
 		}
+		
 		ASSERT(0);
-		return 0;
+		
+		return ntInvalid;
 	}
 	else {
 		//back = term;
@@ -244,25 +246,7 @@ uint64 ZParser::ReadNumber64Core(Point& p, int base) {
 	return n;
 }
 
-union Double_t
-{
-    Double_t(double val) : f(val) {}
-    // Portable extraction of components.
-    bool Negative() const { return (i >> 63) != 0; }
-    
-    int64 i;
-    double f;
-#ifdef _DEBUG
-    struct
-    { // Bitfields for exploration. Do not use in production code.
-        uint64 mantissa : 52;
-        uint64 exponent : 11;
-        uint64 sign : 1;
-    } parts;
-#endif
-};
-
-int ZParser::ReadF(Point& p, int sign, double& oDub) {
+ZParser::NumberType ZParser::ReadF(Point& p, int sign, double& oDub) {
 	term++;
 	double nf = oDub;
 	double q = 1;
@@ -283,10 +267,10 @@ int ZParser::ReadF(Point& p, int sign, double& oDub) {
 	oDub = nf;
 	Spaces();
 	
-	return f ? 5 : 4;
+	return f ? ntFloat : ntDouble;
 }
 
-int ZParser::ReadI(Point& p, int sign, int64& oInt) {
+ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 	int64 i = oInt;
 	if(sign > 0 ? i > INT64_MAX : i > (uint64)INT64_MAX + 1)
 		Error(p, "integer constant is too big");
@@ -294,20 +278,26 @@ int ZParser::ReadI(Point& p, int sign, int64& oInt) {
 	bool l = false;
 	bool u = false;
 	bool ps = false;
+	
+	NumberType nt = ntInt;
+	
 	if (*term == 'l') {
 		term++;
 		l = true;
 		if (IsAlNum(*term))
 			Error(p, "invalid numeric literal");
+		nt = ntLong;
 	}
 	else if (*term == 'u') {
 		term++;
 		u = true;
+		nt = ntDWord;
 		if (*term == 'l') {
 			term++;
 			l = true;
 			if (IsAlNum(*term))
 				Error(p, "invalid numeric literal");
+			nt = ntQWord;
 		}
 		else if (IsAlNum(*term))
 			Error(p, "invalid numeric literal");
@@ -319,6 +309,7 @@ int ZParser::ReadI(Point& p, int sign, int64& oInt) {
 			l = true;
 			if (IsAlNum(*term))
 				Error(p, "invalid numeric literal");
+			nt = ntLong;
 		}
 		else if (IsAlNum(*term))
 			Error(p, "invalid numeric literal");
@@ -326,6 +317,7 @@ int ZParser::ReadI(Point& p, int sign, int64& oInt) {
 	else if (*term == 'p') {
 		term++;
 		ps = true;
+		nt = ntPtrSize;
 	}
 	if (u) {
 		if (sign == -1)
@@ -338,9 +330,11 @@ int ZParser::ReadI(Point& p, int sign, int64& oInt) {
 		if ((i < -2147483648LL || i > 2147483647) && !l)
 			Error(p, "'Long' literal constants require a 'l' sufix");
 	}
+	
 	oInt = i;
 	Spaces();
-	return ps ? 6 : ((u ? 1: 0) + (l ? 2 : 0));
+	
+	return nt;//ps ? ntPtrSize : ((u ? ntDword: 0) + (l ? 2 : 0));
 }
 
 uint32 ZParser::ReadChar() {
@@ -476,7 +470,7 @@ void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 		SetConsoleTextAttribute(hConsole, cCyan);
 		stream << "context: ";
 		SetConsoleTextAttribute(hConsole, cWhite);
-		if (!con->O) {
+		if (!con->O && !con->D) {
 			stream << "instantiating class '";
 			SetConsoleTextAttribute(hConsole, cCyan);
 			stream << con->C1->Scan.Name << "<" << con->C2->Scan.Name << ">";
@@ -485,7 +479,13 @@ void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 			stream << "'\n";
 		}
 		else {
-			if (con->O->IsCons == 1) {
+			if (con->D) {
+				stream << "calling method '";
+				SetConsoleTextAttribute(hConsole, cCyan);
+				stream << con->C1->Scan.Name << "." << con->D->Name/* << "(" << con->O->PSig << ")"*/;
+				SetConsoleTextAttribute(hConsole, cWhite);
+			}
+			else if (con->O->IsCons == 1) {
 				stream << "instantiating constructor '";
 				SetConsoleTextAttribute(hConsole, cCyan);
 				stream << con->C1->Scan.Name << "{" << con->O->PSig << "}";
@@ -606,3 +606,23 @@ void ZParser::SkipBlock() {
 	}
 	Spaces();
 }
+
+/*
+union Double_t
+{
+    Double_t(double val) : f(val) {}
+    // Portable extraction of components.
+    bool Negative() const { return (i >> 63) != 0; }
+    
+    int64 i;
+    double f;
+#ifdef _DEBUG
+    struct
+    { // Bitfields for exploration. Do not use in production code.
+        uint64 mantissa : 52;
+        uint64 exponent : 11;
+        uint64 sign : 1;
+    } parts;
+#endif
+};
+*/

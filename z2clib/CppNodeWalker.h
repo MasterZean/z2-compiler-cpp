@@ -5,6 +5,9 @@
 
 class BaseCppNodeWalker: public NodeWalker {
 public:
+	bool WriteCtQual = false;
+	bool EqOperator = true;
+	
 	BaseCppNodeWalker(Assembly& ass, Stream& s): NodeWalker(ass, s) {
 	}
 	
@@ -18,6 +21,13 @@ public:
 			*cs << "::";
 		*cs << ce.BackendName;
 	}
+	
+	void WriteOverloadDefinition(Stream& cs, Overload &over);
+	void WriteOverloadDeclaration(Stream& cs, Overload &over);
+	void WriteOverloadNameParams(Stream& cs, Overload &over);
+	void WriteOverloadVoidingList(Stream& cs, Overload &over);
+	bool WriteReturnType(Stream& cs, Overload &over);
+	void WriteParams(Stream& cs, Overload& over, ZClass& cls, bool ths);
 	
 protected:
 	size_t rawIndex = -1;
