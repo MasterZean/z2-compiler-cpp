@@ -1,7 +1,7 @@
 #include "OverloadResolver.h"
 #include "Node.h"
 
-Overload* OverloadResolver::Resolve(Def& def, Vector<Node*>& params, ZClass* spec) {
+Overload* OverloadResolver::Resolve(Def& def, Vector<Node*>& params, ZClass* spec, bool conv) {
 	// no result if no overloads exist
 	if (def.Overloads.GetCount() == 0)
 		return nullptr;
@@ -29,7 +29,7 @@ Overload* OverloadResolver::Resolve(Def& def, Vector<Node*>& params, ZClass* spe
 		return nullptr;
 	
 	// if specialization if requested, try to look it up for early return
-	if (spec && def.Overloads.GetCount() != 0 && candidates.GetCount() != 0) {
+	if (spec && def.Overloads.GetCount() != 0/* && candidates.GetCount() != 0*/) {
 		// TODO
 		ASSERT(candidates.GetCount() == 1);
 		
@@ -55,5 +55,524 @@ Overload* OverloadResolver::Resolve(Def& def, Vector<Node*>& params, ZClass* spe
 	
 	score = 1;
 	
+	return GatherParIndex(candidates, params, 0, conv);
+}
+
+Overload* OverloadResolver::GatherParIndex(Vector<Overload*>& oo, Vector<Node*>& params, int pi, bool conv) {
+	Node& n = *params[pi];
+	ObjectInfo& a = n;
+	
+	if (ass.IsNumeric(a.Tt)) {
+		Overload* o1 = GatherNumeric(oo, params, pi, a.Tt.Class, conv);
+		if (conv && !o1 && a.C1) {
+			o1 = GatherNumeric(oo, params, pi, a.C1, conv);
+			if (!o1 && a.C2) {
+				o1 = GatherNumeric(oo, params, pi, a.C2, conv);
+				return o1;
+			}
+			else
+				return o1;
+		}
+		else
+			return o1;
+	}
+	else if (a.Tt.Class->MIsRawVec) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		gi.Count = 0; GatherD(oo, params, pi, gi, n, a, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		//if (conv) {
+			gi.Count = 0; GatherR(oo, params, pi, gi, a, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		//}
+	}
+	else {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+
+		if (n.IsMove || a.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherDRef(oo, params, pi, gi, a, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; GatherD(oo, params, pi, gi, n, a, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		
+		gi.Count = 0; GatherS(oo, params, pi, gi, n, a, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	
 	return nullptr;
+}
+
+Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& params, int pi, ZClass* cls, bool conv) {
+	Node& n = *params[pi];
+	ObjectInfo& a = n;
+
+	if (cls == ass.CInt) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CInt->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CByte) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CByte->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1 && ambig) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CByte->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CWord->Tt, &ass.CDWord->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt, &ass.CInt->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CWord) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CWord->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CWord->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CDWord) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CDWord->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CSmall) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CSmall->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt, &ass.CInt->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CShort) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CShort->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else if (cls == ass.CFloat) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CFloat->Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, true);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDouble->Tt, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	else {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		if (n.LValue || a.IsRef) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &a.Tt, conv);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		gi.Count = 0; GatherD(oo, params, pi, gi, n, a, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; GatherS(oo, params, pi, gi, n, a, conv);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	
+	return nullptr;
+}
+
+void OverloadResolver::GatherRef(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node&n, ObjectInfo& a, ObjectType* ot, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		if (f.IsRef && f.Tt == ot && f.IsMove == false)
+			temp.Add(&over);
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node&n, ObjectInfo& a, ObjectType* ot, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		if (conv || (!conv && over.Params[pi].FromTemplate == false))
+			if (f.IsRef) {
+				if (f.IsMove == false && (a.IsRef || n.LValue)) {
+					if (f.Tt == ot)
+						temp.Add(&over);
+				}
+			}
+			else {
+				if (f.Tt == ot)
+					temp.Add(&over);
+			}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+
+void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ObjectInfo& a, ObjectType* ot, ObjectType* ot2, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		if (conv || (!conv && over.Params[pi].FromTemplate == false))
+			if (f.IsRef) {
+				if (f.IsMove == false && (a.IsRef || n.LValue)) {
+					if (f.Tt == ot || f.Tt == ot2)
+						temp.Add(&over);
+				}
+			}
+			else {
+				if (f.Tt == ot || f.Tt == ot2)
+					temp.Add(&over);
+			}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherD(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ObjectInfo& a, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		
+		if (f.IsRef && !f.IsConst && !a.IsConst && !f.IsMove) {
+			if (a.IsRef || n.LValue) {
+				if (TypesEqualD(ass, &f.Tt, &a.Tt))
+					temp.Add(&over);
+			}
+		}
+		else {
+			if (!f.IsMove && (f.IsConst == a.IsConst || (f.IsConst && !a.IsConst)) && TypesEqualD(ass, &f.Tt, &a.Tt))
+				temp.Add(&over);
+		}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherDRef(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ObjectInfo& a, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		if (f.IsRef && !f.IsMove && !f.IsConst && !a.IsConst && TypesEqualD(ass, &f.Tt, &a.Tt))
+			temp.Add(&over);
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherDMove(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ObjectInfo& a, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		//if (f.IsRef && !f.IsConst && TypesEqualD(ass, &f.Tt, &a.Tt))
+		if (f.IsMove && TypesEqualD(ass, &f.Tt, &a.Tt))
+			temp.Add(&over);
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherR(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ObjectInfo& a, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+		if (f.Tt.Class->MIsRawVec && f.Tt.Class->T == a.Tt.Class->T && f.Tt.Param == -1)
+			temp.Add(&over);
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherS(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ObjectInfo& a, bool conv) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ObjectInfo& f = over.Params[pi].I;
+
+		if (f.IsRef && !f.IsConst && !f.IsMove) {
+			if (a.IsRef || n.LValue) {
+				if (TypesEqualS(ass, &f.Tt, &a.Tt))
+					temp.Add(&over);
+			}
+		}
+		else {
+			if (!f.IsMove && TypesEqualS(ass, &f.Tt, &a.Tt))
+				temp.Add(&over);
+		}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1, conv);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+bool OverloadResolver::TypesEqualD(Assembly& ass, ObjectType* t1, ObjectType* t2) {
+	if (t1->Class == ass.CPtr && t2->Class == ass.CNull)
+		return true;
+	
+	while (t1) {
+		if (t1->Class != t2->Class || t1->Param != t2->Param)
+			return false;
+		t1 = t1->Next;
+		t2 = t2->Next;
+	}
+	return true;
+}
+
+bool OverloadResolver::TypesEqualSD(Assembly& ass, ObjectType* t1, ObjectType* t2) {
+	if (t2->Class->Super.Class != nullptr) {
+		ZClass* c = t2->Class;
+		t2->Class = t2->Class->Super.Class;
+		bool b = TypesEqualSD(ass, t1, t2);
+		t2->Class = c;
+		return b;
+	}
+	while (t1) {
+		if (t1->Class != t2->Class || t1->Param != t2->Param)
+			return false;
+		t1 = t1->Next;
+		t2 = t2->Next;
+	}
+	return true;
+}
+
+bool OverloadResolver::TypesEqualS(Assembly& ass, ObjectType* t1, ObjectType* t2) {
+	return TypesEqualSD(ass, t1, t2);
 }

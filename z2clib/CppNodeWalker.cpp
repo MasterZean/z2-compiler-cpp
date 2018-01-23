@@ -162,12 +162,11 @@ void BaseCppNodeWalker::WriteLocalCArrayLiteralElement(Stream& cs, const ZClass&
 		cs << t.Overload->BackendName;
 		
 		cs << '(';
-		Node* pp = t.First;
-		while (pp) {
+		for (int i = 0; i < t.Params.GetCount(); i++) {
+			Node* pp = t.Params[i];
 			WalkNode(pp);
-			if (pp->Next)
+			if (i < t.Params.GetCount() - 1)
 				cs << ", ";
-			pp = pp->Next;
 		}
 		cs << ')';
 	}

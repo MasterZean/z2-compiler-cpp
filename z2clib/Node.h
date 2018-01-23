@@ -157,8 +157,13 @@ public:
 	}
 };
 
+// abstract
+class ParamsNode: public Node {
+public:
+	Vector<Node*> Params;
+};
 
-class TempNode: public Node {
+class TempNode: public ParamsNode {
 public:
 	Overload *Overload = nullptr;
 
@@ -280,7 +285,7 @@ public:
 	}
 };
 
-class IntNode: public Node {
+class IntNode: public ParamsNode {
 public:
 	enum Type {
 		itPtrFree,
@@ -322,9 +327,10 @@ public:
 	}
 };
 
-class ConstructNode: public Node {
+class ConstructNode: public ParamsNode {
 public:
 	Overload *Overload = nullptr;
+	Node* Object = nullptr;
 
 	ConstructNode() {
 		NT = NodeType::ntConstruct;
@@ -348,7 +354,7 @@ public:
 	}
 };
 
-class DefNode: public Node {
+class DefNode: public ParamsNode {
 public:
 	Overload* Overload = nullptr;
 	Node* Object = nullptr;
