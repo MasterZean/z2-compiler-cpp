@@ -1,0 +1,27 @@
+uses
+	CtrlLib,
+	TabBar,
+	z2clib,
+	z2clibex,
+	CodeEditorFork,
+	plugin/ndisasm,
+	HexView;
+
+file
+	AssemblyBrowser.hpp,
+	AssemblyBrowser.cpp,
+	EditorManager.hpp,
+	EditorManager.cpp,
+	zide.h,
+	zide.cpp,
+	zide_bar.cpp,
+	zide_docnav.cpp,
+	ItemDisplay.cpp,
+	ItemDisplay.hpp,
+	zide.lay,
+	zide.iml,
+	zide.rc;
+
+mainconfig
+	"" = "GUI MT SSE2";
+

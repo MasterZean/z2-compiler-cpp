@@ -1,0 +1,8 @@
+#ifndef _zide_icpp_init_stub
+#define _zide_icpp_init_stub
+#include "CtrlLib/init"
+#include "TabBar/init"
+#include "z2clib/init"
+#include "CodeEditorFork/init"
+#include "z2clibex/init"
+#endif

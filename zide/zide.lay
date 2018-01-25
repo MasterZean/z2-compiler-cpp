@@ -1,0 +1,65 @@
+LAYOUT(ZideLayout, 800, 600)
+	ITEM(CodeEditor, edtDymmy, LeftPosZ(112, 56).TopPosZ(88, 15))
+END_LAYOUT
+
+LAYOUT(GoToLayout, 176, 60)
+	ITEM(Label, dv___0, SetLabel(t_("Go to line:")).LeftPosZ(8, 68).TopPosZ(8, 20))
+	ITEM(EditInt, dv___1, LeftPosZ(84, 84).TopPosZ(8, 19))
+	ITEM(Button, btnGo, SetLabel(t_("Go!")).LeftPosZ(16, 64).TopPosZ(36, 20))
+	ITEM(Button, btnCancel, SetLabel(t_("Cancel")).LeftPosZ(92, 64).TopPosZ(36, 20))
+END_LAYOUT
+
+LAYOUT(ExploreLayout, 144, 412)
+	ITEM(Label, dv___0, SetLabel(t_("Navigation:")).LeftPosZ(4, 104).TopPosZ(0, 19))
+	ITEM(TreeCtrl, lstItems, HSizePosZ(0, 0).VSizePosZ(20, 0))
+END_LAYOUT
+
+LAYOUT(SetupHlLayout, 544, 288)
+	ITEM(Label, dv___0, SetLabel(t_("Language:")).LeftPosZ(4, 72).TopPosZ(4, 19))
+	ITEM(DropList, lstLanguage, LeftPosZ(80, 100).TopPosZ(4, 19))
+	ITEM(Button, btnRestore, SetLabel(t_("Restore Defaults")).RightPosZ(4, 120).TopPosZ(4, 20))
+	ITEM(ArrayCtrl, arcStyle, HSizePosZ(4, 4).VSizePosZ(28, 4))
+END_LAYOUT
+
+LAYOUT(SetupEditorLayout, 544, 200)
+	ITEM(Label, dv___0, SetLabel(t_("Tab size")).LeftPosZ(4, 108).TopPosZ(4, 19))
+	ITEM(EditIntSpin, tabsize, LeftPosZ(116, 52).TopPosZ(4, 19))
+	ITEM(Label, dv___2, SetLabel(t_("Paint line at column")).HSizePosZ(4, 432).TopPosZ(24, 19))
+	ITEM(EditIntSpin, LinePos, Min(0).LeftPosZ(116, 52).TopPosZ(24, 19))
+	ITEM(ColorPusher, LineColor, LeftPosZ(172, 48).TopPosZ(24, 19))
+	ITEM(Option, showtabs, SetLabel(t_("Show tabs")).LeftPosZ(4, 272).TopPosZ(56, 16))
+	ITEM(Option, showspaces, SetLabel(t_("Show spaces")).LeftPosZ(4, 272).TopPosZ(72, 16))
+	ITEM(Option, warnwhitespace, SetLabel(t_("Show possibly misplaced tabs and spaces")).HSizePosZ(4, 268).TopPosZ(104, 16))
+	ITEM(Option, indentspaces, SetLabel(t_("Indent using spaces")).HSizePosZ(172, 244).TopPosZ(4, 16))
+	ITEM(Option, HighlightLine, SetLabel(t_("Highlight current line")).LeftPosZ(4, 236).TopPosZ(144, 16))
+	ITEM(Option, optThousands, SetLabel(t_("Separate thousands")).LeftPosZ(4, 236).TopPosZ(160, 16))
+	ITEM(Option, ShowLineNums, SetLabel(t_("Show line numbers")).LeftPosZ(4, 236).TopPosZ(128, 16))
+	ITEM(Option, shownewlines, SetLabel(t_("Show newlines")).LeftPosZ(4, 272).TopPosZ(88, 16))
+	ITEM(Label, dv___13, SetLabel(t_("File tabbar position")).LeftPosZ(304, 108).TopPosZ(4, 19))
+	ITEM(DropList, filetabs, LeftPosZ(416, 64).TopPosZ(4, 19))
+	ITEM(Label, dv___15, SetLabel(t_("Tab close button")).LeftPosZ(304, 108).TopPosZ(24, 19))
+	ITEM(Label, dv___16, SetLabel(t_("Highlight scope")).LeftPosZ(304, 108).TopPosZ(56, 20))
+	ITEM(Label, dv___17, SetLabel(t_("Highlight matching brackets:")).LeftPosZ(304, 232).TopPosZ(128, 20))
+	ITEM(Switch, optScope, SetLabel(t_("None\n2 colors\n5 colors")).LeftPosZ(320, 92).TopPosZ(76, 48))
+	ITEM(Switch, optBracket, SetLabel(t_("None\nNormal\nFlashing")).LeftPosZ(320, 92).TopPosZ(148, 48))
+	ITEM(DropList, tabs_crosses, LeftPosZ(416, 64).TopPosZ(24, 19))
+END_LAYOUT
+
+LAYOUT(BuildMethodsLayout, 620, 464)
+	ITEM(ColumnList, lstMethods, LeftPosZ(4, 164).VSizePosZ(4, 4))
+	ITEM(Label, dv___1, SetLabel(t_("Name:")).LeftPosZ(176, 92).TopPosZ(4, 19))
+	ITEM(EditField, edtName, SetEditable(false).LeftPosZ(272, 180).TopPosZ(4, 19))
+	ITEM(Label, dv___3, SetLabel(t_("Type:")).LeftPosZ(176, 92).TopPosZ(24, 19))
+	ITEM(Option, optGCC, SetLabel(t_("GCC")).SetEditable(false).LeftPosZ(272, 88).TopPosZ(24, 20))
+	ITEM(Option, optMSC, SetLabel(t_("MSC")).SetEditable(false).LeftPosZ(364, 88).TopPosZ(24, 20))
+	ITEM(Label, dv___6, SetLabel(t_("32-bit Library Path:")).LeftPosZ(176, 92).TopPosZ(92, 19))
+	ITEM(ColumnList, lstLib32, HSizePosZ(184, 4).TopPosZ(112, 140))
+	ITEM(Label, dv___8, SetLabel(t_("64-bit Library Path:")).LeftPosZ(176, 92).TopPosZ(256, 19))
+	ITEM(ColumnList, lstLib64, HSizePosZ(184, 4).TopPosZ(276, 140))
+	ITEM(Label, dv___10, SetLabel(t_("Compiler Path:")).LeftPosZ(176, 92).TopPosZ(48, 19))
+	ITEM(EditField, edtCompiler, SetEditable(false).LeftPosZ(272, 344).TopPosZ(48, 19))
+	ITEM(Label, dv___12, SetLabel(t_("SDK Path:")).LeftPosZ(176, 92).TopPosZ(68, 19))
+	ITEM(EditField, edtSdk, SetEditable(false).LeftPosZ(272, 344).TopPosZ(68, 19))
+	ITEM(Button, btnOk, SetLabel(t_("OK")).RightPosZ(4, 72).BottomPosZ(4, 20))
+END_LAYOUT
+
