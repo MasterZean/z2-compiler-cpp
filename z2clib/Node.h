@@ -13,21 +13,21 @@ public:
 		Memory,
 		Cast,
 		Temporary,
-		ntDef,
-		ntList,
-		ntConstruct,
-		ntPtr,
-		ntArray,
-		ntSizeOf,
-		ntDestruct,
+		Def,
+		List,
+		Construct,
+		Ptr,
+		Index,
+		SizeOf,
+		Destruct,
 		Property,
-		ntDeref,
+		Deref,
 		Intrinsic,
-		ntReturn,
-		ntVar,
+		Return,
+		Var,
 		ntAlloc,
 		ntRawArray,
-		ntUsing,
+		Using,
 	};
 };
 
@@ -153,7 +153,7 @@ public:
 	Node* Object = nullptr;
 	
 	ReturnNode() {
-		NT = NodeType::ntReturn;
+		NT = NodeType::Return;
 	}
 };
 
@@ -187,12 +187,13 @@ public:
 	Variable* Var = nullptr;
 
 	VarNode() {
-		NT = NodeType::ntVar;
+		NT = NodeType::Var;
 	}
 };
 
 class CastNode: public Node {
 public:
+	Node* Object = nullptr;
 	bool Ptr = false;
 	
 	CastNode() {
@@ -200,24 +201,24 @@ public:
 	}
 };
 
-class ListNode: public Node {
+class ListNode: public ParamsNode {
 public:
 	ListNode() {
-		NT = NodeType::ntList;
+		NT = NodeType::List;
 	}
 };
 
 class SizeOfNode: public Node {
 public:
 	SizeOfNode() {
-		NT = NodeType::ntSizeOf;
+		NT = NodeType::SizeOf;
 	}
 };
 
-class ArrayNode: public Node {
+class IndexNode: public Node {
 public:
-	ArrayNode() {
-		NT = NodeType::ntArray;
+	IndexNode() {
+		NT = NodeType::Index;
 	}
 };
 
@@ -281,7 +282,7 @@ public:
 	Node* Object = nullptr;
 	
 	DerefNode() {
-		NT = NodeType::ntDeref;
+		NT = NodeType::Deref;
 	}
 };
 
@@ -323,7 +324,7 @@ public:
 	Node* Using = nullptr;
 	
 	UsingNode() {
-		NT = NodeType::ntUsing;
+		NT = NodeType::Using;
 	}
 };
 
@@ -333,14 +334,14 @@ public:
 	Node* Object = nullptr;
 
 	ConstructNode() {
-		NT = NodeType::ntConstruct;
+		NT = NodeType::Construct;
 	}
 };
 
 class DestructNode: public ConstructNode {
 public:
 	DestructNode() {
-		NT = NodeType::ntDestruct;
+		NT = NodeType::Destruct;
 	}
 };
 
@@ -362,7 +363,7 @@ public:
 	bool IsDestructor = false;
 
 	DefNode() {
-		NT = NodeType::ntDef;
+		NT = NodeType::Def;
 	}
 };
 
@@ -374,7 +375,7 @@ public:
 	bool Nop = false;
 
 	PtrNode() {
-		NT = NodeType::ntPtr;
+		NT = NodeType::Ptr;
 	}
 };
 
