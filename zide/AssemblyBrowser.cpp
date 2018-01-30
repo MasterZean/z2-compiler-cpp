@@ -27,6 +27,16 @@ int PromptDeleteDontDeleteCancel(const char *qtf) {
 	              CtrlImg::remove(), NoButtonImage(), Null);
 }
 
+bool CanMoveFile(const String& path, const String& newPath) {
+	FindFile ff(newPath);
+	
+#ifdef PLATFORM_WIN32
+	return !ff || (ff && ToUpper(newPath) == ToUpper(path));
+#else
+	return !ff;
+#endif
+}
+
 AssemblyBrowser::AssemblyBrowser() {
 	AddFrame(frame.Height(2));
 	Add(treModules);
@@ -36,7 +46,7 @@ AssemblyBrowser::AssemblyBrowser() {
 	treModules.NoRoot();
 	treModules.NoWantFocus();
 	treModules.Open(0);
-	
+
 	treModules.WhenSel = THISBACK(OnSelectSource);
 	treModules.WhenBar = THISBACK(OnBar);
 	treModules.WhenLeftDouble = THISBACK(OnRename);
@@ -196,7 +206,7 @@ void AssemblyBrowser::OnRenameFile() {
 	if (EditText(dname, "Rename file", "New file name") && dname != bak) {
 		String path = treModules[i];
 		String newPath = GetFileDirectory(path) + dname;
-		if ((FileExists(newPath) || DirectoryExists(newPath))) {
+		if (!CanMoveFile(path, newPath)) {
 			ErrorOK("[ph Could not rename file because&-|[* " + DeQtf(newPath) + "]&already exists!]");
 			return;
 		}
