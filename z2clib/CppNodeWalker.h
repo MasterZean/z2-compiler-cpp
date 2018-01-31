@@ -7,6 +7,7 @@ class BaseCppNodeWalker: public NodeWalker {
 public:
 	bool WriteCtQual = false;
 	bool EqOperator = true;
+	bool OptimizeSlice = false;
 	
 	BaseCppNodeWalker(Assembly& ass, Stream& s): NodeWalker(ass, s) {
 	}

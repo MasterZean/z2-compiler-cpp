@@ -153,6 +153,7 @@ ConstNode* IR::const_i(int64 l, ZClass* cls, int base) {
 	node->IsCT = true;
 	node->IsLiteral = true;
 	node->Base = base;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	
 	return node;
@@ -168,6 +169,7 @@ ConstNode* IR::const_u(uint64 l, ZClass* cls, int base) {
 	node->IsCT = true;
 	node->IsLiteral = true;
 	node->Base = base;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	
 	return node;
@@ -181,6 +183,7 @@ ConstNode* IR::const_r32(double l) {
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->DblVal = l;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	
 	return node;
@@ -194,6 +197,7 @@ ConstNode* IR::const_r64(double l) {
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->DblVal = l;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	
 	return node;
@@ -207,6 +211,7 @@ ConstNode* IR::const_bool(bool l) {
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->IntVal = l;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	
 	return node;
@@ -227,6 +232,7 @@ ConstNode* IR::const_char(int l, int base) {
 	node->IsCT = true;
 	node->IntVal = l;
 	node->Base = base;
+	node->IsMove = true;
 	ASSERT(node->Tt.Class);
 	return node;
 }

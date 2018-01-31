@@ -25,8 +25,8 @@ public:
 		Intrinsic,
 		Return,
 		Var,
-		ntAlloc,
-		ntRawArray,
+		Alloc,
+		Array,
 		Using,
 	};
 };
@@ -178,7 +178,7 @@ public:
 	int Ellipsis = -1;
 	
 	RawArrayNode() {
-		NT = NodeType::ntRawArray;
+		NT = NodeType::Array;
 	}
 };
 
@@ -350,7 +350,7 @@ public:
 	Node* Count = nullptr;
 
 	AllocNode() {
-		NT = NodeType::ntAlloc;
+		NT = NodeType::Alloc;
 	}
 };
 

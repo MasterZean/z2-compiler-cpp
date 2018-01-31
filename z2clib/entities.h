@@ -100,7 +100,6 @@ public:
 	int IIndex = 0;
 	bool IsDest = false;
 	WithDeepCopy<Vector<ZClass*>> TParam;
-	int CBOCount = 0;
 	bool IsInline = true;
 	bool FromTemplate = false;
 	bool IsInClassBodyInline = false;
@@ -146,6 +145,7 @@ public:
 	bool Template = false;
 	Vector<String> DTName;
 	CParser::Pos CPosPar;
+	VectorMap<String, int> SignatureHash;
 
 	Def() = default;
 
@@ -162,10 +162,10 @@ public:
 		}
 		Pos <<= def.Pos;
 		PC <<= def.PC;
+		SignatureHash <<= def.SignatureHash;
 		HasPGetter = def.HasPGetter;
 		HasPSetter = def.HasPSetter;
 		Template = def.Template;
-		//IsConst = def.IsConst;
 		BodyPos <<= def.BodyPos;
 		DTName <<= def.DTName;
 	}

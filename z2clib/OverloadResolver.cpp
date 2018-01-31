@@ -120,6 +120,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CInt->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
@@ -140,6 +145,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 	else if (cls == ass.CByte) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
+		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
 		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CByte->Tt);
@@ -165,6 +175,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CWord->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
@@ -186,6 +201,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 	else if (cls == ass.CDWord) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
+		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
 		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
@@ -210,6 +230,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
@@ -230,6 +255,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CShort->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
@@ -248,6 +278,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CFloat->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
@@ -261,6 +296,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 	else {
 		GatherInfo gi;
 		gi.Rez = nullptr;
+		
+		if (n.IsMove) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
 		
 		if (n.LValue || a.IsRef) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &a.Tt);
@@ -282,7 +322,7 @@ void OverloadResolver::GatherRef(Vector<Overload*>& oo, Vector<Node*>& params, i
 	for (int i = 0; i < oo.GetCount(); i++) {
 		Overload& over = *oo[i];
 		ObjectInfo& f = over.Params[pi].I;
-		if (f.IsRef && f.Tt == ot && f.IsMove == false)
+		if (f.IsRef && f.Tt == ot && f.IsMove == false && f.IsConst == a.IsConst)
 			temp.Add(&over);
 	}
 	

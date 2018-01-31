@@ -57,8 +57,8 @@ void ExecutableThread(Zide* zide, const String& file, bool newConsole) {
 		String t, tt;
 		
 		globalExecutor.Kill();
+		globalExecutor.ConvertCharset(false);
 		globalExecutor.Start(file);
-		//LocalProcess lp2(file);
 		
 		while (globalExecutor.Read(t)) {
 			if (t.GetCount()) {

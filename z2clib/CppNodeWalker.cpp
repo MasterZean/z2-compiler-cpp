@@ -498,10 +498,9 @@ void BaseCppNodeWalker::WriteParams(Stream& cs, Overload& over, ZClass& cls, boo
 					cs << ", size_t _" << p.Name << "_len";
 			}
 			// TODO: ADD OPT
-			else if (p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
+			else if (OptimizeSlice && p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
 				cs << p.I.Tt.Class->T->BackendName << "*";
 				cs << " " << p.Name;
-				//if (p.I.Tt.Param == -1)
 				cs << ", size_t *_" << p.Name << "_len";
 			}
 			else {
@@ -515,10 +514,9 @@ void BaseCppNodeWalker::WriteParams(Stream& cs, Overload& over, ZClass& cls, boo
 			if (p.I.Tt.Param == -1)
 				cs << ", size_t _" << p.Name << "_len";
 		}
-		else if (p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
+		else if (OptimizeSlice && p.I.Tt.Class->FromTemplate && p.I.Tt.Class->TBase == ass.CSlice) {
 			cs << p.I.Tt.Class->T->BackendName << "*";
 			cs << " " << p.Name;
-			//if (p.I.Tt.Param == -1)
 			cs << ", size_t *_" << p.Name << "_len";
 		}
 		else if (p.IsCppRef) {
