@@ -4,8 +4,8 @@ extern char tab1[24];
 extern char tab2[9];
 extern char tab3[9];
 
-#include "source.h"
-#include <z2clib/Assembly.h>
+#include "Source.h"
+#include "Assembly.h"
 
 String ZParser::Identify() {
 	if (IsId("true"))

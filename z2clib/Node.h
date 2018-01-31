@@ -128,11 +128,11 @@ public:
 	}
 	
 	Variable* GetFullMemberAssignment() {
-		if (Var && IsClass)
-			return Var;
-		
 		if (Object == nullptr)
 			return nullptr;
+		
+		if (Var && IsClass)
+			return Var;
 		
 		if (Object->NT != NodeType::Memory)
 			return nullptr;
@@ -165,7 +165,7 @@ public:
 
 class TempNode: public ParamsNode {
 public:
-	Overload *Overload = nullptr;
+	::Overload *Overload = nullptr;
 
 	TempNode() {
 		NT = NodeType::Temporary;
@@ -306,7 +306,6 @@ public:
 		itDefaultMove,
 		itForIndex,
 		itForCount,
-		itCpuID,
 	};
 	
 	Type I;
@@ -330,7 +329,7 @@ public:
 
 class ConstructNode: public ParamsNode {
 public:
-	Overload *Overload = nullptr;
+	::Overload *Overload = nullptr;
 	Node* Object = nullptr;
 
 	ConstructNode() {
@@ -357,7 +356,7 @@ public:
 
 class DefNode: public ParamsNode {
 public:
-	Overload* Overload = nullptr;
+	::Overload* Overload = nullptr;
 	Node* Object = nullptr;
 	bool Property = false;
 	bool IsDestructor = false;
@@ -384,7 +383,7 @@ public:
 	::Def* Def = nullptr;
 	int Qualified = 0;
 	ObjectType* FType = nullptr;
-	Overload* Overload = nullptr;
+	::Overload* Overload = nullptr;
 	bool UseAsGet = false;
 
 	PropertyNode() {

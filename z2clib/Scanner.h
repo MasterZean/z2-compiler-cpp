@@ -5,7 +5,7 @@
 
 using namespace Upp;
 
-#include "source.h"
+#include "Source.h"
 #include <z2clib/Assembly.h>
 
 class Def;

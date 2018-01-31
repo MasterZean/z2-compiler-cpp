@@ -1,5 +1,5 @@
 #include <z2clib/Assembly.h>
-#include <z2clib/source.h>
+#include <z2clib/Source.h>
 
 String s[] = {
 	"sys.core.lang.Def",

@@ -7,7 +7,7 @@ using namespace Upp;
 
 #include "ZParser.h"
 #include "entities.h"
-#include "source.h"
+#include "Source.h"
 
 class Compiler;
 

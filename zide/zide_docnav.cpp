@@ -906,8 +906,8 @@ void Zide::LoadNavigation(ZSource& source) {
 	int cur = explore.lstItems.GetCursor();
 	
 	explore.lstItems.Clear();
-	
 	explore.lstItems.Set(0, "aa", RawToValue(ZItem()));
+	
 	ZItem item;
 
 	SmartEditor& editor = GetEditor();
@@ -927,7 +927,7 @@ void Zide::LoadNavigation(ZSource& source) {
 		if (cls.Scan.Namespace.GetLength())
 			s << " (" << cls.Scan.Namespace.Mid(0, cls.Scan.Namespace.GetLength() - 1) << ")";
 		item.Name = s;
-		item.Namespace = cls.Scan.Namespace + cls.Scan.Name;//cls.Scan.Namespace.Mid(0, cls.Scan.Namespace.GetLength() - 1);
+		item.Namespace = cls.Scan.Namespace + cls.Scan.Name;
 		int node = explore.lstItems.Add(0, Image(), RawToValue(item));
 						
 		item.Kind = 0;

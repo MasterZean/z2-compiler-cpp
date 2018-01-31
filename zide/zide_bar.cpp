@@ -8,6 +8,9 @@ void HlPusherFactory(One<Ctrl>& ctrl) {
 	ctrl.Create<ColorPusher>().NotNull().Track();
 }
 
+LocalProcess globalExecutor;
+void* globalProcesID;
+
 void ExecutableThread(Zide* zide, const String& file, bool newConsole) {
 	
 #ifdef PLATFORM_WIN32
@@ -16,23 +19,33 @@ void ExecutableThread(Zide* zide, const String& file, bool newConsole) {
 		int n = file.GetLength() + 1;
 		Buffer<char> cmd(n);
 		memcpy(cmd, file, n);
+		
 		SECURITY_ATTRIBUTES sa;
+		ZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
 		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 		sa.lpSecurityDescriptor = NULL;
 		sa.bInheritHandle = TRUE;
+		
 		PROCESS_INFORMATION pi;
+		ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+		
 		STARTUPINFO si;
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.dwFlags = STARTF_USESHOWWINDOW;
 		si.wShowWindow = SW_SHOW;
 		si.cb = sizeof(STARTUPINFO);
+		
 		if (CreateProcess(NULL, cmd, &sa, &sa, TRUE,
 			             NORMAL_PRIORITY_CLASS|CREATE_NEW_CONSOLE,
 		                NULL, NULL, &si, &pi)) {
+		    globalProcesID = (void*)pi.hProcess;
+		    
 		    WaitForSingleObject(pi.hProcess, INFINITE);
 		                    
 			CloseHandle(pi.hProcess);
 			CloseHandle(pi.hThread);
+			
+			globalProcesID = nullptr;
 		}
 		else
 			;//PutConsole("Unable to launch " + String(_cmdline));
@@ -43,10 +56,11 @@ void ExecutableThread(Zide* zide, const String& file, bool newConsole) {
 
 		String t, tt;
 		
-		LocalProcess lp2(file);
-		lp2.ConvertCharset(false);
+		globalExecutor.Kill();
+		globalExecutor.Start(file);
+		//LocalProcess lp2(file);
 		
-		while (lp2.Read(t)) {
+		while (globalExecutor.Read(t)) {
 			if (t.GetCount()) {
 				PostCallback(callback1(zide, &Zide::AddOutputLine, t));
 			}
@@ -57,9 +71,6 @@ void ExecutableThread(Zide* zide, const String& file, bool newConsole) {
 #endif
 	
 	PostCallback(callback(zide, &Zide::OutPutEnd));
-}
-
-void Zide::OnMenuBuildDebug() {
 }
 
 void Zide::DoMainMenu(Bar& bar) {
@@ -125,10 +136,10 @@ void Zide::OnMenuFileLoadPackage() {
 
 void Zide::OnMenuFileLoadFile() {
 	FileSel fs;
-	fs.PreSelect(lastOpenFile);
+	fs.PreSelect(openDialogPreselect);
 	if (fs.ExecuteOpen()) {
-		lastOpenFile = fs.Get();
-		tabs.Open(lastOpenFile);
+		openDialogPreselect = fs.Get();
+		tabs.Open(openDialogPreselect);
 	}
 }
 
@@ -374,14 +385,17 @@ void Zide::OnMenuFormatDuplicateLine() {
 }
 
 void Zide::DoMenuBuild(Bar& bar) {
+	if (running) {
+		bar.Add("Kill current process",  THISBACK(OnMenuBuildKill))
+			.Key(K_CTRL | K_F5);
+		bar.Separator();
+	}
+	
 	bar.Add("Compile && run current file in console",  THISBACK1(OnMenuBuildRun, false))
 		.Key(K_F5)
 		.Enable(!running && canBuild);
 	bar.Add("Compile && run current file in new console",  THISBACK1(OnMenuBuildRun, true))
 		.Key(K_CTRL | K_F5)
-		.Enable(!running && canBuild);
-	bar.Add("Debug",  THISBACK(OnMenuBuildDebug))
-		.Key(K_F6)
 		.Enable(!running && canBuild);
 	bar.Separator();
 	
@@ -413,8 +427,8 @@ void Zide::OnMenuBuildRun(bool newConsole) {
 	if (!editor.IsEnabled())
 		return;
 	
-	String file8 = tabs.tabFiles[tabs.GetCursor()].key;
-	file8 = NativePath(file8);
+	String file = tabs.tabFiles[tabs.GetCursor()].key;
+	file = NativePath(file);
 	tabs.SaveAllIfNeeded();
 	
 	editor.ClearErrors();
@@ -425,10 +439,10 @@ void Zide::OnMenuBuildRun(bool newConsole) {
 	bool res = false;
 	String t, tt;
 	console.Set(String());
-	tt = Build(file8, true, res);
+	tt = Build(file, true, res);
 
 	if (res) {
-		String ename = GetFileDirectory(file8) + GetFileTitle(file8) + BuildMethod::Exe("");
+		String ename = GetFileDirectory(file) + GetFileTitle(file) + BuildMethod::Exe("");
 		
 		if (!newConsole)
 			console.Set(tt + "Running " + ename + "\n");
@@ -455,7 +469,7 @@ void Zide::OnMenuBuildRun(bool newConsole) {
 				int jj = s.Find(')', ii);
 				if (ii < jj) {
 					String path = s.Mid(0, ii);
-					if (path == file8) {
+					if (path == file) {
 						String ll = s.Mid(ii + 1, jj - ii - 1);
 						Vector<String> s2 = Split(ll, ',');
 						if (s2.GetCount() == 2) {
@@ -545,6 +559,25 @@ void Zide::OnMenuBuildMirror() {
 	if (mirrorMode == false) {
 		splOutput.Hide();
 	}
+}
+
+void Zide::OnMenuBuildKill() {
+#ifdef PLATFORM_WIN32
+	if (globalProcesID) {
+		TerminateProcess((HANDLE)globalProcesID, -1);
+		globalProcesID = nullptr;
+	}
+	else {
+		globalExecutor.Kill();
+	}
+#else
+	globalExecutor.Kill();
+#endif
+	
+	console << "Process killed!";
+	console.ScrollEnd();
+	
+	running = false;
 }
 
 void Zide::DoMenuRecent(Bar& bar) {

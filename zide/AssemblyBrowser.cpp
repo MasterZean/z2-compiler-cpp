@@ -50,6 +50,8 @@ AssemblyBrowser::AssemblyBrowser() {
 	treModules.WhenSel = THISBACK(OnSelectSource);
 	treModules.WhenBar = THISBACK(OnBar);
 	treModules.WhenLeftDouble = THISBACK(OnRename);
+	treModules.WhenDrag = THISBACK(OnDrag);
+	treModules.WhenDropItem = THISBACK(OnDrop);
 }
 
 void AssemblyBrowser::OnSelectSource() {
@@ -206,6 +208,7 @@ void AssemblyBrowser::OnRenameFile() {
 	if (EditText(dname, "Rename file", "New file name") && dname != bak) {
 		String path = treModules[i];
 		String newPath = GetFileDirectory(path) + dname;
+		
 		if (!CanMoveFile(path, newPath)) {
 			ErrorOK("[ph Could not rename file because&-|[* " + DeQtf(newPath) + "]&already exists!]");
 			return;
@@ -290,6 +293,72 @@ void AssemblyBrowser::OnDeleteFile() {
 		if (DeleteFile(path)) {
 			treModules.Remove(i);
 			WhenFileRemoved(path);
+		}
+	}
+}
+
+void AssemblyBrowser::OnDrag() {
+	if(!treModules.IsCursor())
+		return;
+	
+	int id = treModules.GetCursor();
+	String text = treModules.Get();
+	
+	if (!FileExists(text))
+		return;
+
+	String label = treModules.GetNode(id).value;
+	Size isz = GetTextSize(label.ToWString(), StdFont());
+	
+	ImageDraw iw(isz);
+	iw.DrawRect(isz, White);
+	iw.DrawText(0, 0, label);
+		
+	VectorMap<String, ClipData> clip;
+	clip.Add("ZIDE PasteClip ACCEPTOR", text);
+
+	if (DoDragAndDrop(clip, iw) == DND_MOVE)
+		treModules.Remove(id);
+}
+
+void AssemblyBrowser::OnDrop(int parent, PasteClip& d) {
+	treModules.AdjustAction(parent, d);
+	
+	String newPath = treModules[parent];
+	
+	if (DirectoryExists(newPath) && d.Accept("ZIDE PasteClip ACCEPTOR")) {
+		String path = ~d;
+		
+		// fix U++ bug?
+		int len = path.GetCount() - 1;
+		while (len >= 0 && path[len] == 0)
+			len--;
+		
+		path = path.Mid(0, len + 1);
+		
+		newPath = AppendFileName(newPath, GetFileName(path));
+		
+		if (path == newPath) {
+			d.Reject();
+			
+			return;
+		}
+		
+		if (!CanMoveFile(path, newPath)) {
+			ErrorOK("[ph Could not rename file because&-|[* " + DeQtf(newPath) + "]&already exists!]");
+			d.Reject();
+			
+			return;
+		}
+		
+		WhenFileSaved(path);
+		
+		if (FileMove(path, newPath)) {
+			WhenFileRemoved(path);
+			
+			treModules.SetCursor(treModules.Insert(parent, treModules.GetChildCount(parent), ZImg::zsrc, newPath, GetFileName(newPath)));
+			
+			WhenSelectSource();
 		}
 	}
 }

@@ -240,6 +240,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 					gcc.Name = s;
 					gcc.Compiler = p;
 					gcc.Sdk = p;
+					
 					if (FindFile(gcc.Sdk + "\\lib\\*.a")) {
 						gcc.Lib32 << gcc.Sdk + "\\lib\\";
 						gcc.Lib64 << gcc.Sdk + "\\lib\\";
@@ -249,6 +250,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 				}
 			}
 		}
+		
 		ff.Next();
 	}
 
@@ -359,8 +361,8 @@ bool BuildMethod::TestLib(bool px86, bool px64) {
 			x86um.Add("\\lib\\winv6.3\\um\\x86\\");
 		else {
 			FindFile ff(Sdk + "\\lib\\*");
+			
 			while (ff) {
-				
 				if (ff.IsDirectory()) {
 					String s = ff.GetName();
 					if (s != ".." && s != ".") {
@@ -373,6 +375,7 @@ bool BuildMethod::TestLib(bool px86, bool px64) {
 							x86ucrt.Add("\\lib\\" + ff.GetName() + "\\ucrt\\x86\\");
 					}
 				}
+				
 				ff.Next();
 			}
 		}
@@ -418,6 +421,7 @@ bool BuildMethod::TestLib(bool px86, bool px64) {
 							x86ucrt.Add("\\lib\\" + ff.GetName() + "\\ucrt\\x64\\");
 					}
 				}
+				
 				ff.Next();
 			}
 		}

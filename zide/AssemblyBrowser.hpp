@@ -59,6 +59,8 @@ public:
 	void OnDeleteFolder();
 	void OnDeleteFile();
 	void OnFileNameCopy();
+	void OnDrag();
+	void OnDrop(int ii, PasteClip& pc);
 };
 
 void GetAllChildren(const String& path, Vector<String>& sub);

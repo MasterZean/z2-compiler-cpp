@@ -2,7 +2,7 @@
 #define _z2clib_enitites_h_
 
 #include "objecttype.h"
-#include "source.h"
+#include "Source.h"
 
 class Constant: public Entity, public Moveable<Constant> {
 public:
@@ -26,6 +26,7 @@ public:
 	bool IsDeclared = false;
 	bool FromTemplate = false;
 	bool IsCppRef = false;
+	bool IsTemp = false;
 
 	Variable() {
 		Type = Entity::etVariable;

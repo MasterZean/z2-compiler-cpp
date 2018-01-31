@@ -1,7 +1,7 @@
 #ifndef _z2clibex_ErrorReporter_h_
 #define _z2clibex_ErrorReporter_h_
 
-#include <z2clib/source.h>
+#include <z2clib/Source.h>
 
 class Overload;
 class Constant;

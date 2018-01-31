@@ -5,8 +5,6 @@
 
 ZPackage pak;
 
-Zide* zide;
-
 void OutlineThread(Zide* zide, const String& data, uint64 hash) {
 	try {
 		ZSource* source = new ZSource();
@@ -24,6 +22,11 @@ void OutlineThread(Zide* zide, const String& data, uint64 hash) {
 	}
 }
 
+void CreateZSyntax(One<EditorSyntax>& e, int kind) {
+	CSyntax& s = e.Create<CSyntax>();
+	s.SetHighlight(kind);
+}
+
 Zide::Zide() {
 	toolbar_in_row = false;
 	
@@ -32,7 +35,7 @@ Zide::Zide() {
 	running = false;
 	
 	CtrlLayout(*this, "ZIDE");
-	Sizeable().Zoomable();//.Icon(ZImg::icon());
+	Sizeable().Zoomable().Icon(ZImg::icon());
 	
 	int r = HorzLayoutZoom(100);
 	int l = HorzLayoutZoom(250);
@@ -76,10 +79,10 @@ Zide::Zide() {
 	explore.lstItems.SetDisplay(Single<ItemDisplay>());
 	explore.lstItems.RenderMultiRoot();
 	explore.lstItems.NoRoot();
-	explore.lstItems.WhenAction = THISBACK(OnExploreClick);
+	explore.lstItems.WhenAction = THISBACK(OnExplorerClick);
 	explore.lstItems.Set(0, "aa", RawToValue(ZItem()));
 	explore.lstItems.NoWantFocus();
-	explore.lstItems.WhenBar = THISBACK(OnExploreMenu);
+	explore.lstItems.WhenBar = THISBACK(OnExplorerMenu);
 	
 	canvas.AddFrame(splBottom.Bottom(console, 150));
 	canvas.AddFrame(splOutput.Right(tabs2, 400));
@@ -162,7 +165,6 @@ Zide::Zide() {
 	popMethodList.Normal();
 	popMethodList.WhenSelect = THISBACK(OnSelectMethod);
 	
-	canBuild = true;
 	String curDir = NativePath(GetCurrentDirectory() + "\\");
 	LoadFromXMLFile(methods, curDir + "buildMethods.xml");
 	if (methods.GetCount() == 0) {
@@ -302,7 +304,7 @@ void Zide::OnFileRemoved(const String& file) {
 	mnuMain.Set(THISBACK(DoMainMenu));
 }
 
-void Zide::OnExploreClick() {
+void Zide::OnExplorerClick() {
 	if (pauseExplorer)
 		return;
 	
@@ -318,7 +320,7 @@ void Zide::OnExploreClick() {
 	editThread = true;
 }
 
-void Zide::OnExploreMenu(Bar& bar) {
+void Zide::OnExplorerMenu(Bar& bar) {
 	int i = explore.lstItems.GetCursor();
 	if (i == -1)
 		return;
@@ -492,7 +494,6 @@ void Zide::NavigationDone(ZSource* source, uint64 hash) {
 	OpenFileInfo* info = GetInfo();
 	if (!info)
 		return;
-	CodeEditor& editor = info->editor;
 	
 	if (info->Hash == hash)
 		LoadNavigation(*source);
@@ -643,7 +644,7 @@ void Zide::Serialize(Stream& s) {
 	}
 	
 	s % openFile;
-	s % lastPackage % openl % optimize % libMode % lastOpenFile % recent;
+	s % lastPackage % openNodes % optimize % libMode % openDialogPreselect % recent;
 	s % settings % method % arch % oShowPakPaths;
 }
 
@@ -652,8 +653,8 @@ void Zide::LoadModule(const String& mod, int color) {
 }
 
 void Zide::SetupLast() {
-	for (int i = 0; i < openl.GetCount(); i++) {
-		int n = asbAss.treModules.Find(openl[i]);
+	for (int i = 0; i < openNodes.GetCount(); i++) {
+		int n = asbAss.treModules.Find(openNodes[i]);
 		if (n != -1)
 			asbAss.treModules.Open(n);
 	}
@@ -669,6 +670,7 @@ void Zide::SetupLast() {
 	
 	tabs.tabFiles.SetAlign(settings.TabPos);
 	tabs.tabFiles.Crosses(settings.TabClose >= 0, settings.TabClose);
+	
 	tlbMain.Set(THISBACK(MainToolbar));
 	mnuMain.Set(THISBACK(DoMainMenu));
 	
@@ -679,11 +681,6 @@ void Zide::SetupLast() {
 	}
 	
 	asbAss.SetShowPaths(oShowPakPaths);
-}
-
-void CreateZSyntax(One<EditorSyntax>& e, int kind) {
-	CSyntax& s = e.Create<CSyntax>();
-	s.SetHighlight(kind);
 }
 
 void Zide::LoadPackage(const String& package) {
@@ -723,7 +720,7 @@ void Zide::LoadPackage(const String& package) {
 		LoadModule(pak, 2);
 	}
 	
-	openl.Add(lastPackage);
+	openNodes.Add(lastPackage);
 	SetupLast();
 	
 	int i = recent.Find(lastPackage);
@@ -743,7 +740,6 @@ GUI_APP_MAIN {
 	
 	Ctrl::SetAppName("ZIDE");
 	Zide zide;
-	::zide = &zide;
 	String zz;
 	String curDir = GetFileDirectory(GetExeFilePath());
 	
@@ -756,7 +752,7 @@ GUI_APP_MAIN {
 		s = NativePath(s);
 		if (DirectoryExists(s)) {
 			zide.lastPackage = s;
-			zide.openl.Add(s);
+			zide.openNodes.Add(s);
 			zide.recent.Add(s);
 			
 			zz = s + "/Hello.z2";

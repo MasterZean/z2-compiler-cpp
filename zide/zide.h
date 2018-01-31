@@ -124,8 +124,8 @@ public:
 	FrameTop<StaticBarArea> bararea;
 	FrameBottom<Console> console;
 	String lastPackage;
-	String lastOpenFile;
-	Vector<String> openl;
+	String openDialogPreselect;
+	Vector<String> openNodes;
 	Index<String> recent;
 	String openFile;
 	SmartEditor edtDummy;
@@ -165,20 +165,26 @@ public:
 	void OnMenuFormatShowSettings();
 
 	void OnSelectSource();
+	
 	void OnMenuFileLoadPackage();
 	void OnMenuFileLoadFile();
 	void OnMenuFileSaveFile();
 	void OnMenuFileSaveAll();
 	void OnMenuShowPackagePaths();
-	void OnMenuBuildLibMode();
+	
 	void OnMenuEditFind();
 	void OnMenuEditReplace();
 	void OnMenuEditFindNext();
 	void OnMenuEditFindPrevious();
+	
 	void OnMenuBuildShowLog();
+	void OnMenuBuildKill();
+	void OnMenuBuildLibMode();
+	void OnMenuBuildMethods();
+	
 	void OnMenuHelpAbout();
 	void OnMenuHelpRebuildDocs();
-	void OnMenuBuildMethods();
+	
 	void OnFileRemoved(const String& file);
 	void OnFileSaved(const String& file);
 	bool OnRenameFiles(const Vector<String>& files, const String& oldPath, const String& newPath);
@@ -209,8 +215,8 @@ public:
 	void OnMenuBuildRun(bool newConsole);
 	void OnMenuBuildMirror();
 	void OnOutputSel();
-	void OnExploreClick();
-	void OnExploreMenu(Bar& bar);
+	void OnExplorerClick();
+	void OnExplorerMenu(Bar& bar);
 	void OnGenerateDocTemp();
 	void OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2);
 	void WriteDocEntry(FileOut& file, FileOut& f2, DocEntry& doc, Index<String>& links);
@@ -227,8 +233,6 @@ public:
 
 	String Build(const String& file, bool scu, bool& res);
 	void ReadHlStyles(ArrayCtrl& hlstyle);
-
-	void OnMenuBuildDebug();
 	
 	void DropMethodList();
 	void DropTypeList();
@@ -247,7 +251,7 @@ private:
 	Vector<BuildMethod> methods;
 	String method;
 	String arch;
-	bool canBuild;
+	bool canBuild = true;
 	
 	String rundir;
 	String target;
@@ -260,7 +264,5 @@ private:
 	
 	bool GetLineOfError(int ln);
 };
-
-extern Zide* zide;
 
 #endif
