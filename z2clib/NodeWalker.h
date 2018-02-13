@@ -13,6 +13,7 @@ public:
 	bool ClassConsts = false;
 	Overload* Over = nullptr;
 	Compiler* Comp = nullptr;
+	String ForEachName = "_forIndex";
 
 	NodeWalker(Assembly& assembly, Stream& s): ass(assembly), cs(&s) {
 	}

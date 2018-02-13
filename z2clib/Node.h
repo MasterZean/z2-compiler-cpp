@@ -50,6 +50,7 @@ public:
 
 	double DblVal = 0;
 	int64  IntVal = 0;
+	
 	// TODO: fix
 	int reg;
 
@@ -93,7 +94,11 @@ public:
 
 	void PromoteToFloatValue(Assembly& ass);
 		
-	inline MemNode* GetParam() const;
+	MemNode* GetParam() const;
+	
+	bool IsLValue() const {
+		return IsAddressable && IsConst == false;
+	}
 };
 
 class ConstNode: public Node {
@@ -128,11 +133,18 @@ public:
 	}
 	
 	Variable* GetFullMemberAssignment() {
-		if (Object == nullptr)
-			return nullptr;
+		if (Object != nullptr) {
+			if (Object->NT == NodeType::Memory && ((MemNode*)Object)->IsThis) {
+			}
+			else
+				return nullptr;
+		}
 		
 		if (Var && IsClass)
 			return Var;
+		
+		if (Object == nullptr)
+			return nullptr;
 		
 		if (Object->NT != NodeType::Memory)
 			return nullptr;

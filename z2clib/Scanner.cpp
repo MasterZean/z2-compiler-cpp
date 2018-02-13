@@ -24,11 +24,20 @@ void Scanner::Scan(bool cond) {
 			ScanIf();
 		else if (!cond && (parser.IsElse() || parser.IsEndIf()))
 			return;
+		else if (parser.Char('#')) {
+			Point p = parser.GetPoint();
+			parser.ExpectId("pragma");
+			parser.ExpectId("nl");
+			parser.SkipNewLines(false);
+			source.SkipNewLines = false;
+		}
 		else {
 			Point p = parser.GetPoint();
 			parser.Error(p, "syntax error: " + parser.Identify() + " found");
 		}
 	}
+	
+	parser.SkipNewLines(true);
 	
 	for (int i = 0; i < source.References.GetCount(); i++) {
 		if (source.References[i].Find(".") == -1) {
@@ -132,7 +141,7 @@ void Scanner::ScanAlias() {
 	alias.Context = parser.GetPos();
 	ScanType();
 	
-	parser.Expect(';');
+	parser.ExpectEndStat();
 }
 
 void Scanner::ScanUsing() {
@@ -148,7 +157,7 @@ void Scanner::ScanUsing() {
 		path << '.';
 		path << last;
 	}
-	parser.Expect(';');
+	parser.ExpectEndStat();
 	
 	source.References.Add(path);
 	source.ReferencePos.Add(p);
@@ -163,10 +172,10 @@ void Scanner::ScanNamespace() {
 		path = parser.ExpectId();
 		total << path << ".";
 	}
-
-	nameSpace = total;
 	
-	parser.Expect(';');
+	parser.ExpectEndStat();
+	
+	nameSpace = total;
 }
 
 void Scanner::ScanClass(bool foreceStatic) {
@@ -183,7 +192,7 @@ void Scanner::ScanClass(bool foreceStatic) {
 		tplate = true;
 	}
 
-	ZClass& cls = source.AddClass(name, nameSpace, parser, pos);
+	ZClass& cls = source.AddClass(name, nameSpace, pos);
 	cls.Scan.IsTemplate = tplate;
 	cls.Scan.TName = tname;
 	cls.MContName = cls.Scan.Name;
@@ -191,7 +200,16 @@ void Scanner::ScanClass(bool foreceStatic) {
 	if (parser.Char(':')) {
 		cls.Super.Point = pos;
 		cls.Super.Name = parser.ExpectId();
+		
+		if (cls.Super.Name == name)
+			parser.Error(pos, "class can't inherit from itself");
+		
 		cls.Super.IsEvaluated = false;
+		
+		if (parser.Char('<')) {
+			cls.Super.TName = parser.ExpectId();
+			parser.Expect('>');
+		}
 	}
 	else
 		cls.Super.IsEvaluated = true;
@@ -208,17 +226,25 @@ void Scanner::ScanClass(bool foreceStatic) {
 	insertAccess = Entity::atPublic;
 	
 	parser.Expect('{');
+	parser.EatNewlines();
+	
 	ClassLoop(cls, true, foreceStatic);
 
 	while (true) {
 		if (parser.Id("private")) {
 			insertAccess = Entity::atPrivate;
+			
 			parser.Expect('{');
+			parser.EatNewlines();
+			
 			ClassLoop(cls, true, foreceStatic);
 		}
 		else if (parser.Id("protected")) {
 			insertAccess = Entity::atProtected;
+			
 			parser.Expect('{');
+			parser.EatNewlines();
+			
 			ClassLoop(cls, true, foreceStatic);
 		}
 		else
@@ -242,7 +268,7 @@ void Scanner::ScanClass(bool foreceStatic) {
 void Scanner::ScanEnum() {
 	Point pos = parser.GetPoint();
 	String name = parser.ExpectId();
-	ZClass& cls = source.AddClass(name, nameSpace, parser, pos);
+	ZClass& cls = source.AddClass(name, nameSpace, pos);
 	cls.MContName = cls.Scan.Name;
 	cls.BackendName = cls.Scan.Name;
 	cls.CoreSimple = true;
@@ -262,7 +288,7 @@ void Scanner::ScanEnum() {
 	while (!parser.IsChar('}')) {
 		Point p = parser.GetPoint();
 		int n = 0;
-		while (parser.IsId()) {
+		while (parser.IsZId()) {
 			Point pnt = parser.GetPoint();
 			String name = parser.ExpectId();
 			cls.TestDup(name, pnt, parser, false);
@@ -427,10 +453,12 @@ void Scanner::ClassLoop(ZClass& cls, bool cond, bool foreceStatic) {
 	}
 
 	parser.Expect('}');
+	parser.EatNewlines();
 }
 
 void Scanner::EnumLoop(ZClass& cls) {
 	parser.Expect('{');
+	parser.EatNewlines();
 
 	while (!parser.IsChar('}')) {
 		Point p = parser.GetPoint();
@@ -465,6 +493,7 @@ void Scanner::EnumLoop(ZClass& cls) {
 	}
 
 	parser.Expect('}');
+	parser.EatNewlines();
 }
 
 void Scanner::ScanConst(ZClass& cls) {
@@ -484,7 +513,7 @@ void Scanner::ScanConst(ZClass& cls) {
 		while (!parser.IsChar(';'))
 			ScanToken();
 
-	parser.Expect(';');
+	parser.ExpectEndStat();
 }
 
 void Scanner::ScanVar(ZClass& cls, bool stat) {
@@ -505,7 +534,7 @@ void Scanner::ScanVar(ZClass& cls, bool stat) {
 		while (!parser.IsChar(';'))
 			ScanToken();
 
-	parser.Expect(';');
+	parser.ExpectEndStat();
 }
 
 void Scanner::ScanProperty(ZClass& cls, bool stat) {
@@ -535,7 +564,7 @@ void Scanner::ScanProperty(ZClass& cls, bool stat) {
 
 	if (parser.Char('=')) {
 		parser.ExpectId();
-		parser.Expect(';');
+		parser.ExpectEndStat();
 		return;
 	}
 	
@@ -574,11 +603,11 @@ void Scanner::ScanProperty(ZClass& cls, bool stat) {
 			
 			Point bp = parser.GetPoint();
 			if (isIntrinsic)
-				parser.Expect(';');
+				parser.ExpectEndStat();
 			else if (parser.Char('=')) {
 				ScanDefAlias(over);
 				over.BindPoint = bp;
-				parser.Expect(';');
+				parser.ExpectEndStat();
 			}
 			else {
 				parser.Expect('{');
@@ -663,6 +692,12 @@ void Scanner::ScanProperty(ZClass& cls, bool stat) {
 
 void Scanner::ScanDefAlias(Overload& over) {
 	String alias = parser.ExpectId();
+	
+	if (alias == "null") {
+		over.IsDeleted = true;
+		return;
+	}
+	
 	String lastAlias;
 	
 	while (parser.Char('.')) {
@@ -707,7 +742,7 @@ Def& Scanner::ScanDef(ZClass& cls, bool cons, bool stat, int virt, bool cst) {
 			parser.Error(p, "identifier expected, 'this' found. Are you trying to define a constructor?");
 	}
 	else {
-		if (parser.IsId()) {
+		if (parser.IsZId()) {
 			name = parser.ReadId();
 			if (name == cls.Scan.Name)
 				parser.Error(p, "named constructor must not have the same name as the parent class");
@@ -770,13 +805,18 @@ Def& Scanner::ScanDef(ZClass& cls, bool cons, bool stat, int virt, bool cst) {
 			parser.ReadId();
 		else if (cst == false && parser.IsId("const"))
 			parser.ReadId();
-		else if (parser.IsId("ref"))
+		else if (parser.IsId("ref")) {
 			parser.ReadId();
+			parser.Id("const");
+		}
 		else if (parser.IsId("move"))
 			parser.ReadId();
+		
 		params << parser.ExpectId();
 		parser.Expect(':');
+		
 		ScanType();
+		
 		if (parser.Char(',')) {
 			if (parser.IsChar(')'))
 				parser.Error(parser.GetPoint(), "identifier expected, " + parser.Identify() + " found");
@@ -831,20 +871,24 @@ Def& Scanner::ScanDef(ZClass& cls, bool cons, bool stat, int virt, bool cst) {
 		TraitLoop();
 		ScanDefAlias(*ol);
 		
-		ol->BindForce = true;
-		ol->BindPoint = bp;
+		if (ol->IsDeleted == false) {
+			ol->BindForce = true;
+			ol->BindPoint = bp;
+		}
 	}
 	
 	if (ol) {
-		if (ol->IsAlias || ol->IsIntrinsic || ol->IsDllImport || ol->BindName.GetCount()) {
+		if (ol->IsAlias || ol->IsIntrinsic || ol->IsDllImport || ol->BindName.GetCount() || ol->IsDeleted) {
 			ol->Skip = parser.GetPos();
-			parser.Expect(';');
+			parser.ExpectEndStat();
 			
 			return def;
 		}
 	}
 		
 	parser.Expect('{');
+	parser.EatNewlines();
+	
 	if (def.BodyPos.GetCount() == 0 || def.Template)
 		def.BodyPos.Add(parser.GetPos());
 	if (ol)
@@ -856,18 +900,35 @@ Def& Scanner::ScanDef(ZClass& cls, bool cons, bool stat, int virt, bool cst) {
 }
 
 void Scanner::ScanBlock() {
+	bool b = parser.SkipNewLines();
+	parser.SkipNewLines(true);
+	
 	while (!parser.IsChar('}')) {
-		if (parser.Char('{'))
+		if (parser.Char('{')) {
+			parser.EatNewlines();
 		    ScanBlock();
+		}
 		else
 			ScanToken();
 	}
+	
+	parser.SkipNewLines(b);
+	
 	parser.Expect('}');
+	parser.EatNewlines();
 }
 
 void Scanner::ScanType() {
-	parser.Id("val") || parser.Id("ref");
+	if (parser.Id("val")) {
+	}
+	else if (parser.Id("ref")) {
+		parser.Id("const");
+	}
 	parser.ExpectId();
+	
+	while (parser.Char('.'))
+		parser.ExpectId();
+	
 	if (parser.Char('<')) {
 		String ss = parser.ExpectId();
 		if (ss == "const")

@@ -233,11 +233,47 @@ ConstNode* IR::const_char(int l, int base) {
 	node->IntVal = l;
 	node->Base = base;
 	node->IsMove = true;
+	
 	ASSERT(node->Tt.Class);
 	return node;
 }
 
-Node* IR::opArit(Node* left, Node* right, OpNode::Type op) {
+ConstNode* IR::const_void() {
+	ConstNode* node = constNodes.Get();
+	node->SetType(ass.CVoid->Tt);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	
+	ASSERT(node->Tt.Class);
+	return node;
+}
+
+ConstNode* IR::const_null() {
+	ConstNode* node = constNodes.Get();
+	node->SetType(ass.CNull->Tt);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	
+	ASSERT(node->Tt.Class);
+	return node;
+}
+
+ConstNode* IR::const_str(int index) {
+	ConstNode* node = constNodes.Get();
+	node->SetType(ass.CString->Tt);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	node->IntVal = index;
+	node->IsAddressable = true;
+	
+	ASSERT(node->Tt.Class);
+	return node;
+}
+
+Node* IR::opArit(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	bool valid = ass.IsNumeric(left->Tt) && ass.IsNumeric(right->Tt);
 	bool valid2 = false;
 	bool valid3 = false;
@@ -652,7 +688,7 @@ Node* IR::opArit(Node* left, Node* right, OpNode::Type op) {
 	return node;
 }
 
-Node* IR::opRel(Node* left, Node* right, OpNode::Type op) {
+Node* IR::opRel(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	Node* l = (left->IsRef) ? deref(left) : left;
 	Node* r = (right->IsRef) ? deref(right) : right;
 
@@ -666,16 +702,16 @@ Node* IR::opRel(Node* left, Node* right, OpNode::Type op) {
 	if ((op == OpNode::opEq || op == OpNode::opNeq) && left->Tt.Class == ass.CCls && right->Tt.Class == ass.CCls)
 		return const_bool(left->IntVal == right->IntVal);
 	else if (testOpRel(ass, l, r, op) == false) {
-		Node* over = GetOp(Over, strops[op], l, r, ass, this, *Comp, Point(1, 1));
+		Node* over = GetOp(Over, strops[op], l, r, ass, this, *Comp, p);
 		if (over == nullptr) {
 			if (op == OpNode::opLess)
-				return GetOp(Over, strops[OpNode::opMore], r, l, ass, this, *Comp, Point(1, 1));
+				return GetOp(Over, strops[OpNode::opMore], r, l, ass, this, *Comp, p);
 			else if (op == OpNode::opLessEq)
-				return GetOp(Over, strops[OpNode::opMoreEq], r, l, ass, this, *Comp, Point(1, 1));
+				return GetOp(Over, strops[OpNode::opMoreEq], r, l, ass, this, *Comp, p);
 			else if (op == OpNode::opMore)
-				return GetOp(Over, strops[OpNode::opLess], r, l, ass, this, *Comp, Point(1, 1));
+				return GetOp(Over, strops[OpNode::opLess], r, l, ass, this, *Comp, p);
 			else if (op == OpNode::opMoreEq)
-				return GetOp(Over, strops[OpNode::opLessEq], r, l, ass, this, *Comp, Point(1, 1));
+				return GetOp(Over, strops[OpNode::opLessEq], r, l, ass, this, *Comp, p);
 			else
 				return nullptr;
 		}
@@ -983,8 +1019,10 @@ Node* IR::deref(Node* node) {
 	l->C2 = nullptr;
 	l->LValue = node->LValue;
 	l->IsConst = node->IsConst;
-	ASSERT(l->Tt.Class);
 	
+	l->IsAddressable = true;
+	
+	ASSERT(l->Tt.Class);
 	return l;
 }
 
@@ -1005,6 +1043,7 @@ Node* IR::list(Node* node) {
 	l->HasSe = node->HasSe;
 	l->IntVal = node->IntVal;
 	l->DblVal = node->DblVal;
+	l->IsAddressable = node->IsAddressable;
 	ASSERT(l->Tt.Class);
 	
 	return l;
@@ -1333,8 +1372,8 @@ Node* IR::opTern(Node* cond, Node* left, Node* right) {
 	n->Op = OpNode::opTernary;
 	n->SetType(left->Tt);
 	n->HasSe = cond->HasSe || left->HasSe || right->HasSe;
-	ASSERT(n->Tt.Class);
 	
+	ASSERT(n->Tt.Class);
 	return n;
 }
 
@@ -1352,6 +1391,7 @@ AllocNode* IR::alloc(ZClass* cls, Node* count) {
 	a->Count = count;
 	a->SetType(cls->Pt);
 	a->HasSe = true;
+	
 	ASSERT(a->Tt.Class);
 	return a;
 }

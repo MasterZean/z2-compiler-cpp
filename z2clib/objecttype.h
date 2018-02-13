@@ -27,7 +27,11 @@ public:
 	ObjectType Tt;
 	ZClass* C1 = nullptr;
 	ZClass* C2 = nullptr;
+	
 	bool IsRef = false;
+	bool IsAddressable = false;
+	//bool IsIndirect = false;
+	
 	bool IsMove = false;
 	bool IsConst = false;
 	bool IsEfRef = false;

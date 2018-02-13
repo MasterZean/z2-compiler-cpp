@@ -98,6 +98,10 @@ void ErrorReporter::CallError(const ZClass& cls, Point& p, Assembly& ass, Object
 		s << "\texisting overloads\n";
 		for (int i = 0; i < def->Overloads.GetCount(); i++) {
 			Overload& ol = def->Overloads[i];
+			
+			if (ol.IsDeleted)
+				continue;
+			
 			if (ol.IsCons == 1)
 				s << "\t\t" << "{" << ol.PSig << "}\n";
 			else if (ol.IsCons == 2)

@@ -16,14 +16,14 @@ String ZParser::Identify() {
 		return "integer constant '" + IntStr(ReadInt()) + "'";
 	else if (IsEof())
 		return "end-of-file";
-	else if (IsId()) {
-		if (!IsZId())
-			return "keyword '" + ReadId() + "'";
-		else
-			return "identifier '" + ReadId() + "'";
-	}
+	else if (IsZId())
+		return "keyword '" + ReadId() + "'";
+	else if (IsId())
+		return "identifier '" + ReadId() + "'";
 	else if (IsString())
 		return "string constant";
+	else if (term[0] == '\n')
+		return "end of statement";
 	else {
 		for (int i = 0; i < 9; i++)
 			if (IsChar2(tab2[i], tab3[i])) {
@@ -38,6 +38,7 @@ String ZParser::Identify() {
 				c[0] = tab1[i];
 			    return c;
 			}
+			
 		return "unexpected token";
 	}
 }
@@ -128,31 +129,85 @@ int ZParser::ExpectNum() {
 }
 
 bool ZParser::IsZId() {
-	if (term[0] == 'i' && term[1] == 'f' && !IsAlNum(term[2]))
+	if (term[0] == 'b' && IsId0("break"))
 		return false;
-	else if (term[0] == 'f') {
-		if (term[1] == 'o' && term[2] == 'r') {
-			if (term[3] == 'e' && term[4] == 'a' && term[5] == 'c' && term[6] == 'h' && !IsAlNum(term[7]))
-				return false;
-			else if (!IsAlNum(term[3]))
-				return false;
-		}
-		else if (term[1] == 'i' && term[2] == 'n' && term[3] == 'a' && term[4] == 'l' && term[5] == 'l' && term[6] == 'y' && !IsAlNum(term[7]))
-				return false;
-	}
-	else if (term[0] == 'e' && term[1] == 'l' && term[2] == 's' && term[3] == 'e' && !IsAlNum(term[4]))
+	else if (term[0] == 'c' && IsId0("case"))
 		return false;
-	else if (term[0] == 'r' && term[1] == 'e') {
-		if (term[2] == 'f' && !IsAlNum(term[3]))
-			return false;
-		else if (term[2] == 't' && term[3] == 'u' && term[4] == 'r' && term[5] == 'n' && !IsAlNum(term[6]))
-			return false;
-	}
-	else if (term[0] == 'v' && term[1] == 'a' && term[2] == 'l' && !IsAlNum(term[3]))
+	else if (term[0] == 'c' && IsId0("catch"))
 		return false;
-	else if (term[0] == 'd' && term[1] == 'o' && !IsAlNum(term[2]))
+	else if (term[0] == 'c' && IsId0("const"))
 		return false;
-	else if (term[0] == 'w' && term[1] == 'h' && term[2] == 'i' && term[3] == 'l' && term[4] == 'e' && !IsAlNum(term[5]))
+	else if (term[0] == 'c' && IsId0("continue"))
+		return false;
+	else if (term[0] == 'c' && IsId0("class"))
+		return false;
+	else if (term[0] == 'd' && IsId0("default"))
+		return false;
+	else if (term[0] == 'd' && IsId0("def"))
+		return false;
+	else if (term[0] == 'd' && IsId0("do"))
+		return false;
+	else if (term[0] == 'e' && IsId0("enum"))
+		return false;
+	else if (term[0] == 'e' && IsId0("else"))
+		return false;
+	else if (term[0] == 'f' && IsId0("for"))
+		return false;
+	else if (term[0] == 'f' && IsId0("finally"))
+		return false;
+	else if (term[0] == 'f' && IsId0("foreach"))
+		return false;
+	else if (term[0] == 'f' && IsId0("func"))
+		return false;
+	else if (term[0] == 'g' && IsId0("goto"))
+		return false;
+	else if (term[0] == 'g' && IsId0("get"))
+		return false;
+	else if (term[0] == 'i' && IsId0("if"))
+		return false;
+	else if (term[0] == 'i' && IsId0("in"))
+		return false;
+	else if (term[0] == 'm' && IsId0("move"))
+		return false;
+	else if (term[0] == 'n' && IsId0("new"))
+		return false;
+	else if (term[0] == 'n' && IsId0("namespace"))
+		return false;
+	else if (term[0] == 'o' && IsId0("override"))
+		return false;
+	else if (term[0] == 'p' && IsId0("private"))
+		return false;
+	else if (term[0] == 'p' && IsId0("protected"))
+		return false;
+	else if (term[0] == 'p' && IsId0("public"))
+		return false;
+	else if (term[0] == 'p' && IsId0("property"))
+		return false;
+	else if (term[0] == 'r' && IsId0("ref"))
+		return false;
+	else if (term[0] == 'r' && IsId0("return"))
+		return false;
+	else if (term[0] == 's' && IsId0("static"))
+		return false;
+	else if (term[0] == 's' && IsId0("set"))
+		return false;
+	else if (term[0] == 's' && IsId0("switch"))
+		return false;
+	else if (term[0] == 't' && IsId0("this"))
+		return false;
+	else if (term[0] == 't' && IsId0("try"))
+		return false;
+	else if (term[0] == 't' && IsId0("throw"))
+		return false;
+	else if (term[0] == 'u' && IsId0("using"))
+		return false;
+	else if (term[0] == 'v' && IsId0("virtual"))
+		return false;
+	else if (term[0] == 'v' && IsId0("val"))
+		return false;
+	else if (term[0] == 'w' && IsId0("while"))
+		return false;
+	else if (term[0] == 'w' && IsId0("with"))
 		return false;
 	
 	return IsId();
@@ -334,7 +389,7 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 	oInt = i;
 	Spaces();
 	
-	return nt;//ps ? ntPtrSize : ((u ? ntDword: 0) + (l ? 2 : 0));
+	return nt;
 }
 
 uint32 ZParser::ReadChar() {
@@ -440,6 +495,7 @@ inline void SetConsoleTextAttribute(int, int) {
 
 void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 #ifdef PLATFORM_WIN32
+
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Get handle to standard output
 	WORD                        m_currentConsoleAttr;
 	CONSOLE_SCREEN_BUFFER_INFO   csbi;
@@ -452,7 +508,9 @@ void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 	int cRed = FOREGROUND_RED | FOREGROUND_INTENSITY;
 	int cCyan = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 	int cBlue = FOREGROUND_BLUE | FOREGROUND_GREEN;
+	
 #else
+
 	int hConsole = 0;
 	int m_currentConsoleAttr;
 	
@@ -460,13 +518,41 @@ void ZSyntaxError::PrettyPrint(Context* con, Stream& stream) {
 	int cRed = 0;
 	int cCyan = 0;
 	int cBlue = 0;
+	
 #endif
 
-	while (con) {
+	Context* cn = con;
+	
+	while (cn) {
+		if (cn->P.x < 0) {
+			cn->P.x = -cn->P.x;
+			cn->P.y = -cn->P.y;
+			
+			con = cn;
+			
+			break;
+		}
+		
+		cn = cn->Next;
+	}
+	
+	if (cn == nullptr) {
+		while (con) {
+			if (con->Next == nullptr && con->O && con->O->Class().FromTemplate)
+				break;
+			con = con->Next;
+		}
+	}
+	
+	while (con != nullptr) {
+		Point pt = con->P;
+		if (con->P.x < 0 && con->Prev)
+			pt = con->Prev->P;
+		
 		SetConsoleTextAttribute(hConsole, cWhite);
 
 		stream << con->S->Package->Path << con->S->Path;
-		stream << "(" << con->P.x << ", " << con->P.y << "): ";
+		stream << "(" << pt.x << ", " << pt.y << "): ";
 		SetConsoleTextAttribute(hConsole, cCyan);
 		stream << "context: ";
 		SetConsoleTextAttribute(hConsole, cWhite);
@@ -567,34 +653,25 @@ bool ZParser::EatEndIf() {
 }
 
 bool ZParser::IsElse() {
-	if (term[0] == '#' && term[1] == 'e' && term[2] == 'l' && term[3] == 's' && term[4] == 'e') {
-		//term += 5;
-		//Spaces();
+	if (term[0] == '#' && term[1] == 'e' && term[2] == 'l' && term[3] == 's' && term[4] == 'e')
 		return true;
-	}
+	
 	return false;
 }
 
 bool ZParser::IsEndIf() {
-	if (term[0] == '#' && term[1] == 'e' && term[2] == 'n' && term[3] == 'd' && term[4] == 'i'  && term[5] == 'f') {
-		//term += 5;
-		//Spaces();
+	if (term[0] == '#' && term[1] == 'e' && term[2] == 'n' && term[3] == 'd' && term[4] == 'i'  && term[5] == 'f')
 		return true;
-	}
+
 	return false;
 }
 
 void ZParser::SkipBlock() {
 	while (true) {
-		if (term[0] == '#' && term[1] == 'e' && term[2] == 'l' && term[3] == 's' && term[4] == 'e') {
-			//term += 5;
-			//Spaces();
+		if (term[0] == '#' && term[1] == 'e' && term[2] == 'l' && term[3] == 's' && term[4] == 'e')
 			return;
-		}
-		else if (term[0] == '#' && term[1] == 'e' && term[2] == 'n' && term[3] == 'd' && term[4] == 'i'  && term[5] == 'f') {
-			//term += 6;
+		else if (term[0] == '#' && term[1] == 'e' && term[2] == 'n' && term[3] == 'd' && term[4] == 'i'  && term[5] == 'f')
 			return;
-		}
 		else if (term[0] == 0)
 			return;
 		else if (term[0] == '\n') {
@@ -604,25 +681,34 @@ void ZParser::SkipBlock() {
 		else
 			term++;
 	}
+	
 	Spaces();
 }
 
-/*
-union Double_t
-{
-    Double_t(double val) : f(val) {}
-    // Portable extraction of components.
-    bool Negative() const { return (i >> 63) != 0; }
-    
-    int64 i;
-    double f;
-#ifdef _DEBUG
-    struct
-    { // Bitfields for exploration. Do not use in production code.
-        uint64 mantissa : 52;
-        uint64 exponent : 11;
-        uint64 sign : 1;
-    } parts;
-#endif
-};
-*/
+void ZParser::ExpectEndStat() {
+	if (skipnewlines)
+		Expect(';');
+	else {
+		if (Char(';')) {
+			skipnewlines = true;
+			Spaces();
+			skipnewlines = false;
+		}
+		else if (PeekChar() == '\n') {
+			skipnewlines = true;
+			Spaces();
+			skipnewlines = false;
+		}
+		else {
+			Point p = GetPoint();
+			Error(p, "';' expected, " + Identify() + " found");
+		}
+	}
+}
+
+void ZParser::EatNewlines() {
+	bool b = skipnewlines;
+	skipnewlines = true;
+	Spaces();
+	skipnewlines = b;
+}

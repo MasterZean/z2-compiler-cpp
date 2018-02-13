@@ -14,13 +14,14 @@ class Scanner {
 public:
 	Scanner(ZSource& aSrc, bool windows): source(aSrc), win(windows) {
 		parser = ZParser(aSrc.Data);
+		//parser.SkipNewLines(false);
 		parser.NestComments();
 		parser.Mode = " scan";
 		parser.Source = &aSrc;
 	}
 
 	void Scan(bool cond = true);
-
+	
 protected:
 	ZParser parser;
 	ZSource& source;

@@ -48,6 +48,7 @@ class ZSource: public ZFile, Moveable<ZSource> {
 public:
 	bool IsScaned = false;
 	bool IsBuilt = false;
+	bool SkipNewLines = true;
 	ZPackage* Package = nullptr;
 
 	ArrayMap<String, ZClass> ClassPrototypes;
@@ -58,7 +59,9 @@ public:
 	
 	void AddReference(const String& ns);
 	
-	ZClass& AddClass(const String& name, const String& nameSpace, ZParser& parser, const Point& pnt);
+	ZClass& AddClass(const String& name, const String& nameSpace, const Point& pnt);
+	
+	int FindClassReference(const String& shortName, int start);
 };
 
 class ZPackage: Moveable<ZPackage> {

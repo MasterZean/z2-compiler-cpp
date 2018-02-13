@@ -78,9 +78,12 @@ public:
 	ConstNode* const_r64(double l);
 	ConstNode* const_bool(bool l);
 	ConstNode* const_char(int l, int base = 10);
+	ConstNode* const_void();
+	ConstNode* const_null();
+	ConstNode* const_str(int index);
 	
-	Node* opArit(Node* left, Node* right, OpNode::Type op);
-	Node* opRel(Node* left, Node* right, OpNode::Type op);
+	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
+	Node* opRel(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opLog(Node* left, Node* right, OpNode::Type op);
 	
 	Node* op_bitand(Node* left, Node* right);
@@ -96,48 +99,48 @@ public:
 	
 	Node* opTern(Node* cond, Node* left, Node* right);
 	
-	Node* add(Node* left, Node* right) {
-		return opArit(left, right, OpNode::opAdd);
+	Node* add(Node* left, Node* right, const Point& p) {
+		return opArit(left, right, OpNode::opAdd, p);
 	}
 
-	Node* sub(Node* left, Node* right) {
-		return opArit(left, right, OpNode::opSub);
+	Node* sub(Node* left, Node* right, const Point& p) {
+		return opArit(left, right, OpNode::opSub, p);
 	}
 
-	Node* mul(Node* left, Node* right) {
-		return opArit(left, right, OpNode::opMul);
+	Node* mul(Node* left, Node* right, const Point& p) {
+		return opArit(left, right, OpNode::opMul, p);
 	}
 
-	Node* div(Node* left, Node* right) {
-		return opArit(left, right, OpNode::opDiv);
+	Node* div(Node* left, Node* right, const Point& p) {
+		return opArit(left, right, OpNode::opDiv, p);
 	}
 
-	Node* mod(Node* left, Node* right) {
-		return opArit(left, right, OpNode::opMod);
+	Node* mod(Node* left, Node* right, const Point& p) {
+		return opArit(left, right, OpNode::opMod, p);
 	}
 	
-	Node* eq(Node* left, Node* right)  {
-		return opRel(left, right, OpNode::opEq);
+	Node* eq(Node* left, Node* right, const Point& p)  {
+		return opRel(left, right, OpNode::opEq, p);
 	}
 
-	Node* neq(Node* left, Node* right) {
-		return opRel(left, right, OpNode::opNeq);
+	Node* neq(Node* left, Node* right, const Point& p) {
+		return opRel(left, right, OpNode::opNeq, p);
 	}
 	
-	Node* less(Node* left, Node* right) {
-		return opRel(left, right, OpNode::opLess);
+	Node* less(Node* left, Node* right, const Point& p) {
+		return opRel(left, right, OpNode::opLess, p);
 	}
 
-	Node* lessEq(Node* left, Node* right) {
-		return opRel(left, right, OpNode::opLessEq);
+	Node* lessEq(Node* left, Node* right, const Point& p) {
+		return opRel(left, right, OpNode::opLessEq, p);
 	}
 
-	Node* more(Node* left, Node* right) {
-		return opRel(left, right, OpNode::opMore);
+	Node* more(Node* left, Node* right, const Point& p) {
+		return opRel(left, right, OpNode::opMore, p);
 	}
 
-	Node* moreEq(Node* left, Node* right) {
-		return opRel(left, right, OpNode::opMoreEq);
+	Node* moreEq(Node* left, Node* right, const Point& p) {
+		return opRel(left, right, OpNode::opMoreEq, p);
 	}
 		
 	Node* shl(Node* left, Node* right, const Point& p);
@@ -154,13 +157,13 @@ public:
 	
 	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 		if (op <= OpNode::opMod)
-			return opArit(left, right, op);
+			return opArit(left, right, op, p);
 		else if (op <= OpNode::opShl)
 			return shl(left, right, p);
 		else if (op <= OpNode::opShr)
 			return shr(left, right, p);
 		else if (op <= OpNode::opNeq)
-			return opRel(left, right, op);
+			return opRel(left, right, op, p);
 		else if (op <= OpNode::opBitAnd)
 			return op_bitand(left, right);
 		else if (op <= OpNode::opBitXor)

@@ -97,6 +97,9 @@ public:
 	bool IsEndIf();
 	void SkipBlock();
 	
+	void ExpectEndStat();
+	void EatNewlines();
+	
 private:
 	uint64 ReadNumber64Core(Point& p, int base);
 	NumberType ReadF(Point& p, int sign, double& oDub);

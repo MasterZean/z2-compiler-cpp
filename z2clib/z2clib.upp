@@ -5,6 +5,7 @@ file
 	BaseExprParser.h,
 	BaseExpreParser.cpp,
 	BaseCompiler.h,
+	BaseCompiler.cpp,
 	OverloadResolver.h,
 	OverloadResolver.cpp,
 	Assembly.h,

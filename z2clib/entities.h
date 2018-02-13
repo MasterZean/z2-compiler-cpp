@@ -35,6 +35,16 @@ public:
 	Variable& operator=(const Node& o);
 
 	bool IsVoid(Assembly& ass);
+	
+	ZClass& Class() {
+		ASSERT(I.Tt.Class);
+		return *I.Tt.Class;
+	}
+	
+	const ZClass& Class() const {
+		ASSERT(I.Tt.Class);
+		return *I.Tt.Class;
+	}
 };
 
 class Block: Moveable<Block> {
@@ -51,8 +61,8 @@ public:
 		amNotAuto,
 		amEqFull,
 		amNeqFull,
-		amEqAsNeqOposite,
-		amNeqAsEqOposite,
+		amEqAsNeqOpposite,
+		amNeqAsEqOpposite,
 		amLessEq,
 		amMoreEq,
 		amGetter,
@@ -79,6 +89,7 @@ public:
 	bool IsNative = false;
 	bool IsAlias = false;
 	bool IsExtern = false;
+	bool IsDeleted = false;
 	bool IsIntrinsic = false;
 	int IsIntrinsicType = -1;
 	bool IsDllImport = false;
@@ -197,6 +208,7 @@ class ZClassSuper {
 public:
 	ZClass* Class = nullptr;
 	String Name;
+	String TName;
 	::Point Point;
 	bool IsEvaluated = false;
 };

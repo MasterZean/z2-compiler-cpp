@@ -1,5 +1,6 @@
 #include "Assembly.h"
 #include "ErrorReporter.h"
+#include "BaseExprParser.h"
 
 String Assembly::TypeToString(ObjectType* tt) {
 	String str;
@@ -226,6 +227,7 @@ void Assembly::AddSource(ZSource& src) {
 				cls2.Meth = cls.Meth;
 				cls.Dest = nullptr;
 				cls2.Scan = cls.Scan;
+				cls2.Super = cls.Super;
 				
 				SetOwnership(cls2);
 
@@ -235,6 +237,8 @@ void Assembly::AddSource(ZSource& src) {
 				ErrorReporter::Dup(src, cls.Position, cls2.Position, cls.Scan.Name, cls2.Source->Package->Path + cls2.Source->Path);
 		}
 		else {
+			//if (cls.Scan.Name == "Slice")
+			//	cls.Scan.Name == "Slice";
 			ZClass& cls2 = Classes.Add(fullName, cls);
 			cls2.Index = Classes.GetCount() - 1;
 			cls2.Tt.Class = &cls2;
@@ -403,8 +407,11 @@ void Assembly::SetOwnership(ZClass& tclass) {
 	for (int i = 0; i < tclass.Defs.GetCount(); i++) {
 		::Def& def = tclass.Defs[i];
 		def.Class = &tclass;
-		for (int j = 0; j < def.Overloads.GetCount(); j++)
-			def.Overloads[j].Parent = &def;
+		for (int j = 0; j < def.Overloads.GetCount(); j++) {
+			Overload& ol = def.Overloads[j];
+			ol.Parent = &def;
+			ol.IsEvaluated = false;
+		}
 	}
 	
 	for (int i = 0; i < tclass.Cons.GetCount(); i++) {
@@ -413,6 +420,7 @@ void Assembly::SetOwnership(ZClass& tclass) {
 		for (int j = 0; j < def.Overloads.GetCount(); j++) {
 			Overload& ol = def.Overloads[j];
 			ol.Parent = &def;
+			ol.IsEvaluated = false;
 			if (ol.IsCons != 2)
 				ol.BackendName = def.BackendName;
 		}
@@ -422,11 +430,12 @@ void Assembly::SetOwnership(ZClass& tclass) {
 		::Def& def = tclass.Props[i];
 		def.Class = &tclass;
 		for (int j = 0; j < def.Overloads.GetCount(); j++) {
-			def.Overloads[j].Parent = &def;
+			Overload& ol = def.Overloads[j];
+			ol.Parent = &def;
 			if (&tclass.Props[i].Overloads[j] == tclass.Props[i].HasPGetter)
-				def.HasPGetter = &def.Overloads[j];
+				def.HasPGetter = &ol;
 			if (&tclass.Props[i].Overloads[j] == tclass.Props[i].HasPSetter)
-				def.HasPSetter = &def.Overloads[j];
+				def.HasPSetter = &ol;
 		}
 	}
 	
@@ -434,6 +443,7 @@ void Assembly::SetOwnership(ZClass& tclass) {
 		::Def& def = *tclass.Dest;
 		def.Class = &tclass;
 		def.Overloads[0].Return.Tt = CVoid->Tt;
+		def.Overloads[0].IsEvaluated = false;
 		def.BackendName = "~" + tclass.BackendName;
 		for (int j = 0; j < def.Overloads.GetCount(); j++) {
 			def.Overloads[j].Parent = &def;
@@ -461,3 +471,101 @@ ZClass& Assembly::Clone(ZClass& cls, const String& name, const String& bname) {
 	}
 }
 
+String Assembly::TypeToString(ObjectInfo* type, bool qual) {
+	String s;
+	
+	if (type->IsRef) {
+		if (type->IsConst)
+			s = "const ";
+		else if (type->IsMove)
+			s = "move ";
+		else
+			s = "ref ";
+	}
+	
+	s << ClassToString(type, qual);
+	
+	return s;
+}
+
+String Assembly::ClassToString(ObjectInfo* type, bool qual) {
+	String s;
+	
+	if (type->Tt.Class->MIsRawVec) {
+		s << "CArray<" << type->Tt.Class->T->Scan.Name;
+		if (type->Tt.Param != -1)
+			s << ", " << type->Tt.Param;
+		s << ">";
+	}
+	else {
+		int count = 0;
+		
+		int ii = ClassCounts.Find(type->Tt.Class->Scan.Name);
+		if (ii != -1)
+			count = ClassCounts[ii];
+		
+		if (count > 1)
+			s << type->Tt.Class->Scan.Namespace;
+		s << type->Tt.Class->Scan.Name;
+		if (qual && type->Tt.Next) {
+			s << '<' << type->Tt.Next->Class->Scan.Name;
+			if (type->Tt.Param)
+				s << ", " << IntStr(type->Tt.Param);
+			s << '>';
+		}
+	}
+	
+	return s;
+}
+
+int tabAss[][14] = {
+	              /*    b,  s8, u8, s16, u16, s32, u32, s64, u64, f32, f64, f80, c,  p
+	/*  0: Bool    */ { 1,  0,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  1: Small   */ { 0,  1,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  2: Byte    */ { 0,  0,  1,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  3: Short   */ { 0,  1,  1,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  4: Word    */ { 0,  0,  1,  0,   1,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  5: Int     */ { 0,  1,  1,  1,   1,   1,   0,   0,   0,   0,   0,   0,   0,  0 },
+	/*  6: DWord   */ { 0,  0,  1,  0,   1,   0,   1,   0,   0,   0,   0,   0,   0,  0 },
+	/*  7: Long    */ { 0,  1,  1,  1,   1,   1,   1,   1,   0,   0,   0,   0,   0,  0 },
+	/*  8: QWord   */ { 0,  0,  1,  0,   1,   0,   1,   0,   1,   0,   0,   0,   0,  0 },
+	/*  9: Float   */ { 0,  1,  1,  1,   1,   0,   0,   0,   0,   1,   0,   0,   0,  0 },
+	/* 10: Double  */ { 0,  1,  1,  1,   1,   1,   1,   0,   0,   1,   1,   0,   0,  0 },
+	/* 11: Real80  */ { 0,  1,  1,  1,   1,   1,   1,   1,   1,   1,   1,   1,   0,  0 },
+	/* 12: Char    */ { 0,  1,  1,  1,   1,   1,   1,   0,   0,   0,   0,   0,   1,  0 },
+	/* 13: PtrSize */ { 0,  0,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  1 },
+};
+
+bool ObjectInfo::CanAssign(Assembly& ass, ObjectInfo& y, bool isCt) {
+	if (Tt.Class == ass.CVoid || y.Tt.Class == ass.CVoid)
+		return false;
+
+	if (ass.IsPtr(Tt))
+		return y.Tt.Class == ass.CNull ||
+			(ass.IsPtr(y.Tt) && (y.Tt.Next->Class == Tt.Next->Class || Tt.Next->Class == ass.CVoid));
+
+	if (isCt && Tt.Class == ass.CPtrSize && (y.Tt.Class == ass.CInt))
+		return true;
+
+	if (Tt.Class == y.Tt.Class)
+		return true;
+	if (ass.IsNumeric(Tt) && ass.IsNumeric(y.Tt)) {
+		ASSERT(y.C1);
+		int t1 = Tt.Class->Index - 4;
+		int t2 = y.C1->Index - 4;
+		ASSERT(t1 >= 0 && t1 <= 13);
+		ASSERT(t2 >= 0 && t2 <= 13);
+		if (tabAss[t1][t2])
+			return true;
+		else {
+			if (y.C2 != NULL) {
+				t2 = y.C2->Index - 4;
+				return tabAss[t1][t2];
+			}
+			else
+				return false;
+		}
+	}
+
+	return BaseExprParser::TypesEqualD(ass, &this->Tt, &y.Tt);
+}

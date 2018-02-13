@@ -20,6 +20,8 @@ public:
 	
 	Node* ParseNumeric(ZClass& conClass, Overload* conOver);
 	
+	static bool TypesEqualD(Assembly& ass, ObjectType* t1, ObjectType* t2);
+	
 protected:
 	AST& irg;
 	Assembly& ass;

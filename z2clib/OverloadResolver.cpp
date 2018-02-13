@@ -97,7 +97,7 @@ Overload* OverloadResolver::GatherParIndex(Vector<Overload*>& oo, Vector<Node*>&
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherDRef(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -125,7 +125,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CInt->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -151,13 +151,14 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CByte->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1 && ambig) { ambig = true; return nullptr; }
 		}
 		
 		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CByte->Tt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		//if (conv) {
 		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CWord->Tt, &ass.CDWord->Tt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
@@ -170,6 +171,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		//}
 	}
 	else if (cls == ass.CWord) {
 		GatherInfo gi;
@@ -180,7 +182,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CWord->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -207,7 +209,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -235,7 +237,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -260,7 +262,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CShort->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -283,7 +285,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CFloat->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -302,7 +304,7 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.LValue || a.IsRef) {
+		if (n.IsAddressable/* n.LValue || a.IsRef*/) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &a.Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -322,7 +324,8 @@ void OverloadResolver::GatherRef(Vector<Overload*>& oo, Vector<Node*>& params, i
 	for (int i = 0; i < oo.GetCount(); i++) {
 		Overload& over = *oo[i];
 		ObjectInfo& f = over.Params[pi].I;
-		if (f.IsRef && f.Tt == ot && f.IsMove == false && f.IsConst == a.IsConst)
+		//DUMP(over.PSig);
+		if (f.IsRef && f.Tt == ot && f.IsMove == false && (f.IsConst == a.IsConst || (f.IsConst && !a.IsConst)))
 			temp.Add(&over);
 	}
 	
@@ -354,7 +357,7 @@ void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int 
 		ObjectInfo& f = over.Params[pi].I;
 		if (conv || (!conv && over.Params[pi].FromTemplate == false)) {
 			if (f.IsRef) {
-				if (f.IsMove == false && (a.IsRef || n.LValue)) {
+				if (f.IsMove == false && (n.IsAddressable  /*sa.IsRef || n.LValue*/) && f.IsConst == a.IsConst) {
 					if (f.Tt == ot)
 						temp.Add(&over);
 				}
@@ -399,7 +402,7 @@ void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int 
 		ObjectInfo& f = over.Params[pi].I;
 		if (conv || (!conv && over.Params[pi].FromTemplate == false))
 			if (f.IsRef) {
-				if (f.IsMove == false && (a.IsRef || n.LValue)) {
+				if (f.IsMove == false && (n.IsAddressable  /*sa.IsRef || n.LValue*/) && f.IsConst == a.IsConst) {
 					if (f.Tt == ot || f.Tt == ot2)
 						temp.Add(&over);
 				}
@@ -438,7 +441,7 @@ void OverloadResolver::GatherD(Vector<Overload*>& oo, Vector<Node*>& params, int
 		ObjectInfo& f = over.Params[pi].I;
 		
 		if (f.IsRef && !f.IsConst && !a.IsConst && !f.IsMove) {
-			if (a.IsRef || n.LValue) {
+			if (n.IsAddressable/* a.IsRef || n.LValue*/) {
 				if (TypesEqualD(ass, &f.Tt, &a.Tt))
 					temp.Add(&over);
 			}
@@ -568,7 +571,7 @@ void OverloadResolver::GatherS(Vector<Overload*>& oo, Vector<Node*>& params, int
 		ObjectInfo& f = over.Params[pi].I;
 
 		if (f.IsRef && !f.IsConst && !f.IsMove) {
-			if (a.IsRef || n.LValue) {
+			if (n.IsAddressable/* a.IsRef || n.LValue*/) {
 				if (TypesEqualS(ass, &f.Tt, &a.Tt))
 					temp.Add(&over);
 			}

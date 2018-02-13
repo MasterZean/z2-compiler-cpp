@@ -46,7 +46,7 @@ void ZSource::AddReference(const String& ns) {
 	}
 }
 
-ZClass& ZSource::AddClass(const String& name, const String& nameSpace, ZParser& parser, const Point& pnt) {
+ZClass& ZSource::AddClass(const String& name, const String& nameSpace, const Point& pnt) {
 	String fullName = nameSpace;
 	fullName << name;
 
@@ -57,5 +57,24 @@ ZClass& ZSource::AddClass(const String& name, const String& nameSpace, ZParser& 
 	c.Scan.Namespace = nameSpace;
 	c.ParamType = &c;
 	c.IsDefined = true;
+	
 	return c;
 }
+
+int ZSource::FindClassReference(const String& shortName, int start) {
+	for (int i = start; i < References.GetCount(); i++) {
+		const String& rf = References[i];
+		
+		int dotPos = rf.GetCount() - shortName.GetCount() - 1;
+		
+		if (rf.GetCount() > shortName.GetCount() && rf[dotPos] == '.') {
+			const char* s = rf.Begin() + dotPos + 1;
+			
+			if (shortName == s)
+				return i;
+		}
+	}
+	
+	return -1;
+}
+

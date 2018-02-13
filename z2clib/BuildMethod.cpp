@@ -257,7 +257,8 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 	BuildMethod msc14;
 	if (msc14.DetectMSC14())
 		methods.Add(msc14);
-	BuildMethod msc12;
+	// temp for 9.4
+	/*BuildMethod msc12;
 	if (msc12.DetectMSC12())
 		methods.Add(msc12);
 	BuildMethod msc11;
@@ -274,7 +275,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods) {
 		methods.Add(msc8);
 	BuildMethod msc7_1;
 	if (msc7_1.DetectMSC7_1())
-		methods.Add(msc7_1);
+		methods.Add(msc7_1);*/
 #endif
 
 #ifdef PLATFORM_POSIX

@@ -35,3 +35,16 @@ Node* BaseExprParser::ParseNumeric(ZClass& conClass, Overload* conOver) {
 
 	return exp;
 }
+
+bool BaseExprParser::TypesEqualD(Assembly& ass, ObjectType* t1, ObjectType* t2) {
+	if (t1->Class == ass.CPtr && t2->Class == ass.CNull)
+		return true;
+	
+	while (t1) {
+		if (t1->Class != t2->Class || t1->Param != t2->Param)
+			return false;
+		t1 = t1->Next;
+		t2 = t2->Next;
+	}
+	return true;
+}

@@ -40,3 +40,21 @@ void Node::PromoteToFloatValue(Assembly& ass) {
 	else if (ass.IsInteger(Tt) || Tt.Class == ass.CBool || Tt.Class == ass.CChar)
 		DblVal = (double)IntVal;
 }
+
+MemNode* Node::GetParam() const {
+	if (NT == NodeType::Memory) {
+		MemNode* mem = (MemNode*)this;
+		if (mem->IsParam)
+			return mem;
+	}
+	else if (NT == NodeType::Deref) {
+		DerefNode* deref = (DerefNode*)this;
+		if (deref->Object->NT == NodeType::Memory) {
+			MemNode* mem = (MemNode*)deref->Object;
+			if (mem->IsParam)
+				return mem;
+		}
+	}
+	
+	return nullptr;
+}

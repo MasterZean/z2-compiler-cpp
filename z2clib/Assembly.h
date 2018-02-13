@@ -47,6 +47,7 @@ public:
 	String TypeToString(ObjectInfo* type, bool qual = true);
 	String BTypeToString(ObjectInfo* type, bool qual = true);
 	String CTypeToString(ObjectInfo* type, bool qual = true);
+	String ClassToString(ObjectInfo* type, bool qual = true);
 	
 	void AddBuiltInClasses();
 
@@ -101,7 +102,6 @@ public:
 		return Classes[j];
 	}
 
-	ZClass& GetClass(const String& name, ZParser& parser, Compiler& comp, bool eval);
 	ZClass& Clone(ZClass& cls, const String& name, const String& bname);
 	
 	void AddSource(ZSource& src);
