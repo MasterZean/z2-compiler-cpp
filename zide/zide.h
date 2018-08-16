@@ -57,11 +57,10 @@ public:
 		
 		for (int i = 0; i < methods.GetCount(); i++) {
 			BuildMethod& bm = methods[i];
-			lstMethods.Add(bm.Name);
+			lstMethods.Add(bm.Name + " " + bm.Arch);
 		}
 				
-		lstLib32.SetReadOnly();
-		lstLib64.SetReadOnly();
+		lstLib.SetReadOnly();
 		
 		btnOk.Ok();
 		Acceptor(btnOk, IDOK);
@@ -92,13 +91,9 @@ public:
 		edtCompiler.SetText(bm.Compiler);
 		edtSdk.SetText(bm.Sdk);
 
-		lstLib32.Clear();
-		for (int i = 0; i < bm.Lib32.GetCount(); i++)
-			lstLib32.Add(bm.Lib32[i]);
-		
-		lstLib64.Clear();
-		for (int i = 0; i < bm.Lib64.GetCount(); i++)
-			lstLib64.Add(bm.Lib64[i]);
+		lstLib.Clear();
+		for (int i = 0; i < bm.Lib.GetCount(); i++)
+			lstLib.Add(bm.Lib[i]);
 	}
 	
 private:
@@ -194,6 +189,7 @@ public:
 	void OnToolO2();
 	void OnSelectMethod();
 	void OnAnnotation();
+	void OnAcDot();
 
 	void Serialize(Stream& s);
 	void LoadModule(const String& mod, int color);
@@ -218,7 +214,7 @@ public:
 	void OnExplorerClick();
 	void OnExplorerMenu(Bar& bar);
 	void OnGenerateDocTemp();
-	void OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2);
+	void OnGenerateIndividualDoc(ZClass& cls, FileOut& f, FileOut& f2);
 	void WriteDocEntry(FileOut& file, FileOut& f2, DocEntry& doc, Index<String>& links);
 	
 	void AddOutputLine(const String& str);
@@ -231,7 +227,7 @@ public:
 	void LoadNavigation(ZSource& source);
 	void NavigationDone(ZSource* source, uint64 hash);
 
-	String Build(const String& file, bool scu, bool& res);
+	String Build(const String& file, bool scu, bool& res, Point p = Point(-1, -1));
 	void ReadHlStyles(ArrayCtrl& hlstyle);
 	
 	void DropMethodList();

@@ -5,7 +5,8 @@ uses
 	z2clibex,
 	CodeEditorFork,
 	plugin/ndisasm,
-	HexView;
+	HexView,
+	Theme;
 
 file
 	AssemblyBrowser.hpp,

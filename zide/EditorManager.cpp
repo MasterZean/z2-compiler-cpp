@@ -1,5 +1,60 @@
 #include "zide.h"
 
+void DarkTheme() {
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_NORMAL, Color(255, 251, 247), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_NORMAL, Color(51, 51, 51));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_SELECTED, White);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_SELECTED, Color(0, 120, 215));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DISABLED, Color(109, 109, 109));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_READONLY, Color(91, 91, 91));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_COMMENT, Color(134, 134, 134), false, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_COMMENT_WORD, Blue, true, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_COMMENT_WORD, Yellow);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_STRING, Color(238, 222, 130));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_OPERATOR, Color(249, 167, 40), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_KEYWORD, Color(254, 95, 146), true, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_UPP, Color(188, 234, 100), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_SLOT, Color(188, 234, 100), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_LNG, Color(59, 75, 78));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_ERROR, LtRed);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_PAR0, White, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_PAR1, Color(233, 126, 117), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_PAR2, Color(61, 124, 61), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_PAR3, Color(143, 58, 143), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_INT, Color(205, 170, 249), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_FLOAT, Color(0xE2, 0x7F, 0xC8), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_HEX, Color(0xE2, 0x7F, 0xC8), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_OCT, Color(0xE2, 0x7F, 0xC8), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_CONST_STRINGOP, Color(205, 170, 249));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BRACKET0, Color(127, 127, 127), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BRACKET, Color(197, 127, 127), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BLOCK1, Color(35, 35, 35));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BLOCK2, Color(44, 31, 65));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BLOCK3, Color(18, 55, 2));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_BLOCK4, Color(78, 78, 3));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_MACRO, White, true, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_MACRO, Color(71, 71, 71));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_IFDEF, Color(73, 73, 73));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_IFDEF, Color(170, 170, 170));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_UPPER, Color(28, 255, 0));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_SQLBASE, Color(113, 255, 255), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_SQLFUNC, Color(113, 255, 255), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_SQLBOOL, Color(113, 255, 255), true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_UPPMACROS, Color(255, 127, 255));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_UPPLOGS, Green);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DIFF_FILE_INFO, Black, true);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DIFF_HEADER, Color(28, 127, 200));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DIFF_ADDED, Color(28, 42, 255));
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DIFF_REMOVED, LtRed);
+	HighlightSetup::SetHlStyle(HighlightSetup::INK_DIFF_COMMENT, Color(80, 255, 80));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_SELWORD, Yellow);
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_ERROR, Color(226, 42, 0));
+	HighlightSetup::SetHlStyle(HighlightSetup::PAPER_WARNING, Color(255, 255, 205));
+	HighlightSetup::SetHlStyle(HighlightSetup::SHOW_LINE, Color(67, 67, 67));
+	HighlightSetup::SetHlStyle(HighlightSetup::WHITESPACE, Color(126, 186, 234));
+	HighlightSetup::SetHlStyle(HighlightSetup::WARN_WHITESPACE, Color(191, 126, 126));
+}
+
 EditorManager::EditorManager() {
 	AddFrame(tabFiles);
 	Add(edtCode);
@@ -158,7 +213,7 @@ void EditorManager::SetChanged(int i, bool changed) {
 
 OpenFileInfo& EditorManager::GetInfo(int i) {
 	WString w = tabFiles[i].key;
-	DUMP(w);
+
 	int j = files.Find(tabFiles[i].key);
 	return files[j];
 }
@@ -191,14 +246,21 @@ void EditorManager::Open(const String& item, bool forceReload) {
 		}
 		
 		OpenFileInfo& f = files[ii];
+		if (settings.Theme == 0)
+			f.editor.WhiteTheme();
+		else if (settings.Theme == 1)
+			DarkTheme();
+		f.editor.SetBarLight(settings.Theme == 0);
+		
 		f.editor.AddFrame(RightSeparatorFrame());
 		String syn = EditorSyntax::GetSyntaxForFilename(item);
 		f.editor.WhenAction = THISBACK(OnEditorChange);
 		f.editor.WhenSel = THISBACK(OnEditorCursor);
+		f.editor.WhenPopup = WhenPopup;
 		f.editor.HiliteIfEndif(true);
 		f.editor.CheckEdited();
 		f.editor.HiliteScope(2);
-		f.editor.Annotations(8);
+		f.editor.Annotations(Zx(10));
 		edtCode.Add(f.editor);
 		f.editor.HSizePos().VSizePos();
 		WhenEditorCursor();
@@ -227,11 +289,7 @@ void EditorManager::Open(const String& item, bool forceReload) {
 
 void EditorManager::OnAssistChange(SmartEditor* e) {
 	SetChanged(tabFiles.GetCursor(), true);
-	//for (int i = 0; i < files.GetCount(); i++)
-		//if (&files[i].editor == e)
-			//files[i].IsChanged = true;
 }
-
 
 void EditorManager::RemoveFile(const String& item) {
 	files.RemoveKey(item.ToWString());
@@ -264,6 +322,20 @@ void EditorManager::SetSettings(Settings& settings) {
 	this->settings = settings;
 }
 
+void EditorManager::SetColors(int colors) {
+	for (int i = 0; i < files.GetCount(); i++) {
+		if (colors == 0) {
+			files[i].editor.WhiteTheme();
+			files[i].editor.SetBarLight(true);
+		}
+		else if (colors == 1) {
+			DarkTheme();
+			files[i].editor.SetBarLight(false);
+		}
+	}
+	
+}
+
 void SmartEditor::LeftDown(Point p, dword flags) {
 	if (popUp.IsOpen())
 		popUp.Close();
@@ -294,7 +366,7 @@ void SmartEditor::Update(const String& w) {
 int GetWord(const String& line, String& wrd, const Point& p) {
 	int ofss = 0;
 	
-	if (p.x < line.GetLength() &&  IsAlNum(line[p.x])) {
+	if (p.x < line.GetLength() && IsAlNum(line[p.x])) {
 		int b = p.x;
 		while (b > 0 && IsAlNum(line[b - 1]))
 			b--;
@@ -329,9 +401,24 @@ bool SmartEditor::Key(dword key, int count) {
 	String wrd = "";
 	int ofss = ::GetWord(line, wrd, p);
 	
+	Point anch;
+	
 	if (key & K_CTRL) {
 		int k = key & ~K_CTRL;
 		if (k == K_SPACE) {
+			String line = GetUtf8Line(p.y);
+			line.Replace("\t", "    ");
+			
+			String wrd = "";
+			int ofss = ::GetWord(line, wrd, p);
+	
+			anch.x = p.x - 1 - ofss;
+			anch.y = p.y;
+			
+			Anchor = anch;
+			
+			WhenPopup();
+			
 			popUp.Clear();
 			if (wrd.GetLength())
 				Update(wrd);
@@ -342,7 +429,7 @@ bool SmartEditor::Key(dword key, int count) {
 			}
 			
 			DoPopup(p);
-			
+
 			return true;
 		}
 		else if (k == K_DOWN) {
@@ -377,16 +464,48 @@ bool SmartEditor::Key(dword key, int count) {
 		return CodeEditor::Key(key, count);
 	}
 	
-	/*if (key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4 || key == K_F5 || key == K_F6 ||
+	if (key == K_F1 || key == K_F2 || key == K_F3 || key == K_F4 || key == K_F5 || key == K_F6 ||
 	    key == K_F7 || key == K_F8 || key == K_F9 || key == K_F10 || key == K_F11 || key == K_F12)
-	    return CodeEditor::Key(key, count);*/
+	    return CodeEditor::Key(key, count);
 	
 	if (key == 65553 || key == 1114129)
 		return true;
 	
 	bool result = false;
-	if (key != K_TAB)
+	
+	if (key != K_TAB) {
 		result = CodeEditor::Key(key, count);
+		
+		if (key == '.') {
+			p = GetColumnLine(GetCursor());
+			String line = GetUtf8Line(p.y);
+			line.Replace("\t", "    ");
+			
+			String wrd = "";
+			int ofss = ::GetWord(line, wrd, p);
+	
+			//DUMP((char)line[]);
+			anch.x = p.x - 1 - ofss;
+			anch.y = p.y;
+			
+			Anchor = anch;
+			
+			WhenPopup();
+			
+			popUp.Clear();
+			if (wrd.GetLength())
+				Update(wrd);
+			else {
+				exactMatch = false;
+				for (int i = 0; i < words.GetCount(); i++)
+					popUp.Add(RawToValue(words[i]));
+			}
+			
+			DoPopup(p);
+
+			return true;
+		}
+	}
 	
 	p = GetColumnLine(GetCursor());
 		
@@ -394,20 +513,33 @@ bool SmartEditor::Key(dword key, int count) {
 	line.Replace("\t", "    ");
 	
 	ofss = ::GetWord(line, wrd, p);
-		
-	if (p.x > 0 && (line[p.x - 1] == ')' || line[p.x - 1] == ';' || line[p.x - 1] == ']' || line[p.x - 1] == '}' || line[p.x - 1] == '.')) {
-		if (key == K_TAB)
-			result = CodeEditor::Key(key, count);
-		if (popUp.IsOpen())
-			popUp.Close();
-		return result;
+	
+	anch.x = p.x - 1 - ofss;
+	anch.y = p.y;
+	
+	if (popUp.IsOpen() && anch != Anchor) {
+		Anchor = anch;
+		WhenPopup();
 	}
 	
+	//result = CodeEditor::Key(key, count);
+	/*if (p.x > 0 && (line[p.x - 1] == ')' || line[p.x - 1] == ';' || line[p.x - 1] == ']' || line[p.x - 1] == '}' || line[p.x - 1] == '.')) {
+		if (key == K_TAB)
+			result = CodeEditor::Key(key, count);
+		//if (popUp.IsOpen())
+		//	popUp.Close();
+		return result;
+	}*/
+	
+	popUp.Clear();
 	if (wrd.GetLength())
 		Update(wrd);
 	else {
-		popUp.Clear();
 		exactMatch = false;
+		for (int i = 0; i < words.GetCount(); i++)
+			popUp.Add(RawToValue(words[i]));
+		if (words.GetCount())
+			popUp.SetCursor(0);
 	}
 	
 	if (key == K_TAB && popUp.IsOpen() && popUp.GetCursor() != -1) {
@@ -448,10 +580,10 @@ void SmartEditor::DoPopup(Point p) {
 		return;
 	
 	Rect r = GetLineScreenRect(GetCursorLine());
-	int mm = min(popUp.GetCount(), 12);
+	int mm = min(popUp.GetCount(), 20);
 	
 	if (!popUp.IsOpen()) {
-		popUp.SetRect(r.left + p.x * GetFont().GetAveWidth(), r.top + GetFont().GetLineHeight() * 2, 200, mm * popUp.GetItemHeight() + 5);
+		popUp.SetRect(r.left + p.x * GetFont().GetAveWidth(), r.top + GetFont().GetLineHeight() * 2, 400, mm * popUp.GetItemHeight() + 5);
 	
 		ignoreFocus = true;
 		popUp.PopUp(this);

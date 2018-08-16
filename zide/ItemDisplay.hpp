@@ -8,23 +8,10 @@
 #define IMAGECLASS ZImg
 #define IMAGEFILE <zide/zide.iml>
 #include <Draw/iml_header.h>
+#include <z2clib/ZItem.h>
 
 using namespace Upp;
 
-class ZItem: Moveable<ZItem> {
-public:
-	String Name;
-	String Namespace;
-	Entity::AccessType Access;
-	int Kind;
-	Point Pos;
-	
-	ZItem() {
-		Access = Entity::atPublic;
-		Kind = 0;
-		Pos = Point(0, 0);
-	}
-};
 
 class ItemDisplay: public Display {
 public:

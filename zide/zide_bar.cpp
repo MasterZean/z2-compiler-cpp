@@ -256,7 +256,6 @@ void Zide::OnMenuFormatShowSettings() {
 	dlg.Title("Settings").Sizeable();
 	dlg.SetMinSize(Size(602, 413));
 	
-	WithSetupHlLayout<ParentCtrl> hlt;
 	WithSetupEditorLayout<ParentCtrl> edt;
 	
 	edt.filetabs
@@ -293,6 +292,8 @@ void Zide::OnMenuFormatShowSettings() {
 		(edt.optBracket, settings.Brackets)
 		(edt.optThousands, settings.Thousands);
 	
+	WithSetupHlLayout<ParentCtrl> hlt;
+	
 	hlt.arcStyle.AddColumn("Style");
 	hlt.arcStyle.AddColumn("Color").Ctrls(HlPusherFactory);
 	hlt.arcStyle.AddColumn("Bold").Ctrls<Option>();
@@ -301,9 +302,14 @@ void Zide::OnMenuFormatShowSettings() {
 	hlt.arcStyle.ColumnWidths("211 80 45 45 80");
 	hlt.arcStyle.EvenRowColor().NoHorzGrid().SetLineCy(EditField::GetStdHeight() + 2);
 	ReadHlStyles(hlt.arcStyle);
-	
+		
 	hlt.lstLanguage.Add("Z2");
 	hlt.lstLanguage.SetIndex(0);
+	
+	hlt.lstScheme.Add("Light");
+	hlt.lstScheme.Add("Dark");
+	hlt.lstScheme.SetIndex(settings.Theme);
+	hlt.lstScheme << dlg.Breaker(224);
 		
 	rtvr <<= dlg.Breaker(222);
 	hlt.arcStyle.WhenCtrlsAction = dlg.Breaker(222);
@@ -315,19 +321,25 @@ void Zide::OnMenuFormatShowSettings() {
 	dlg.WhenClose = dlg.Acceptor(IDEXIT);
 	
 	for(;;) {
+		CodeEditor& editor = GetEditor();
+		int i = tabs.tabFiles.GetCursor();
+		
 		int c = dlg.Run();
 		
 		Size sz = dlg.GetSize();
 		
 		if (c == 223) {
-			CodeEditor::DefaultHlStyles();
+			settings.Theme = hlt.lstScheme.GetIndex();
+			tabs.SetColors(settings.Theme);
+			ReadHlStyles(hlt.arcStyle);
+		}
+		else if (c == 224) {
+			settings.Theme = hlt.lstScheme.GetIndex();
+			tabs.SetColors(settings.Theme);
 			ReadHlStyles(hlt.arcStyle);
 		}
 		
 		rtvr.Retrieve();
-		
-		CodeEditor& editor = GetEditor();
-		int i = tabs.tabFiles.GetCursor();
 		
 		tabs.tabFiles.SetAlign(settings.TabPos);
 		tabs.tabFiles.Crosses(settings.TabClose >= 0, settings.TabClose);

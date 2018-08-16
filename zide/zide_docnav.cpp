@@ -4,11 +4,17 @@
 
 extern ZPackage pak;
 
+String ToString(Color c) {
+	return String().Cat() << "(" << c.GetR() << "." << c.GetG() << "." << c.GetB() << ")";
+}
+
 String TrimDocLinks(const String& str) {
 	String s;
 	
 	int i = 0;
 	int l = 0;
+	
+	String cik = ToString(HighlightSetup::hl_style[HighlightSetup::INK_KEYWORD].color);
 	
 	while (i < str.GetCount()) {
 		int first = str.Find('[', i);
@@ -29,7 +35,7 @@ String TrimDocLinks(const String& str) {
 					int last2 = str.Find(']', first2 + 1);
 					
 					if (last2 != -1) {
-						s << "[C@B_ " << t << "]";
+						s << "[C@" << cik << "B_ " << t << "]";
 
 						i = last2;
 						l = i + 1;
@@ -113,14 +119,15 @@ void Zide::OnMenuHelpRebuildDocs() {
 		return;
 	}
 	
+	DUMP(docPath);
 	header = LoadFile(docPath + "header");
 	footer = LoadFile(docPath + "footer");
 	
-	String path = docPath + "..\\" + "api" + ".html";
+	String path = NativePath(docPath + "..\\" + "api" + ".html");
 	FileOut f(path);
 	
-	String headerMain = LoadFile(docPath + "..\\header");
-	String footerMain = LoadFile(docPath + "..\\footer");
+	String headerMain = LoadFile(NativePath(docPath + "..\\header"));
+	String footerMain = LoadFile(NativePath(docPath + "..\\footer"));
 	
 	f << headerMain;
 	
@@ -158,13 +165,13 @@ void Zide::OnMenuHelpRebuildDocs() {
 							if (cls.Scan.Namespace + cls.Scan.Name == fn) {
 								classes.Add(&cls);
 								
-								String file = GetFileDirectory(comp.LookUp[ii]) + fn + ".api.md";
-								String file2 = docPath + fn + ".html";
+								String file = NativePath(GetFileDirectory(comp.LookUp[ii]) + fn + ".api.md");
+								String file2 = NativePath(docPath + fn + ".html");
 								
 								FileOut f(file);
 								FileOut f2(file2);
 								
-								OnGenerateDocTemp3(cls, f, f2);
+								OnGenerateIndividualDoc(cls, f, f2);
 							}
 						}
 					}
@@ -181,13 +188,17 @@ void Zide::OnMenuHelpRebuildDocs() {
 			ZClass& cls = *classes[j];
 			
 			String sss;
-			sss << "<li><a href=\"pak/" << cls.Scan.Namespace << cls.Scan.Name << ".html\">" << cls.Scan.Name << " (<span class=\"muted\">" << cls.Scan.Namespace.Mid(0, cls.Scan.Namespace.GetCount() - 1) << ")</span><a></li>\n";
+			sss << "<li><a href=\"pak/" << cls.Scan.Namespace << cls.Scan.Name << ".html\">" << cls.Scan.Name << " (<span class=\"muted\">" << cls.Scan.Namespace.Mid(0, cls.Scan.Namespace.GetCount() - 1) << "</span>)</a></li>\n";
 			vv.Add(cls.Scan.Name, sss);
 		}
 		
 		SortByKey(vv);
 		for (int j = 0; j < vv.GetCount(); j++) {
+			if (j == 0)
+				f << "<ul>\n";
 			f << vv[j];
+			if (j == vv.GetCount() - 1)
+				f << "<ul/>\n";
 		}
 	}
 	
@@ -207,6 +218,14 @@ void Zide::OnAnnotation() {
 	String ann = editor.GetAnnotation(ln);
 	int aki = ann.Find(' ');
 	
+	String cik = ToString(HighlightSetup::hl_style[HighlightSetup::INK_KEYWORD].color);
+	String cin = ToString(HighlightSetup::hl_style[HighlightSetup::INK_NORMAL].color);
+	String cpn = ToString(HighlightSetup::hl_style[HighlightSetup::PAPER_NORMAL].color);
+	String cic = ToString(HighlightSetup::hl_style[HighlightSetup::INK_UPP].color);
+	String cio = ToString(HighlightSetup::hl_style[HighlightSetup::INK_OPERATOR].color);
+	
+	annotation_popup.Background(HighlightSetup::hl_style[HighlightSetup::PAPER_NORMAL].color);
+	
 	if (aki == -1) {
 		int ii = asbAss.Docs.Find(ann);
 		if (ii == -1)
@@ -217,26 +236,31 @@ void Zide::OnAnnotation() {
 		int lpi = ann.ReverseFind('.');
 		String cls = ann.Mid(lpi + 1);
 		String ns = ann.Mid(0, lpi + 1);
-		String qtf = "[2 [C ";
-		qtf << "[@B* class] " << DeQtf(ns) << "[@c " << DeQtf(cls) << "]&";
-		qtf << "]&";
+		String qtf;
+		
+		qtf = "[2@";
+		qtf << cin << "\n";
+		qtf << "[C [@" << cik << "* class] " << DeQtf(ns) << "[@" << cic << " " << DeQtf(cls) << "]]&\n";
+		qtf << "&\n";
 		
 		String b = TrimDocLinks(doc.Brief);
-		b.Replace("\n", "&");
+		b.Replace("\n", "&\n");
 		b = TrimBoth(b);
 		if (b.EndsWith("&"))
 			b = b.Mid(0, b.GetCount() - 1);
 		qtf << b;
 		
+		qtf << "\n]";
+		
 		annotation_popup.SetQTF(qtf);
 		
 		Rect r = editor.GetLineScreenRect(ln);
-		int h = annotation_popup.GetHeight(580);
-		h = min(h, 550);
-		int y = r.top - h - 16;
+		int w = Zx(600) + Zx(6) * 2 + Zx(1) * 2;
+		int h = annotation_popup.GetHeight(w) + Zy(6) * 2 + Zy(1) * 2;
+		int y = r.top - h - StdFont(10).GetCy() / 2;
 		if(y < GetWorkArea().top)
-			y = r.bottom;
-		annotation_popup.SetRect(r.left, y, 600, h + 16);
+			y = r.bottom + StdFont(10).GetCy();
+		annotation_popup.SetRect(r.left, y, w, h);
 	
 		if (annotation_popup.IsOpen())
 			return;
@@ -254,12 +278,12 @@ void Zide::OnAnnotation() {
 	
 	String rest = TrimBoth(ann.Mid(rki));
 	String toParse = rest;
-	rest.Replace(":", "[@B :]");
-	rest.Replace(";", "[@B ;]");
-	rest.Replace("<", "[@B <]");
-	rest.Replace(">", "[@B >]");
-	rest.Replace("ref ", "[C@B ref] ");
-	rest.Replace("move ", "[C@B move] ");
+	rest.Replace(":", String().Cat() << "[@" << cio << " :]");
+	rest.Replace(";", String().Cat() << "[@" << cio << " ;]");
+	rest.Replace("<", String().Cat() << "[@" << cio << " <]");
+	rest.Replace(">", String().Cat() << "[@" << cio << " >]");
+	rest.Replace("ref ", String().Cat() << "[C@" << cik << " ref] ");
+	rest.Replace("move ", String().Cat() << "[C@" << cik << " move] ");
 	
 	Index<String> parLook;
 	
@@ -284,9 +308,10 @@ void Zide::OnAnnotation() {
 	}
 	
 	fci = toParse.Find("(");
-	if (fci != -1 && toParse.EndsWith(")")) {
-		toParse = toParse.Mid(fci + 1, toParse.GetCount() - 1 - fci);
-		
+	int fci2 = toParse.Find(")");
+	if (fci != -1 && fci2 != -1 && fci2 > fci) {
+		toParse = toParse.Mid(fci + 1, fci2 - 1 - fci);
+			
 		Vector<String> p = Split(toParse, ", ", false);
 		
 		for (int k = 0; k < p.GetCount(); k++) {
@@ -317,33 +342,40 @@ void Zide::OnAnnotation() {
 	int lpi = ns.ReverseFind('.');
 	String cls = ns.Mid(lpi + 1);
 	ns = ns.Mid(0, lpi + 1);
-	String qtf = "[2 [C ";
-	qtf << "[@B* class] " << DeQtf(ns) << "[@c " << DeQtf(cls) << "]&";
+	
+	String qtf = "[2@";
+	qtf << cin << "\n";
+	qtf << "[C [@" << cik << "* class] " << DeQtf(ns) << "[@" << cic << " " << DeQtf(cls) << "]]&\n";
+	qtf << "[C ";
 	if (v[2] == "const")
-		qtf << "-|[@B* const] " << DeQtf(v[1]) << ";";
+		qtf << "-|[@" << cik << "* const] " << DeQtf(v[1]) << ";";
 	else if (v[2] == "prop")
-		qtf << "-|[@B* property] " << rest << ";";
+		qtf << "-|[@" << cik << "* property] " << DeQtf(v[1]) << rest << ";";
 	else if (v[2] == "def")
-		qtf << "-|[@B* def] " << rest << ";";
+		qtf << "-|[@" << cik << "* def] " << DeQtf(v[1])  << rest << ";";
 	else if (v[2] == "defs")
-		qtf << "-|[@B* static def] " << rest << ";";
+		qtf << "-|[@" << cik << "* static def] " << DeQtf(v[1])  << rest << ";";
 	else if (v[2] == "func")
-		qtf << "-|[@B* func] " << rest << ";";
+		qtf << "-|[@" << cik << "* func] " << DeQtf(v[1])  << rest << ";";
 	else if (v[2] == "funcs")
-		qtf << "-|[@B* static func] " << rest << ";";
+		qtf << "-|[@" << cik << "* static func] " << DeQtf(v[1]) << rest << ";";
 	else if (v[2] == "this")
-		qtf << "-|[@B* this] " << rest << ";";
+		qtf << "-|[@" << cik << "* this]" << rest << ";";
 	else if (v[2] == "var")
-		qtf << "-|[@B* var] " << DeQtf(v[1]) << ";";
-	qtf << "]&&";
-	String b = TrimDocLinks(doc.Brief);
-	b.Replace("\n", "&");
+		qtf << "-|[@" << cik << "* var] " << DeQtf(v[1]) << ";";
+	qtf << "]&\n";
+	
+	qtf << "&\n";
+	String b = TrimDocLinks(TrimBoth(doc.Brief));
+	b.Replace("\n", "&\n");
 	b = TrimBoth(b);
 	if (b.EndsWith("&"))
 		b = b.Mid(0, b.GetCount() - 1);
 	qtf << b;
 	
 	int count = 0;
+	DUMP(parLook);
+	DUMP(doc.Params);
 	for (int i = 0; i < doc.Params.GetCount(); i++) {
 		if (parLook.Find(doc.Params.GetKey(i)) != -1) {
 			count++;
@@ -352,41 +384,44 @@ void Zide::OnAnnotation() {
 	}
 	
 	if (count || doc.Returns.GetCount())
-		qtf << "&";
+		qtf << "&\n&\n";
 		
 	if (count) {
 		String qtf2;
-		qtf2 << "&{{1:2 ";
+		qtf2 << "{{1:2F" << cin << "G" << cin << "@" << cpn << " ";
+		int len = qtf2.GetLength();
 		
 		for (int i = 0; i < doc.Params.GetCount(); i++) {
 			if (parLook.Find(doc.Params.GetKey(i)) != -1) {
-				if (qtf2.GetCount() > 7)
+				if (qtf2.GetCount() > len)
 					qtf2 << "||";
 				qtf2 << "[C " << doc.Params.GetKey(i) << "]||" << doc.Params[i];
 			}
 		}
 		
+		if (doc.Returns.GetCount())
+			qtf2 << "||[@" << cik << "C return]||" << doc.Returns;
+		
 		qtf2 << "}}";
 		
 		qtf << qtf2;
 	}
-	
-	if (doc.Returns.GetCount()) {
-		qtf << "&{{1:2 ";
-		qtf << "[@BC return]||" << doc.Returns;
-		qtf << "}}";
+	else if (doc.Returns.GetCount()) {
+		qtf << "{{1:2F" << cin << "G" << cin << "@" << cpn << " ";
+		qtf << "[@" << cik << "C return]||" << doc.Returns;
+		qtf << "}}\n";
 	}
 	
-	qtf << "]";
+	qtf << "\n]";
 	annotation_popup.SetQTF(qtf);
 	
 	Rect r = editor.GetLineScreenRect(ln);
-	int h = annotation_popup.GetHeight(580);
-	h = min(h, 550);
-	int y = r.top - h - 16;
+	int w = Zx(600) + Zx(6) * 2 + Zx(1) * 2;
+	int h = annotation_popup.GetHeight(w) + Zy(6) * 2 + Zy(1) * 2;
+	int y = r.top - h - StdFont(10).GetCy() / 2;
 	if(y < GetWorkArea().top)
-		y = r.bottom;
-	annotation_popup.SetRect(r.left, y, 600, h + 16);
+		y = r.bottom + StdFont(10).GetCy();
+	annotation_popup.SetRect(r.left, y, w, h);
 
 	if (annotation_popup.IsOpen())
 		return;
@@ -432,12 +467,12 @@ void Zide::OnGenerateDocTemp() {
 			FileOut f(file);
 			FileOut f2(file2);
 			
-			OnGenerateDocTemp3(cls, f, f2);
+			OnGenerateIndividualDoc(cls, f, f2);
 		}
 	}
 }
 
-void Zide::OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2) {
+void Zide::OnGenerateIndividualDoc(ZClass& cls, FileOut& f, FileOut& f2) {
 	ArrayMap<String, DocEntry> docs;
 	Index<String> links;
 	
@@ -461,12 +496,13 @@ void Zide::OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2) {
 	f2 << "<li class=\"breadcrumb-item\">" << nss << "</li>\n";
 	f2 << "<li class=\"breadcrumb-item active\">"<< cls.Scan.Name << "</li>\n";
 	f2 << "</ol>\n\n";
-
+	
+	f2 << "<div class=\"classhead\">\n";
 	f2 << "<h1>class " << cls.Scan.Name << "</h1>\n";
 	f2 << "<pre><code class=\"cs\">namespace " << nss << "\n";
 	f2 << "class "<< cls.Scan.Name << "\n";
 	f2 << "</code></pre>\n";
-	
+		
 	if (ii != -1) {
 		String b = asbAss.Docs[ii].Brief;
 		
@@ -475,11 +511,11 @@ void Zide::OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2) {
 			b.Replace("\n", "<br/>\n");
 			b.Replace("  ", "<br/>\n");
 			
-			f2 << "<div class=\"codesection\">\n";
 			f2 << "<p>" << b << "</p>\n";
-			f2 << "</div>\n";
 		}
 	}
+	
+	f2 << "</div>\n";
 	
 	for (int i = 0; i < cls.Cons.GetCount(); i++) {
 		Def& def = cls.Cons[i];
@@ -643,6 +679,89 @@ void Zide::OnGenerateDocTemp3(ZClass& cls, FileOut& f, FileOut& f2) {
 					doc.Code << "\n";
 				doc.Code << TrimBoth(s) + ";";
 			}
+		}
+	}
+	
+	for (int i = 0; i < cls.Defs.GetCount(); i++) {
+		Def& def = cls.Defs[i];
+		
+		int dc = 0;
+		for (int j = 0; j < def.Overloads.GetCount(); j++) {
+			Overload& over = def.Overloads[j];
+			if (!over.IsNoDoc)
+				dc++;
+		}
+		
+		if (def.Access != Entity::atPublic || dc || def.IsTemplate == false)
+			continue;
+	
+		int index = docs.FindAdd(def.Name);
+		DocEntry& doc = docs[index];
+		doc.Key = def.Name;
+		if (doc.Brief.GetCount() == 0)
+			doc.Brief << cls.Scan.Namespace << cls.Scan.Name << " " << def.Name;
+			
+		/*for (int j = 0; j < def.Overloads.GetCount(); j++) {
+			Overload& over = def.Overloads[j];
+			
+			if (over.IsNoDoc)
+				continue;
+			for (int k = 0; k < over.ParamPreview.GetCount(); k++)
+				doc.Params.FindAdd(over.ParamPreview[k]);
+			
+			if (over.IsVoidReturn == false)
+				doc.Returns = " ";
+			
+			if (!over.IsGenerated) {
+				String s;
+				if (over.IsStatic)
+					s << "static ";
+				if (over.IsConst)
+					s << "func ";
+				else
+					s << "def ";
+				s << def.Name;
+				s << "(";
+				CParser::Pos pos = over.CPosPar;
+				const char *ch = pos.ptr;
+				while ((*ch >= ' ') && (*ch != ')')) {
+					s << *ch;
+					ch++;
+				}
+				s << ")";
+				ch++;
+				while ((*ch >= ' ') && (*ch != '{' && *ch != ';' && *ch != '=')) {
+					s << *ch;
+					ch++;
+				}
+				if (doc.Code.GetCount())
+					doc.Code << "\n";
+				doc.Code << TrimBoth(s) + ";";
+			}
+		}*/
+		
+		if (def.Name == "Parse")
+			def.Name == "Parse";
+		
+		if (def.Overloads.GetCount() == 0 && def.IsTemplate) {
+			String s;
+			s = def.Name;
+			s << "(";
+			CParser::Pos pos = def.CPosPar;
+			const char *ch = pos.ptr;
+			while ((*ch >= ' ') && (*ch != ')')) {
+				s << *ch;
+				ch++;
+			}
+			s << ")";
+			ch++;
+			while ((*ch >= ' ') && (*ch != '{' && *ch != ';' && *ch != '=')) {
+				s << *ch;
+				ch++;
+			}
+			if (doc.Code.GetCount())
+				doc.Code << "\n";
+			doc.Code << TrimBoth(s) + ";";
 		}
 	}
 	
@@ -839,10 +958,28 @@ void Zide::WriteDocEntry(FileOut& f, FileOut& f2, DocEntry& doc, Index<String>& 
 	if (ii != -1) {
 		DocEntry& exDoc = asbAss.Docs[ii];
 		String b = exDoc.Brief;
-		f << b;
+		
+		int kk = asbAss.Docs.Find(doc.Brief);
+		if (kk != -1) {
+			DocEntry& exDoc = asbAss.Docs[kk];
+			String b = exDoc.SeeAlso;
+			if (b.GetCount() == 0) {
+				kk = -1;
+			}
+		}
+	
+		if (doc.Params.GetCount() == 0 && doc.Returns.GetCount() == 0 && kk == -1) {
+			f << TrimRight(b);
+		}
+		else
+			f << b;
 		
 		FindDocLinks(links, b);
+		b = TrimBoth(b);
+		b.Replace("\n", "<br/>\n");
 		b.Replace("  ", "<br/>\n");
+		//b.Replace("<br/>\n<br/>", "<br/>\n");
+		
 		f2 << "<p>\n" << TrimDocLinksHtml(b) << "\n";
 		f2 << "</p>";
 	}
@@ -851,23 +988,26 @@ void Zide::WriteDocEntry(FileOut& f, FileOut& f2, DocEntry& doc, Index<String>& 
 	if (doc.Params.GetCount()) {
 		f << "#### Parameters" << "\n";
 		f2 << "<h4>Parameters</h4>" << "\n";
-		f2 << "<blockquote>";
+		f2 << "<div class=\"params\"><table class=\"table table-bordered\">\n";
+		//f2 << "<blockquote>";
 		for (int j = 0; j < doc.Params.GetCount(); j++) {
-			if (ii == -1)
-				f << "\n";
 			f << "> *" << doc.Params.GetKey(j) << "* => ";
 			if (ii != -1) {
 				DocEntry& exDoc = asbAss.Docs[ii];
 				int jj = exDoc.Params.Find(doc.Params.GetKey(j));
 				if (jj != -1) {
 					f << exDoc.Params[jj] << "  ";
-					f2 << doc.Params.GetKey(j) << "=> " << exDoc.Params[jj] << "<br/>" << "\n";
+					f2 << "<tr>\n";
+					f2 << "<th scope=\"row\">" << doc.Params.GetKey(j) << "</th>\n";
+					f2 << "<td>" << exDoc.Params[jj] << "</td>\n";
+					f2 << "</tr>\n";
 				}
 			}
 			
 			f << "\n";
 		}
-		f2 << "</blockquote>\n";
+		f2 << "</table></div>\n";
+		//f2 << "</blockquote>\n";
 	}
 	
 	if (doc.Returns.GetCount()) {
@@ -911,17 +1051,29 @@ void Zide::LoadNavigation(ZSource& source) {
 	ZItem item;
 
 	SmartEditor& editor = GetEditor();
-	editor.words.Clear();
+	//editor.words.Clear();
 	editor.ClearAnnotations();
+	
+	Image annot;
+	if (settings.Theme == 0)
+		annot = ZImg::annot();
+	else
+		annot = ZImg::annotdark();
+	
+	Image annotm;
+	if (settings.Theme == 0)
+		annotm = ZImg::annotm();
+	else
+		annotm = ZImg::annotmdark();
 	
 	for (int i = 0; i < source.ClassPrototypes.GetCount(); i++) {
 		ZClass& cls = source.ClassPrototypes[i];
 		
 		int ii = asbAss.Docs.Find(cls.Scan.Namespace + cls.Scan.Name);
 		if (ii != -1)
-			editor.SetAnnotation(cls.Position.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), cls.Scan.Namespace + cls.Scan.Name);
+			editor.SetAnnotation(cls.Position.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, cls.Scan.Namespace + cls.Scan.Name);
 			
-		item.Kind = cls.Scan.IsEnum ? 2 : 1;
+		item.Kind = cls.Scan.IsEnum ? ZItem::itEnum : ZItem::itClass;
 		item.Pos = cls.Position;
 		String s = cls.Scan.Name;
 		if (cls.Scan.Namespace.GetLength())
@@ -930,15 +1082,16 @@ void Zide::LoadNavigation(ZSource& source) {
 		item.Namespace = cls.Scan.Namespace + cls.Scan.Name;
 		int node = explore.lstItems.Add(0, Image(), RawToValue(item));
 						
-		item.Kind = 0;
+		//item.Kind = 0;
 		
 		for (int j = 0; j < cls.Constants.GetCount(); j++) {
 			Constant& cst = cls.Constants[j];
-			item.Kind = 10;
+			item.Kind = ZItem::itConst;
 			item.Name = cst.Name;
 			item.Pos = cst.Location;
+			item.Access = cst.Access;
 			explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
-			editor.words.Add(item);
+			//editor.words.Add(item);
 			
 			String key = cls.Scan.Namespace;
 			key << cls.Scan.Name;
@@ -947,16 +1100,17 @@ void Zide::LoadNavigation(ZSource& source) {
 			
 			int ii = asbAss.Docs.Find(key);
 			if (ii != -1)
-				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), key + " const");
+				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " const");
 		}
 		
 		for (int j = 0; j < cls.Vars.GetCount(); j++) {
 			Variable& cst = cls.Vars[j];
-			item.Kind = 11;
+			item.Kind = ZItem::itVar;
 			item.Name = cst.Name;
 			item.Pos = cst.Location;
+			item.Access = cst.Access;
 			explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
-			editor.words.Add(item);
+			//editor.words.Add(item);
 			
 			String key = cls.Scan.Namespace;
 			key << cls.Scan.Name;
@@ -965,26 +1119,29 @@ void Zide::LoadNavigation(ZSource& source) {
 					
 			int ii = asbAss.Docs.Find(key);
 			if (ii != -1)
-				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), key + " var");
+				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " var");
 		}
 		
 		for (int j = 0; j < cls.Cons.GetCount(); j++) {
 			Def& def = cls.Cons[j];
 			
-			item.Kind = 5;
+			//item.Kind = 5;
 			item.Name = def.Name;
 			if (def.Name != "this")
-				editor.words.Add(item);
+				;//editor.words.Add(item);
 			for (int k = 0; k < def.Overloads.GetCount(); k++) {
-				item.Kind = 7;
 				Overload& over = def.Overloads[k];
+				if (over.IsCons == 2)
+					item.Kind = ZItem::itNamed;
+				else
+					item.Kind = ZItem::itThis;
+				
 				if (!over.IsGenerated) {
-					s = "";
 					if (over.IsCons == 2) {
-						s << def.Name;
-						item.Kind = 7;
+						item.Name = def.Name;
+						item.Kind = ZItem::itNamed;
 					}
-					s << "{";
+					s = "{";
 					CParser::Pos pos = over.CPosPar;
 					const char *ch = pos.ptr;
 					while ((*ch >= ' ') && (*ch != ')')) {
@@ -992,8 +1149,9 @@ void Zide::LoadNavigation(ZSource& source) {
 						ch++;
 					}
 					s << "}";
-					item.Name = s;
+					item.Sig = s;
 					item.Pos = over.Location;
+					item.Access = over.Access;
 					explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
 					
 					String key = cls.Scan.Namespace;
@@ -1003,25 +1161,45 @@ void Zide::LoadNavigation(ZSource& source) {
 					
 					int ii = asbAss.Docs.Find(key);
 					if (ii != -1)
-						editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), key + " this " + s);
+						editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " this " + s);
 				}
 			}
+		}
+		
+		if (cls.Dest) {
+			item.Name = "~";
+			item.Sig = "{}";
+			item.Pos = cls.Dest->Location;
+			if (cls.Dest->Overloads.GetCount())
+				item.Pos = cls.Dest->Overloads[0].Location;
+			item.Kind = ZItem::itDest;
+			item.Access = cls.Dest->Access;
+			explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
+			
+			String key = cls.Scan.Namespace;
+			key << cls.Scan.Name;
+			key << " ";
+			key << cls.Dest->Name;
+				
+			int ii = asbAss.Docs.Find(key);
+			if (ii != -1)
+				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " def " + s);
 		}
 		
 		for (int j = 0; j < cls.Props.GetCount(); j++) {
 			Def& def = cls.Props[j];
 			
 			if (def.HasPGetter && !def.HasPSetter)
-				item.Kind = 6;
+				item.Kind = ZItem::itGet;
 			if (!def.HasPGetter && def.HasPSetter)
-				item.Kind = 8;
+				item.Kind = ZItem::itSet;
 			if (def.HasPGetter && def.HasPSetter)
-				item.Kind = 9;
+				item.Kind = ZItem::itGetSet;
 			item.Name = def.Name;
-			editor.words.Add(item);
+			//editor.words.Add(item);
 			
+			item.Name = def.Name;
 			s = "";
-			s << def.Name;
 			CParser::Pos pos = def.Pos[0];
 			const char *ch = pos.ptr;
 			while ((*ch >= ' ') && (*ch != '{') && *ch != '\n') {
@@ -1029,8 +1207,9 @@ void Zide::LoadNavigation(ZSource& source) {
 				ch++;
 			}
 			
-			item.Name = s;
+			item.Sig = s;
 			item.Pos = def.Location;
+			item.Access = def.Access;
 			explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
 			
 			String key = cls.Scan.Namespace;
@@ -1040,22 +1219,21 @@ void Zide::LoadNavigation(ZSource& source) {
 			
 			int ii = asbAss.Docs.Find(key);
 			if (ii != -1)
-				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), key + " prop " + s);
+				editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " prop " + s);
 		}
 		
 		for (int j = 0; j < cls.Defs.GetCount(); j++) {
 			Def& def = cls.Defs[j];
-			
-			item.Kind = def.IsStatic ? 4 : 3;
+
 			item.Name = def.Name;
-			editor.words.Add(item);
+			item.Access = def.Access;
+			//editor.words.Add(item);
 			
 			for (int k = 0; k < def.Overloads.GetCount(); k++) {
 				Overload& over = def.Overloads[k];
 				if (!over.IsGenerated) {
-					s = "";
-					s << def.Name;
-					s << "(";
+					item.Name = def.Name;
+					s = "(";
 					CParser::Pos pos = over.CPosPar;
 					const char *ch = pos.ptr;
 					while ((*ch >= ' ') && (*ch != ')')) {
@@ -1068,8 +1246,10 @@ void Zide::LoadNavigation(ZSource& source) {
 						s << *ch;
 						ch++;
 					}
-					item.Name = TrimBoth(s);
+					item.Sig = TrimBoth(s);
 					item.Pos = over.Location;
+					item.Kind = over.IsConst ? ZItem::itFunc : ZItem::itDef;
+					item.Static = over.IsStatic;
 					explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
 					
 					String key = cls.Scan.Namespace;
@@ -1087,14 +1267,14 @@ void Zide::LoadNavigation(ZSource& source) {
 						if (over.Parent->IsStatic)
 							v << "s";
 						v << " " << s;
-						editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), v);
+						editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, v);
 					}
 				}
 			}
 			
-			if (def.Overloads.GetCount() == 0 && def.Template) {
-				s = def.Name;
-				s << "(";
+			if (def.Overloads.GetCount() == 0 && def.IsTemplate) {
+				item.Name = def.Name;
+				s = "(";
 				CParser::Pos pos = def.CPosPar;
 				const char *ch = pos.ptr;
 				while ((*ch >= ' ') && (*ch != ')')) {
@@ -1102,8 +1282,11 @@ void Zide::LoadNavigation(ZSource& source) {
 					ch++;
 				}
 				s << ")";
-				item.Name = s;
+				item.Sig = s;
 				item.Pos = def.Location;
+				item.Access = def.Access;
+				item.Kind = def.IsConst ? ZItem::itFunc : ZItem::itDef;
+				item.Static = def.IsStatic;
 				explore.lstItems.Add(node, Image(), item.Name, RawToValue(item));
 				
 				String key = cls.Scan.Namespace;
@@ -1113,7 +1296,7 @@ void Zide::LoadNavigation(ZSource& source) {
 					
 				int ii = asbAss.Docs.Find(key);
 				if (ii != -1)
-					editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? ZImg::annot() : ZImg::annotm(), key + " def " + s);
+					editor.SetAnnotation(item.Pos.x - 1, TrimBoth(asbAss.Docs[ii].Brief).GetCount() ? annot : annotm, key + " def " + s);
 			}
 		}
 		
@@ -1136,13 +1319,13 @@ void Zide::LoadNavigation(ZSource& source) {
 	}
 	
 	for (int i = 0; i < source.References.GetCount(); i++) {
-		item.Kind = 1;
+		item.Kind = ZItem::itClass;
 		String s = source.References[i];
 		int j = s.ReverseFind('.');
 		if (j != -1)
 			s = s.Mid(j + 1);
 		item.Name = s;
-		editor.words.Add(item);
+		//editor.words.Add(item);
 	}
 	
 	if (classes != info->classes) {

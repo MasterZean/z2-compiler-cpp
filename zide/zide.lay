@@ -16,7 +16,9 @@ END_LAYOUT
 
 LAYOUT(SetupHlLayout, 544, 288)
 	ITEM(Label, dv___0, SetLabel(t_("Language:")).LeftPosZ(4, 72).TopPosZ(4, 19))
+	ITEM(Label, dv___1, SetLabel(t_("Scheme:")).LeftPosZ(196, 72).TopPosZ(4, 19))
 	ITEM(DropList, lstLanguage, LeftPosZ(80, 100).TopPosZ(4, 19))
+	ITEM(DropList, lstScheme, LeftPosZ(272, 100).TopPosZ(4, 19))
 	ITEM(Button, btnRestore, SetLabel(t_("Restore Defaults")).RightPosZ(4, 120).TopPosZ(4, 20))
 	ITEM(ArrayCtrl, arcStyle, HSizePosZ(4, 4).VSizePosZ(28, 4))
 END_LAYOUT
@@ -45,21 +47,19 @@ LAYOUT(SetupEditorLayout, 544, 200)
 	ITEM(DropList, tabs_crosses, LeftPosZ(416, 64).TopPosZ(24, 19))
 END_LAYOUT
 
-LAYOUT(BuildMethodsLayout, 620, 464)
+LAYOUT(BuildMethodsLayout, 620, 320)
 	ITEM(ColumnList, lstMethods, LeftPosZ(4, 164).VSizePosZ(4, 4))
 	ITEM(Label, dv___1, SetLabel(t_("Name:")).LeftPosZ(176, 92).TopPosZ(4, 19))
 	ITEM(EditField, edtName, SetEditable(false).LeftPosZ(272, 180).TopPosZ(4, 19))
 	ITEM(Label, dv___3, SetLabel(t_("Type:")).LeftPosZ(176, 92).TopPosZ(24, 19))
 	ITEM(Option, optGCC, SetLabel(t_("GCC")).SetEditable(false).LeftPosZ(272, 88).TopPosZ(24, 20))
 	ITEM(Option, optMSC, SetLabel(t_("MSC")).SetEditable(false).LeftPosZ(364, 88).TopPosZ(24, 20))
-	ITEM(Label, dv___6, SetLabel(t_("32-bit Library Path:")).LeftPosZ(176, 92).TopPosZ(92, 19))
-	ITEM(ColumnList, lstLib32, HSizePosZ(184, 4).TopPosZ(112, 140))
-	ITEM(Label, dv___8, SetLabel(t_("64-bit Library Path:")).LeftPosZ(176, 92).TopPosZ(256, 19))
-	ITEM(ColumnList, lstLib64, HSizePosZ(184, 4).TopPosZ(276, 140))
-	ITEM(Label, dv___10, SetLabel(t_("Compiler Path:")).LeftPosZ(176, 92).TopPosZ(48, 19))
-	ITEM(EditField, edtCompiler, SetEditable(false).LeftPosZ(272, 344).TopPosZ(48, 19))
-	ITEM(Label, dv___12, SetLabel(t_("SDK Path:")).LeftPosZ(176, 92).TopPosZ(68, 19))
-	ITEM(EditField, edtSdk, SetEditable(false).LeftPosZ(272, 344).TopPosZ(68, 19))
+	ITEM(Label, dv___6, SetLabel(t_("Library Path:")).LeftPosZ(176, 92).TopPosZ(92, 19))
+	ITEM(ColumnList, lstLib, HSizePosZ(184, 4).VSizePosZ(112, 28))
+	ITEM(Label, dv___8, SetLabel(t_("Compiler Path:")).LeftPosZ(176, 92).TopPosZ(48, 19))
+	ITEM(EditField, edtCompiler, SetEditable(false).HSizePosZ(272, 4).TopPosZ(48, 19))
+	ITEM(Label, dv___10, SetLabel(t_("SDK Path:")).LeftPosZ(176, 92).TopPosZ(68, 19))
+	ITEM(EditField, edtSdk, SetEditable(false).HSizePosZ(272, 4).TopPosZ(68, 19))
 	ITEM(Button, btnOk, SetLabel(t_("OK")).RightPosZ(4, 72).BottomPosZ(4, 20))
 END_LAYOUT
 

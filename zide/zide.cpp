@@ -2,8 +2,12 @@
 
 #include <z2clib/Source.h>
 #include <z2clib/Scanner.h>
+#include <z2clibex/Compiler.h>
+#include <z2clibex/ExprParser.h>
 
 ZPackage pak;
+
+//#include <Theme/Theme.h>
 
 void OutlineThread(Zide* zide, const String& data, uint64 hash) {
 	try {
@@ -13,7 +17,12 @@ void OutlineThread(Zide* zide, const String& data, uint64 hash) {
 		source->Data = data;
 		source->AddStdClassRefs();
 		
-		Scanner scanner(*source, true);
+		bool win = false;
+		#ifdef PLATFORM_WIN32
+		win = true;
+		#endif
+		
+		Scanner scanner(*source, win);
 		scanner.Scan();
 		
 		PostCallback(callback2(zide, &Zide::NavigationDone, source, hash));
@@ -62,7 +71,7 @@ Zide::Zide() {
 		AddFrame(tlbMain);
 		tlbMain.NoTransparent();
 	}
-
+	
 	mnuMain.Set(THISBACK(DoMainMenu));
 	tlbMain.Set(THISBACK(MainToolbar));
 	
@@ -104,6 +113,7 @@ Zide::Zide() {
 	tabs.WhenEditorChange = THISBACK(OnEditChange);
 	tabs.WhenTabChange = THISBACK(OnTabChange);
 	tabs.WhenAnnotation = THISBACK(OnAnnotation);
+	tabs.WhenPopup = THISBACK(OnAcDot);
 	lblLine.SetAlign(ALIGN_CENTER);
 
 	edtDummy.Enable(false);
@@ -113,7 +123,8 @@ Zide::Zide() {
 	editThread = true;
 	pauseExplorer = false;
 	
-	colors.Add(0);
+	colors.Add(HighlightSetup::INK_NORMAL);
+	colors.Add(HighlightSetup::PAPER_NORMAL);
 	
 	colors.Add(11);
 	colors.Add(12);
@@ -165,7 +176,7 @@ Zide::Zide() {
 	popMethodList.Normal();
 	popMethodList.WhenSelect = THISBACK(OnSelectMethod);
 	
-	String curDir = NativePath(GetCurrentDirectory() + "\\");
+	String curDir = GetFileDirectory(GetExeFilePath()); //NativePath(GetCurrentDirectory() + "\\");
 	LoadFromXMLFile(methods, curDir + "buildMethods.xml");
 	if (methods.GetCount() == 0) {
 		methods.Clear();
@@ -178,10 +189,12 @@ Zide::Zide() {
 		StoreAsXMLFile(methods, "methods", curDir + "buildMethods.xml");
 	}
 	
+	Index<String> met;
 	for (int i = 0; i < methods.GetCount(); i++)
-		popMethodList.Add(methods[i].Name);
-	if (methods.GetCount())
-		popMethodList.SetCursor(0);
+		met.FindAdd(methods[i].Name);
+	
+	for (int i = 0; i < met.GetCount(); i++)
+		popMethodList.Add(met[i]);
 	
 	popTypeList.Normal();
 	popTypeList.WhenSelect = THISBACK(OnSelectMethod);
@@ -192,19 +205,78 @@ Zide::Zide() {
 	
 	popArchList.Normal();
 	popArchList.WhenSelect = THISBACK(OnSelectMethod);
-	popArchList.Add("x86");
-	popArchList.SetCursor(0);
-	
-	OnSelectMethod();
 	
 	annotation_popup.Background(White);
 	annotation_popup.SetFrame(BlackFrame());
-	annotation_popup.Margins(6);
+	annotation_popup.Margins(Zx(6));
 	annotation_popup.NoSb();
 	
 	docPath = GetFileDirectory(GetExeFilePath());
 	docPath << "docs\\pak\\";
 	docPath = NativePath(docPath);
+	RealizePath(docPath);
+}
+
+void Zide::OnAcDot() {
+	int i = tabs.tabFiles.GetCursor();
+	if (i == -1)
+		return;
+	
+	String file = tabs.tabFiles[i].key.ToString();
+	
+	SmartEditor& editor = GetEditor();
+	if (!editor.IsEnabled())
+		return;
+	
+	ExprParser::Initialize();
+	
+	Assembly ass;
+	Compiler comp(ass);
+	
+	AST ast(ass);
+	CppNodeWalker cpp(ass, NilStream());
+	comp.BringUp(ast, NilStream(), cpp);
+	
+	try {
+		comp.Cache = &asbAss.Cache;
+		
+		for (int i = 0; i < packages.GetCount(); i++)
+			comp.AddPackage(packages[i], false);
+		
+		ZSource* src = comp.FindSource(file);
+		if (src == nullptr)
+			return;
+		comp.UpdateSource(*src, editor.Get());
+		
+		comp.LookUp.Clear();
+		comp.Populate(true);
+		
+		comp.CompileClass();
+		comp.CompileCompiler();
+		comp.CompileString();
+		comp.CompileIntrinsic();
+		
+		Point p = editor.Anchor;
+		if (p.x > 0) {
+			p.x++;
+			p.y++;
+			Swap(p.x, p.y);
+			comp.DoAC(*src, p);
+		}
+	}
+	catch (ZSyntaxError& exc) {
+		/*StringStream ss;
+		exc.PrettyPrint(comp.context, ss);
+		
+		splBottom.Show();
+		console.Set(ss.GetResult());
+		console.ScrollEnd();
+		console.ScrollLineUp();*/
+	}
+	
+	editor.words.Clear();
+	for (int i = 0; i < comp.AutoComplete.GetCount(); i++)
+		editor.words.Add(comp.AutoComplete[i]);
 }
 
 void Zide::DropMethodList() {
@@ -221,49 +293,60 @@ void Zide::DropArchList() {
 
 void Zide::OnSelectMethod() {
 	String s;
+	
+	if (popMethodList.GetCursor() == -1)
+		for (int i = 0; i < popMethodList.GetCount(); i++)
+			if (popMethodList.Get(i, 0) == method) {
+				popMethodList.SetCursor(i);
+				break;
+			}
+	
+	if (popMethodList.GetCursor() == -1 && popMethodList.GetCount())
+		popMethodList.SetCursor(0);
+	
 	if (popMethodList.GetCursor() != -1) {
 		method = popMethodList.Get(popMethodList.GetCursor(), 0);
 		s << method;
 	}
-	
+		
+	Index<String> archs;
 	int index = -1;
+	bool x86 = false, x64 = false;
 	for (int i = 0; i < methods.GetCount(); i++) {
 		if (methods[i].Name == method) {
+			archs.FindAdd(methods[i].Arch);
 			index = i;
-			break;
 		}
 	}
+	
+	String oldArch;
+	if (popArchList.GetCursor() != -1)
+		oldArch = popArchList.Get(popArchList.GetCursor(), 0);
+	if (oldArch.GetCount() == 0)
+		oldArch = arch;
+		
+	popArchList.Clear();
+	
+	if (index!= -1) {
+		for (int i = 0; i < archs.GetCount(); i++) {
+			popArchList.Add(archs[i]);
+			if (oldArch.GetCount() && oldArch == archs[i])
+				popArchList.SetCursor(popArchList.GetCount() - 1);
+		}
+	}
+	
+	if (popArchList.GetCursor() == -1 && popArchList.GetCount())
+		popArchList.SetCursor(0);
 	
 	if (popArchList.GetCursor() != -1) {
-		String oldArch = popArchList.Get(popArchList.GetCursor(), 0);
-		popArchList.Clear();
-		
-		if (index!= -1) {
-			if (methods[index].Lib32.GetCount()) {
-				popArchList.Add("x86");
-				if (oldArch == "x86")
-					popArchList.SetCursor(popArchList.GetCount() - 1);
-			}
-			if (methods[index].Lib64.GetCount()) {
-				popArchList.Add("x64");
-				if (oldArch == "x64")
-					popArchList.SetCursor(popArchList.GetCount() - 1);
-			}
-		}
-		
-		if (popArchList.GetCursor() == -1 && popArchList.GetCount())
-			popArchList.SetCursor(popArchList.GetCount() - 1);
-		
-		if (popArchList.GetCursor() != -1) {
-			if (!s.IsEmpty())
-				s << " ";
-			arch = popArchList.Get(popArchList.GetCursor(), 0);
-			s << arch;
-		}
-		else
-			arch = "";
+		if (!s.IsEmpty())
+			s << " ";
+		arch = popArchList.Get(popArchList.GetCursor(), 0);
+		s << arch;
 	}
-	
+	else
+		arch = "";
+		
 	int c = popTypeList.GetCursor();
 	if (c != -1) {
 		if (!s.IsEmpty())
@@ -372,6 +455,7 @@ SmartEditor& Zide::GetEditor() {
 	int i = tabs.tabFiles.GetCursor();
 	if (i == -1)
 		return edtDummy;
+	
 	WString file = tabs.tabFiles[i].key;
 	int j = tabs.files.Find(file);
 	if (j == -1)
@@ -384,14 +468,16 @@ OpenFileInfo* Zide::GetInfo() {
 	int i = tabs.tabFiles.GetCursor();
 	if (i == -1)
 		return nullptr;
+	
 	WString file = tabs.tabFiles[i].key;
 	int j = tabs.files.Find(file);
 	if (j == -1)
 		return nullptr;
+	
 	return &tabs.files[j];
 }
 
-String Zide::Build(const String& file, bool scu, bool& res) {
+String Zide::Build(const String& file, bool scu, bool& res, Point p) {
 	String cmd = zcPath;
 	if (cmd.GetCount() == 0)
 		cmd = BuildMethod::Exe("z2c");
@@ -418,6 +504,10 @@ String Zide::Build(const String& file, bool scu, bool& res) {
 	
 	cmd << " -arch " << arch;
 	
+	if (p.x > 0)
+		cmd << " -acp " << p.x << " " << p.y;
+	
+	DUMP(cmd);
 	String t, tt;
 	LocalProcess lp(cmd);
 
@@ -428,6 +518,7 @@ String Zide::Build(const String& file, bool scu, bool& res) {
 	res = BuildMethod::IsSuccessCode(lp.GetExitCode());
 
 	if (res == false && tt.GetCount() == 0) {
+		DUMP(tt);
 		cmd = GetFileDirectory(GetExeFilePath()) + BuildMethod::Exe("z2c");
 
 		if (!FileExists(cmd))
@@ -465,10 +556,11 @@ void Zide::OutPutEnd() {
 }
 
 void Zide::OnEditChange() {
+	DUMP("Change");
 	OpenFileInfo* info = GetInfo();
 	if (!info)
 		return;
-	CodeEditor& editor = info->editor;
+	SmartEditor& editor = info->editor;
 	if (!editor.IsEnabled())
 		return;
 	
@@ -632,6 +724,10 @@ void Zide::Serialize(Stream& s) {
 		int split;
 		s % split;
 		splMain.SetPos(split);
+		s % split;
+		splExplore.SetSize(split);
+		s % split;
+		splBottom.SetSize(split);
 	}
 	else {
 		bool b = IsMaximized();
@@ -640,6 +736,10 @@ void Zide::Serialize(Stream& s) {
 		s % b % w % h;
 		
 		int split = splMain.GetPos();
+		s % split;
+		split = splExplore.GetSize();
+		s % split;
+		split = splBottom.GetSize();
 		s % split;
 	}
 	
@@ -704,17 +804,17 @@ void Zide::LoadPackage(const String& package) {
 	LoadModule(lastPackage, 0);
 	
 	String s = GetFileDirectory(GetExeFilePath());
-	String pak = s + "source/stdlib/sys.core";
+	String pak = NativePath(s + "source/stdlib/sys.core");
 	if (DirectoryExists(pak)) {
 		packages << pak;
 		LoadModule(pak, 1);
 	}
-	pak = s + "source/stdlib/bind.c";
+	pak = NativePath(s + "source/stdlib/bind.c");
 	if (DirectoryExists(pak)) {
 		packages << pak;
 		LoadModule(pak, 1);
 	}
-	pak = s + "source/stdlib/" + platformLib;
+	pak = NativePath(s + "source/stdlib/" + platformLib);
 	if (DirectoryExists(pak)) {
 		packages << pak;
 		LoadModule(pak, 2);
@@ -735,6 +835,21 @@ void Zide::LoadPackage(const String& package) {
 GUI_APP_MAIN {
 	SetLanguage(LNG_ENGLISH);
 	SetDefaultCharset(CHARSET_UTF8);
+	
+	/*SColorPaper_Write(Color(51, 51, 51));
+	SColorFace_Write(Color(33, 37, 43));
+	SColorText_Write(Color(255, 251, 247));
+	SColorMenu_Write(Color(40, 44, 52));
+	SColorLabel_Write(Color(207, 210, 216));
+	SColorLtFace_Write(Color(51, 51, 51));
+	SColorInfo_Write(Color(255, 251, 247));
+	SColorInfoText_Write(Color(255, 251, 247));
+	SColorShadow_Write(Color(24, 26, 31));
+	SColorLight_Write(Color(157, 165, 179));*/
+		
+	/*Theme theme;
+	theme.Load("c:\\Dev\\upp\\bazaar\\Themes\\Skulpture.zip");
+	theme.Apply();*/
 
 	EditorSyntax::Register("z2", callback1(CreateZSyntax, CSyntax::HIGHLIGHT_Z2), "*.z2",	"Z2	Source Files");
 	
@@ -759,6 +874,9 @@ GUI_APP_MAIN {
 			zide.openFile = NativePath(zz);
 		}
 	}
+	
+	zide.tabs.SetSettings(zide.settings);
+	zide.OnSelectMethod();
 	
 	zide.LoadPackage(zide.lastPackage);
 

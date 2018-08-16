@@ -36,6 +36,7 @@ public:
 	Gate3<const Vector<String>&, const String&, const String&> WhenRenameFiles;
 	
 	ArrayMap<String, DocEntry> Docs;
+	VectorMap<String, String> Cache;
 	
 	AssemblyBrowser();
 	

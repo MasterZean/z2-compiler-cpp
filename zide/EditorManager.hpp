@@ -20,13 +20,14 @@ public:
 	int    ScopeHighlight = 2;
 	int    Brackets = 1;
 	bool   Thousands = true;
+	int    Theme = 0;
 	
 	String Style;
 	
 	void Serialize(Stream& s) {
 		s % ShowTabs % ShowSpaces % ShowNewlines % WarnSpaces % TabSize % IndentSpaces
 		  % ShowLineNums % HighlightLine % TabPos % TabClose % LinePos % LineColor % Style
-		  % ScopeHighlight % Brackets % Thousands;
+		  % ScopeHighlight % Brackets % Thousands % Theme;
 	}
 };
 
@@ -35,9 +36,13 @@ public:
 	typedef SmartEditor CLASSNAME;
 	
 	ColumnList popUp;
-	Vector<ZItem>  words;
+	FrameTop<Label> lblClass;
+	Vector<ZItem> words;
 	bool ignoreFocus = false;
 	bool exactMatch = false;
+	Point Anchor = Point(-1, -1);
+	
+	Callback WhenPopup;
 	
 	SmartEditor() {
 		popUp.SetDisplay(Single<ItemDisplay>());
@@ -50,6 +55,7 @@ public:
 	void OnAutoSelect();
 	
 	virtual bool Key(dword key, int count);
+	
 	virtual void LostFocus();
 	virtual void LeftDown(Point p, dword flags);
 	
@@ -70,6 +76,8 @@ public:
 	}
 };
 
+int GetWord(const String& line, String& wrd, const Point& p);
+
 class EditorManager: public ParentCtrl {
 public:
 	typedef EditorManager CLASSNAME;
@@ -82,6 +90,7 @@ public:
 	Callback WhenEditorChange;
 	Callback WhenTabChange;
 	Callback WhenAnnotation;
+	Callback WhenPopup;
 
 	EditorManager();
 
@@ -107,6 +116,7 @@ public:
 	static void SetSettings(CodeEditor& editor, Settings& settings, const String& syntax);
 	
 	void SetSettings(Settings& settings);
+	void SetColors(int colors);
 
 private:
 	Settings settings;

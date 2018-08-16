@@ -1,8 +1,35 @@
 #include "zide.h"
 
+void FindDocLinks(Index<String>& links, const String& str) {
+	int i = 0;
+	
+	while (i < str.GetCount()) {
+		int first = str.Find('[', i);
+		
+		if (first != -1) {
+			int last = str.Find(']', first + 1);
+			
+			if (last != -1) {
+				int first2 = str.Find('[', last + 1);
+				
+				if (first2 == last + 1) {
+					int last2 = str.Find(']', first2 + 1);
+					
+					if (last2 != -1) {
+						links.FindAdd(str.Mid(first2 + 1, last2 - first2 - 1));
+						i = last2;
+					}
+				}
+			}
+		}
+		
+		i++;
+	}
+}
+
 void GetAllChildren(const String& path, Vector<String>& sub) {
 	FindFile ff;
-	ff.Search(path + "\\*");
+	ff.Search(NativePath(path + "\\*"));
 
 	while (ff) {
 		String name = ff.GetName();
@@ -407,40 +434,15 @@ int AssemblyBrowser::AddModule(int parent, const String& path, const String& ppa
 		String name = GetFileName(files[i]);
 		String ext = GetFileExt(name);
 
-		if (ext == ".z2")
+		if (ext == ".z2") {
+			Cache.FindAdd(files[i], LoadFile(files[i]));
 			treModules.Add(item, ZImg::zsrc, files[i], name);
+		}
 		else if (name.EndsWith(".api.md"))
 			AddDocFile(files[i]);
 	}
 
 	return item;
-}
-
-void FindDocLinks(Index<String>& links, const String& str) {
-	int i = 0;
-	
-	while (i < str.GetCount()) {
-		int first = str.Find('[', i);
-		
-		if (first != -1) {
-			int last = str.Find(']', first + 1);
-			
-			if (last != -1) {
-				int first2 = str.Find('[', last + 1);
-				
-				if (first2 == last + 1) {
-					int last2 = str.Find(']', first2 + 1);
-					
-					if (last2 != -1) {
-						links.FindAdd(str.Mid(first2 + 1, last2 - first2 - 1));
-						i = last2;
-					}
-				}
-			}
-		}
-		
-		i++;
-	}
 }
 
 void AssemblyBrowser::AddDocFile(const String& path) {
@@ -477,7 +479,7 @@ void AssemblyBrowser::AddDocFile(const String& path) {
 		if (line.StartsWith("### ")) {
 			key = line.Mid(4);
 		}
-		else if (line == "***") {
+		else if (TrimBoth(line) == "***") {
 			FindDocLinks(doc.Links, doc.Brief);
 
 			if (inClass)
