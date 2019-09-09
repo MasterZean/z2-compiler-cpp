@@ -1,0 +1,7 @@
+128
+DummyClass(2, 1): error:
+	'Small' literal constant too big
+DummyClass(3, 1): error:
+	'Small' literal constant too big
+DummyClass(4, 1): error:
+	'Small' literal constant too big

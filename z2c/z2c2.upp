@@ -1,0 +1,22 @@
+uses
+	Core;
+
+file
+	Assembly.h,
+	Assembly.cpp,
+	Compiler.h,
+	Compiler.cpp,
+	CppNodeWalker.h,
+	CppNodeWalker.cpp,
+	ZParser.h,
+	ZParser.cpp,
+	ErrorReporter.h,
+	ErrorReporter.cpp,
+	Node.h,
+	IRGenerator.h,
+	IRGenerator.cpp,
+	z2c.cpp;
+
+mainconfig
+	"" = "";
+
