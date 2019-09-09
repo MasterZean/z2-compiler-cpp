@@ -9,6 +9,7 @@ bool Compiler::CompileSnip(const String& snip) {
 	
 	ZClass tempClass;
 	tempClass.Name = "DummyClass";
+	tempClass.BackendName = "DummyClass";
 	
 	Overload& tempOver = tempClass.AddOverload();
 	tempOver.Name = "@main";
@@ -32,10 +33,15 @@ bool Compiler::CompilerOverload(Overload& conOver) {
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
 	bool valid = true;
 	
+	conOver.Blocks.Add();
+	conOver.Blocks.Top().Temps = 0;
+	
 	while (!parser.IsChar('}')) {
 		if (!CompileStatement(conCls, conOver, parser))
 			valid = false;
 	}
+	
+	conOver.Blocks.Drop();
 	
 	return valid;
 }
@@ -46,19 +52,13 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	Node* exp = nullptr;
 	
 	try {
-		if (parser.IsInt()) {
-			exp = ParseNumeric(conCls, parser);
-
-			parser.ExpectEndStat();
-			parser.Spaces();
-		}
-		else {
-			Point p = parser.GetPoint();
-			ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
-		}
+		if (parser.Id("val"))
+			exp = CompileVar(conCls, conOver, parser);
+		else
+			exp = Parse(conCls, parser);
 		
 		cpp.Walk(exp);
-		ss << "\r\n";
+		ss << ";\r\n";
 	}
 	catch (ZSyntaxError& err) {
 		errors.Add(err);
@@ -71,6 +71,64 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	}
 	
 	return valid;
+}
+
+Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
+	Point p = parser.GetPoint();
+	parser.OS();
+			
+	String varName = parser.ExpectId();
+	parser.OS();
+			
+	parser.Expect('=');
+	parser.OS();
+			
+	Node* value = Parse(conCls, parser);
+	
+	if (conOver.Name == varName)
+		ErrorReporter::Dup(conCls.Name, p, conOver.SourcePos, varName);
+	if (conCls.Name == varName)
+		ErrorReporter::Dup(conCls.Name, p, conOver.SourcePos, varName);
+
+	for (int i = 0; i < conOver.Params.GetCount(); i++)
+		if (conOver.Params[i].Name == varName)
+			ErrorReporter::Dup(conCls.Name, p, conOver.Params[i].SourcePos, varName);
+
+	for (int j = 0; j < conOver.Blocks.GetCount(); j++)
+		for (int k = 0; k < conOver.Blocks[j].Vars.GetCount(); k++) {
+			if (conOver.Blocks[j].Vars[k]->Name == varName)
+				ErrorReporter::Dup(conCls.Name, p, conOver.Blocks[j].Vars[k]->SourcePos, varName);
+		}
+		
+	for (int i = 0; i < conCls.Variables.GetCount(); i++)
+		if (conCls.Variables[i].Name == varName)
+			ErrorReporter::Warning(conCls.Name, p, "local '" + varName + "' hides a class member");
+	
+	Variable& v = conOver.AddVariable();
+	v.Name = varName;
+	v.SourcePos = p;
+	v.Value = value;
+		
+	conOver.Blocks.Top().Vars.Add(varName, &v);
+	
+	return irg.localVar(v);
+}
+
+Node* Compiler::Parse(ZClass& conCls, ZParser& parser) {
+	Node* exp = nullptr;
+	
+	if (parser.IsInt()) {
+		exp = ParseNumeric(conCls, parser);
+
+		parser.ExpectEndStat();
+		parser.OS();
+	}
+	else {
+		Point p = parser.GetPoint();
+		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
+	}
+	
+	return exp;
 }
 
 String Compiler::GetErrors() {
@@ -102,19 +160,17 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 	int type = parser.ReadInt64(oInt, oDub, base);
 
 	if (type == ZParser::ntInt)
-		exp = irg.constIntSigned(oInt, nullptr, base);
+		exp = irg.constIntSigned(oInt, base);
 	else if (type == ZParser::ntDWord)
-		exp = irg.constIntUnsigned(oInt, nullptr, base);
-	else if (type == ZParser::ntLong) {
-		exp = irg.constIntSigned(oInt);
-		exp->SetClass(ass.CLong);
-	}
-	else if (type == ZParser::ntQWord) {
-		exp = irg.constIntUnsigned(oInt);
-		exp->SetClass(ass.CQWord);
-	}
+		exp = irg.constIntUnsigned(oInt, base);
+	else if (type == ZParser::ntLong)
+		exp = irg.constIntSigned(oInt, base, ass.CLong);
+	else if (type == ZParser::ntQWord)
+		exp = irg.constIntUnsigned(oInt, base, ass.CQWord);
 	else if (type == ZParser::ntSmall)
-		exp = irg.constIntUnsigned(oInt, ass.CSmall, base);
+		exp = irg.constIntUnsigned(oInt, base, ass.CSmall);
+	else if (type == ZParser::ntShort)
+		exp = irg.constIntUnsigned(oInt, base, ass.CShort);
 	else if (type == ZParser::ntDouble)
 		exp = irg.constFloatDouble(oDub);
 	else if (type == ZParser::ntFloat)
@@ -125,7 +181,7 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 	}
 	else
 		ASSERT_(0, "Error in parse int");
-
+	
 	return exp;
 }
 

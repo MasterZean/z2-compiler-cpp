@@ -32,18 +32,27 @@ void RunTest(const String& path) {
 }
 
 void RunMicroTests() {
-	RunTest("00-basic\\01-small-ct");
-	RunTest("00-basic\\02-small-ct-error");
-	RunTest("00-basic\\03-short-ct");
-	RunTest("00-basic\\04-short-ct-error");
+	RunTest("01-basic-ct\\01-small-ct");
+	RunTest("01-basic-ct\\02-small-ct-error");
+	RunTest("01-basic-ct\\03-short-ct");
+	RunTest("01-basic-ct\\04-short-ct-error");
+	RunTest("01-basic-ct\\05-int-ct");
+	RunTest("01-basic-ct\\06-int-ct-error");
+	RunTest("01-basic-ct\\07-int-ct");
+	RunTest("01-basic-ct\\08-int-ct-error");
+	RunTest("01-basic-ct\\09-int-ct");
+	RunTest("01-basic-ct\\10-int-ct-error");
+	
+	RunTest("02-basic-var\\01-small-var");
 }
 
 CONSOLE_APP_MAIN {
-	RunMicroTests();
+	if (true)
+		RunMicroTests();
 	
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	compiler.CompileSnip("   5;  /*  \n^  */ 6; 1.1; - 1; -/*** */5;");
+	compiler.CompileSnip("val a = 7000");
 	Cout() << compiler.GetResult();
 }

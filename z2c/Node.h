@@ -8,6 +8,7 @@ using namespace Upp;
 namespace Z2 {
 
 class ZClass;
+class Variable;
 
 class NodeType {
 public:
@@ -51,6 +52,8 @@ public:
 	bool IsLiteral = false;
 	bool IsTemporary = false;
 	
+	bool IsAddressable = false;
+	
 	bool HasSe = false;
 	
 	int64  IntVal = 0;
@@ -71,6 +74,16 @@ public:
 
 	ConstNode() {
 		NT = NodeType::Const;
+	}
+};
+
+
+class VarNode: public Node {
+public:
+	Variable* Var = nullptr;
+
+	VarNode() {
+		NT = NodeType::Var;
 	}
 };
 

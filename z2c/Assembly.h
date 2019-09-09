@@ -10,16 +10,40 @@ using namespace Upp;
 namespace Z2 {
 	
 class Overload;
+class ZClass;
+class Node;
+
+class Variable: Moveable<Variable> {
+public:
+	String Name;
+	Point SourcePos = Point(-1, -1);
+	
+	ZClass& Class;
+	Node* Value = nullptr;
+	
+	Variable(ZClass& aClass): Class(aClass) {
+	}
+};
+
+class Block: Moveable<Block> {
+public:
+	WithDeepCopy<VectorMap<String, Variable*>> Vars;
+	
+	int Temps = 0;
+};
 
 class ZClass: Moveable<ZClass> {
 public:
 	String Name;
 	String Namespace;
+	String BackendName;
+	
+	Point SourcePos = Point(-1, -1);
 	
 	Overload& AddOverload();
 	
-private:
-	Vector<Overload> overloads;
+	Array<Overload> Overloads;
+	Array<Variable> Variables;
 };
 
 class Overload: Moveable<Overload> {
@@ -28,8 +52,18 @@ public:
 	
 	String Name;
 	ZParser::Pos EntryPoint;
+	Point SourcePos = Point(-1, -1);
+	
+	Array<Variable> Variables;
+	Array<Variable> Params;
+	
+	WithDeepCopy<Array<Block>> Blocks;
 	
 	Overload(ZClass& aClass): Class(aClass) {
+	}
+	
+	Variable& AddVariable() {
+		return Variables.Add(Variable(Class));
 	}
 };
 
@@ -64,7 +98,7 @@ public:
 	
 private:
 	
-	Vector<ZClass> classes;
+	Array<ZClass> classes;
 };
 
 }

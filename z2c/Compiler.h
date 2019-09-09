@@ -25,6 +25,9 @@ public:
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
 	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
+	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
+	
+	Node* Parse(ZClass& conCls, ZParser& parser);
 	Node* ParseNumeric(ZClass& conCls, ZParser& parser);
 	
 	String GetResult() {

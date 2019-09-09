@@ -12,6 +12,7 @@ public:
 	enum NumberType {
 		ntInvalid,
 		ntSmall,
+		ntShort,
 		ntInt,
 		ntLong,
 		ntByte,
@@ -25,6 +26,7 @@ public:
 	String Path;
 
 	ZParser() {
+		skipspaces = false;
 	}
 	
 	ZParser(const char* ptr): CParser(ptr, false) {
@@ -41,11 +43,18 @@ public:
 	NumberType ReadInt64(int64& oInt, double& oDub, int& base);
 	
 	void Expect(char ch);
+	String ExpectId();
+	String ExpectZId();
+	String ExpectId(const String& id);
 	
 	void ExpectEndStat();
 	void EatNewLines();
 	
 	void SkipError();
+	
+	bool OS() {
+		return Spaces();
+	}
 	
 private:
 	uint64 ReadNumber64Core(Point& p, int base);

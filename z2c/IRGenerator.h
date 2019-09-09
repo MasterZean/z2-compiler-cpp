@@ -56,15 +56,18 @@ public:
 	void fillSignedTypeInfo(int64 l, Node* node, ZClass* cls = nullptr);
 	void fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls = nullptr);
 
-	ConstNode* constIntSigned(int64 l, ZClass* cls = nullptr, int base = 10);
-	ConstNode* constIntUnsigned(uint64 l, ZClass* cls = nullptr, int base = 10);
+	ConstNode* constIntSigned(int64 l, int base = 10, ZClass* cls = nullptr);
+	ConstNode* constIntUnsigned(uint64 l, int base = 10, ZClass* cls = nullptr);
 	ConstNode* constFloatSingle(double l);
 	ConstNode* constFloatDouble(double l);
+	
+	VarNode* localVar(Variable& v);
 
 private:
 	Assembly& ass;
 	
 	NodePool<ConstNode> constNodes;
+	NodePool<VarNode> varNodes;
 };
 
 }

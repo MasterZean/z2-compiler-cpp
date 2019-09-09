@@ -33,7 +33,13 @@ public:
 	static void ExpectedNotFound(const String& path, const Point& p, const String& expected, const String& found);
 	static void EosExpected(const String& path, const Point& p, const String& found);
 	
+	static void IdentifierExpected(const String& path, const Point& p, const String& found);
+	static void IdentifierExpected(const String& path, const Point& p, const String& id, const String& found);
+	
 	static void Error(const String& path, const Point& p, const String& text);
+	
+	static void Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2 = "");
+	static void Warning(const String& path, const Point& p, const String& text);
 };
 
 }

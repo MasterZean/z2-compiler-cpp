@@ -24,6 +24,8 @@ String ZParser::Identify() {
 		return "string constant";
 	else if (term[0] == '\n')
 		return "end of statement";
+	else if (term[0] <= 32)
+		return "whitespace";
 	else {
 		for (int i = 0; i < 9; i++)
 			if (IsChar2(tab2[i], tab3[i])) {
@@ -292,15 +294,20 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 			
 			if (n == 8) {
 				int ii = sign * i;
-				if (ii < -127 || ii > 128)
-					ErrorReporter::IntegerConstantTooBig(Path, "Small",p);
+				if (ii < -128 || ii > 127)
+					ErrorReporter::IntegerConstantTooBig(Path, "Small", p);
 				nt = ntSmall;
 			}
 			else if (n == 16) {
 				int ii = sign * i;
-				if (ii < -32767 || ii > 32768)
-					ErrorReporter::IntegerConstantTooBig(Path, "Short",p);
-				nt = ntSmall;
+				if (ii < -32768 || ii > 32767)
+					ErrorReporter::IntegerConstantTooBig(Path, "Short", p);
+				nt = ntShort;
+			}
+			else if (n == 32) {
+				int64 ii = sign * i;
+				if (ii < -2147483648 || ii > 2147483647)
+					ErrorReporter::IntegerConstantTooBig(Path, "Int", p);
 			}
 			else
 				ErrorReporter::InvalidNumericLiteral(Path, p);
@@ -364,6 +371,39 @@ void ZParser::Expect(char ch) {
 	if (!Char(ch)) {
 		Point p = GetPoint();
 		ErrorReporter::ExpectedNotFound(Path, p, "'" + (String().Cat() << ch) + "'", Identify());
+	}
+}
+
+String ZParser::ExpectId() {
+	if (IsId())
+		return ReadId();
+	else {
+		Point p = GetPoint();
+		ErrorReporter::IdentifierExpected(Path, p, Identify());
+		
+		return "";
+	}
+}
+
+String ZParser::ExpectZId() {
+	if (IsZId())
+		return ReadId();
+	else {
+		Point p = GetPoint();
+		ErrorReporter::IdentifierExpected(Path, p, Identify());
+
+		return "";
+	}
+}
+
+String ZParser::ExpectId(const String& id) {
+	if (IsId(id))
+		return ReadId();
+	else {
+		Point p = GetPoint();
+		ErrorReporter::IdentifierExpected(Path, p, id, Identify());
+
+		return "";
 	}
 }
 

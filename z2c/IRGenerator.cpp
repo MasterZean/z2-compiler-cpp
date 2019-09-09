@@ -5,6 +5,7 @@ namespace Z2 {
 	
 void IRGenerator::fillSignedTypeInfo(int64 l, Node* node, ZClass* cls) {
 	node->Class = ass.CInt;
+
 	if (l >= -128 && l <= 127) {
 		node->C1 = ass.CSmall;
 		if (l >= 0)
@@ -36,6 +37,9 @@ void IRGenerator::fillSignedTypeInfo(int64 l, Node* node, ZClass* cls) {
 		else if (l >= 0 && l <= 9223372036854775807ul)
 			node->C2 = ass.CQWord;
 	}
+	
+	if (cls)
+		node->Class = cls;
 }
 
 void IRGenerator::fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls) {
@@ -71,7 +75,7 @@ void IRGenerator::fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls) {
 		node->Class = cls;
 }
 
-ConstNode* IRGenerator::constIntSigned(int64 l, ZClass* cls, int base) {
+ConstNode* IRGenerator::constIntSigned(int64 l, int base, ZClass* cls) {
 	ConstNode* node = constNodes.Get();
 	
 	fillSignedTypeInfo(l, node, cls);
@@ -87,7 +91,7 @@ ConstNode* IRGenerator::constIntSigned(int64 l, ZClass* cls, int base) {
 	return node;
 }
 
-ConstNode* IRGenerator::constIntUnsigned(uint64 l, ZClass* cls, int base) {
+ConstNode* IRGenerator::constIntUnsigned(uint64 l, int base, ZClass* cls) {
 	ConstNode* node = constNodes.Get();
 	
 	fillUnsignedTypeInfo(l, node, cls);
@@ -131,6 +135,20 @@ ConstNode* IRGenerator::constFloatDouble(double l) {
 	ASSERT(node->Class);
 	
 	return node;
+}
+
+VarNode* IRGenerator::localVar(Variable& v) {
+	VarNode* var = varNodes.Get();
+	
+	var->Var = &v;
+	var->SetClass(v.Class);
+	var->HasSe = true;
+	
+	var->IsAddressable = true;
+	
+	ASSERT(var->Class);
+	
+	return var;
 }
 
 }

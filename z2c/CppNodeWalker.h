@@ -17,6 +17,7 @@ public:
 	
 	void Walk(Node* node);
 	void Walk(ConstNode& node);
+	void Walk(VarNode& node);
 	
 private:
 	Assembly& ass;

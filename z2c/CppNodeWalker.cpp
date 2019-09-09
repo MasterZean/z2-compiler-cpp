@@ -35,10 +35,10 @@ void CppNodeWalker::Walk(Node* node) {
 	else if (node->NT == NodeType::Intrinsic)
 		Walk((IntNode*)node);
 	else if (node->NT == NodeType::Return)
-		Walk((ReturnNode*)node);
+		Walk((ReturnNode*)node);*/
 	else if (node->NT == NodeType::Var)
-		Walk((VarNode*)node);
-	else if (node->NT == NodeType::Alloc)
+		Walk(*(VarNode*)node);
+	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
 		Walk((RawArrayNode*)node);
@@ -188,6 +188,14 @@ void CppNodeWalker::Walk(ConstNode& node) {
 	}*/
 	else
 		ASSERT_(0, "Invalid const node");
+}
+
+void CppNodeWalker::Walk(VarNode& node) {
+	Variable& var = *node.Var;
+	ASSERT(var.Value);
+	
+	stream << var.Value->Class->BackendName << " " << var.Name << " = ";
+	Walk(var.Value);
 }
 
 }
