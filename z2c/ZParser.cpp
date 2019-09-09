@@ -333,7 +333,7 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 	}
 	
 	oInt = i;
-	//Spaces();
+	DoSpaces();
 	
 	return nt;
 }
@@ -362,7 +362,7 @@ ZParser::NumberType ZParser::ReadF(Point& p, int sign, double& oDub) {
 		ErrorReporter::FloatConstantTooBig(Path, p);
 	
 	oDub = nf;
-	//Spaces();
+	DoSpaces();
 	
 	return f ? ntFloat : ntDouble;
 }
@@ -428,16 +428,6 @@ void ZParser::ExpectEndStat() {
 	//}*/
 }
 
-void ZParser::EatNewLines() {
-	bool b = skipnewlines;
-	bool b2 = skipcomments;
-	skipnewlines = true;
-	skipcomments = true;
-	Spaces();
-	skipnewlines = b;
-	skipcomments = b2;
-}
-
 void ZParser::SkipError() {
 	while (true) {
 		if (*term < 32 || *term == '}')
@@ -445,6 +435,5 @@ void ZParser::SkipError() {
 		term++;
 	}
 }
-
 
 }

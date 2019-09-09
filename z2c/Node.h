@@ -87,6 +87,15 @@ public:
 	}
 };
 
+class MemNode: public Node {
+public:
+	Variable* Var = nullptr;
+
+	MemNode() {
+		NT = NodeType::Memory;
+	}
+};
+
 }
 
 #endif

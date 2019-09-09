@@ -106,6 +106,10 @@ void ErrorReporter::IdentifierExpected(const String& path, const Point& p, const
 	Error(path, p, "identifier '" + id + "' expected, " + found + " found");
 }
 
+void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, const String& id) {
+	Error(path, p, "undeclared identifier '" + id + "'");
+}
+
 void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2) {
 	Error(path, p, "duplicate definition '" + text + "', previous definition was at " +
 			text2 + "(" + IntStr(p2.x) + ", " + IntStr(p2.y) + ")");

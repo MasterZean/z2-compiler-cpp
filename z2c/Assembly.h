@@ -18,18 +18,22 @@ public:
 	String Name;
 	Point SourcePos = Point(-1, -1);
 	
-	ZClass& Class;
+	ZClass& OwnerClass;
 	Node* Value = nullptr;
 	
-	Variable(ZClass& aClass): Class(aClass) {
+	Variable(ZClass& aClass): OwnerClass(aClass) {
 	}
 };
 
 class Block: Moveable<Block> {
 public:
-	WithDeepCopy<VectorMap<String, Variable*>> Vars;
+	WithDeepCopy<VectorMap<String, Variable*>> Variables;
 	
 	int Temps = 0;
+	
+	void AddVaribleRef(Variable& var) {
+		Variables.Add(var.Name, &var);
+	}
 };
 
 class ZClass: Moveable<ZClass> {
@@ -48,7 +52,7 @@ public:
 
 class Overload: Moveable<Overload> {
 public:
-	ZClass& Class;
+	ZClass& OwnerClass;
 	
 	String Name;
 	ZParser::Pos EntryPoint;
@@ -59,11 +63,11 @@ public:
 	
 	WithDeepCopy<Array<Block>> Blocks;
 	
-	Overload(ZClass& aClass): Class(aClass) {
+	Overload(ZClass& aClass): OwnerClass(aClass) {
 	}
 	
 	Variable& AddVariable() {
-		return Variables.Add(Variable(Class));
+		return Variables.Add(Variable(OwnerClass));
 	}
 };
 

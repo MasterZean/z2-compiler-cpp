@@ -5,14 +5,14 @@ namespace Z2 {
 void CppNodeWalker::Walk(Node* node) {
 	ASSERT_(node, "Null node");
 	if (node->NT == NodeType::Const)
-		Walk(*(ConstNode*)node);
+		WalkNode(*(ConstNode*)node);
 	/*else if (node->NT == NodeType::BinaryOp)
 		Walk((OpNode*)node);
 	else if (node->NT == NodeType::UnaryOp)
-		Walk((UnaryOpNode*)node);
+		Walk((UnaryOpNode*)node);*/
 	else if (node->NT == NodeType::Memory)
-		Walk((MemNode*)node);
-	else if (node->NT == NodeType::Cast)
+		WalkNode(*(MemNode*)node);
+	/*else if (node->NT == NodeType::Cast)
 		Walk((CastNode*)node);
 	else if (node->NT == NodeType::Temporary)
 		Walk((TempNode*)node);
@@ -37,7 +37,7 @@ void CppNodeWalker::Walk(Node* node) {
 	else if (node->NT == NodeType::Return)
 		Walk((ReturnNode*)node);*/
 	else if (node->NT == NodeType::Var)
-		Walk(*(VarNode*)node);
+		WalkNode(*(VarNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
@@ -49,7 +49,7 @@ void CppNodeWalker::Walk(Node* node) {
 }
 
 
-void CppNodeWalker::Walk(ConstNode& node) {
+void CppNodeWalker::WalkNode(ConstNode& node) {
 	if (node.Class == ass.CQWord) {
 		if (IsNull(node.IntVal))
 			stream << "9223372036854775808ull";
@@ -190,12 +190,19 @@ void CppNodeWalker::Walk(ConstNode& node) {
 		ASSERT_(0, "Invalid const node");
 }
 
-void CppNodeWalker::Walk(VarNode& node) {
+void CppNodeWalker::WalkNode(VarNode& node) {
 	Variable& var = *node.Var;
 	ASSERT(var.Value);
 	
 	stream << var.Value->Class->BackendName << " " << var.Name << " = ";
 	Walk(var.Value);
+}
+
+void CppNodeWalker::WalkNode(MemNode& node) {
+	Variable& var = *node.Var;
+	ASSERT(var.Value);
+	
+	stream << var.Name;
 }
 
 }

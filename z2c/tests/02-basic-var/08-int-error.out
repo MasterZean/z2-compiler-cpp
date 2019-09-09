@@ -1,0 +1,7 @@
+int32 a = (int32)-2147483648ll;
+DummyClass(2, 10): error:
+	'Long' literal constant requires 'l' sufix
+DummyClass(3, 11): error:
+	'Long' literal constant requires 'l' sufix
+DummyClass(4, 12): error:
+	'Long' literal constant requires 'l' sufix

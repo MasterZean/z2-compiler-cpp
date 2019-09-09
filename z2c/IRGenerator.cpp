@@ -137,11 +137,27 @@ ConstNode* IRGenerator::constFloatDouble(double l) {
 	return node;
 }
 
-VarNode* IRGenerator::localVar(Variable& v) {
+VarNode* IRGenerator::defineLocalVar(Variable& v) {
 	VarNode* var = varNodes.Get();
 	
+	ASSERT(v.Value);
+	
 	var->Var = &v;
-	var->SetClass(v.Class);
+	var->SetClass(v.Value->Class);
+	var->HasSe = true;
+	
+	var->IsAddressable = true;
+	
+	ASSERT(var->Class);
+	
+	return var;
+}
+
+MemNode* IRGenerator::mem(Variable& v) {
+	MemNode* var = memNodes.Get();
+	
+	var->Var = &v;
+	var->SetClass(v.Value->Class);
 	var->HasSe = true;
 	
 	var->IsAddressable = true;

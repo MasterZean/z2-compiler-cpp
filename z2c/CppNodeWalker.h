@@ -16,8 +16,13 @@ public:
 	}
 	
 	void Walk(Node* node);
-	void Walk(ConstNode& node);
-	void Walk(VarNode& node);
+	void WalkNode(ConstNode& node);
+	void WalkNode(VarNode& node);
+	void WalkNode(MemNode& node);
+	
+	void ES() {
+		stream << ";\r\n";
+	}
 	
 private:
 	Assembly& ass;

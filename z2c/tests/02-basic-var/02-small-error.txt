@@ -1,0 +1,5 @@
+val a = -128s8
+val b = 128s8
+val c = -200s8
+val d =200s8
+

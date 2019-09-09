@@ -1,0 +1,3 @@
+val a = 7000
+val b=/****/-20;val c=a
+val d = 0s8;val e = d; val f = 1s16; val g= f;

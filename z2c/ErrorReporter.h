@@ -35,6 +35,7 @@ public:
 	
 	static void IdentifierExpected(const String& path, const Point& p, const String& found);
 	static void IdentifierExpected(const String& path, const Point& p, const String& id, const String& found);
+	static void UndeclaredIdentifier(const String& path, const Point& p, const String& id);
 	
 	static void Error(const String& path, const Point& p, const String& text);
 	

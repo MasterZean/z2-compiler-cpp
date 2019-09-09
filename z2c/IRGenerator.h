@@ -61,13 +61,15 @@ public:
 	ConstNode* constFloatSingle(double l);
 	ConstNode* constFloatDouble(double l);
 	
-	VarNode* localVar(Variable& v);
+	VarNode* defineLocalVar(Variable& v);
+	MemNode* mem(Variable& v);
 
 private:
 	Assembly& ass;
 	
 	NodePool<ConstNode> constNodes;
 	NodePool<VarNode> varNodes;
+	NodePool<MemNode> memNodes;
 };
 
 }

@@ -15,17 +15,16 @@ bool Compiler::CompileSnip(const String& snip) {
 	tempOver.Name = "@main";
 	tempOver.EntryPoint = tempParser.GetPos();
 	
-	tempParser.Path = tempClass.Name;
-	
 	return CompilerOverload(tempOver);
 }
 
 bool Compiler::CompilerOverload(Overload& conOver) {
 	ZParser parser;
-	parser.Path = conOver.Class.Name;
+	parser.Path = conOver.OwnerClass.Name;
+	
 	parser.SetPos(conOver.EntryPoint);
 
-	CompileBlock(conOver.Class, conOver, parser, 1);
+	CompileBlock(conOver.OwnerClass, conOver, parser, 1);
 	
 	return true;
 }
@@ -54,11 +53,14 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	try {
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, conOver, parser);
-		else
-			exp = Parse(conCls, parser);
+		else {
+			exp = Parse(conCls, &conOver, parser);
+			parser.ExpectEndStat();
+			parser.OS();
+		}
 		
 		cpp.Walk(exp);
-		ss << ";\r\n";
+		cpp.ES();
 	}
 	catch (ZSyntaxError& err) {
 		errors.Add(err);
@@ -83,7 +85,9 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	parser.Expect('=');
 	parser.OS();
 			
-	Node* value = Parse(conCls, parser);
+	Node* value = Parse(conCls, &conOver, parser);
+	parser.ExpectEndStat();
+	parser.OS();
 	
 	if (conOver.Name == varName)
 		ErrorReporter::Dup(conCls.Name, p, conOver.SourcePos, varName);
@@ -95,9 +99,9 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 			ErrorReporter::Dup(conCls.Name, p, conOver.Params[i].SourcePos, varName);
 
 	for (int j = 0; j < conOver.Blocks.GetCount(); j++)
-		for (int k = 0; k < conOver.Blocks[j].Vars.GetCount(); k++) {
-			if (conOver.Blocks[j].Vars[k]->Name == varName)
-				ErrorReporter::Dup(conCls.Name, p, conOver.Blocks[j].Vars[k]->SourcePos, varName);
+		for (int k = 0; k < conOver.Blocks[j].Variables.GetCount(); k++) {
+			if (conOver.Blocks[j].Variables[k]->Name == varName)
+				ErrorReporter::Dup(conCls.Name, p, conOver.Blocks[j].Variables[k]->SourcePos, varName);
 		}
 		
 	for (int i = 0; i < conCls.Variables.GetCount(); i++)
@@ -109,20 +113,18 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	v.SourcePos = p;
 	v.Value = value;
 		
-	conOver.Blocks.Top().Vars.Add(varName, &v);
+	conOver.Blocks.Top().AddVaribleRef(v);
 	
-	return irg.localVar(v);
+	return irg.defineLocalVar(v);
 }
 
-Node* Compiler::Parse(ZClass& conCls, ZParser& parser) {
+Node* Compiler::Parse(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* exp = nullptr;
 	
-	if (parser.IsInt()) {
+	if (parser.IsInt())
 		exp = ParseNumeric(conCls, parser);
-
-		parser.ExpectEndStat();
-		parser.OS();
-	}
+	else if (parser.IsZId() || parser.IsChar('@'))
+		exp = ParseId(conCls, conOver, parser);
 	else {
 		Point p = parser.GetPoint();
 		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
@@ -131,23 +133,31 @@ Node* Compiler::Parse(ZClass& conCls, ZParser& parser) {
 	return exp;
 }
 
-String Compiler::GetErrors() {
-	String result;
+Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
+	String s;
 	
-	for (int i = 0; i < errors.GetCount(); i++) {
-		result << errors[i].Path;
-		result << ": ";
-		result << "error:\r\n\t";
-		
-		Vector<String> v = Split(errors[i].Error, '\f', false);
-		
-		for (int j = 0; j < v.GetCount(); j++)
-			result << v[j];
+	if (parser.Char('@'))
+		s = "@" + parser.ExpectZId();
+	else
+		s = parser.ExpectZId();
 
-		result << "\r\n";
+	if (conOver != nullptr) {
+		for (int j = 0; j < conOver->Params.GetCount(); j++) {
+			if (conOver->Params[j].Name == s)
+				return irg.mem(conOver->Params[j]);
+		}
+
+		for (int j = 0; j < conOver->Blocks.GetCount(); j++) {
+			Block& b = conOver->Blocks[j];
+			for (int k = 0; k < b.Variables.GetCount(); k++)
+				if (b.Variables[k]->Name == s)
+					return irg.mem(*b.Variables[k]);
+		}
 	}
 	
-	return result;
+	ErrorReporter::UndeclaredIdentifier(conCls.Name, parser.GetPoint(), parser.ReadId());
+	
+	return nullptr;
 }
 
 Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
@@ -175,14 +185,31 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 		exp = irg.constFloatDouble(oDub);
 	else if (type == ZParser::ntFloat)
 		exp = irg.constFloatSingle(oDub);
-	else if (type == ZParser::ntPtrSize) {
-		exp = irg.constIntSigned(oInt);
-		exp->SetClass(ass.CPtrSize);
-	}
+	else if (type == ZParser::ntPtrSize)
+		exp = irg.constIntSigned(oInt, base, ass.CPtrSize);
 	else
 		ASSERT_(0, "Error in parse int");
 	
 	return exp;
+}
+
+String Compiler::GetErrors() {
+	String result;
+	
+	for (int i = 0; i < errors.GetCount(); i++) {
+		result << errors[i].Path;
+		result << ": ";
+		result << "error:\r\n\t";
+		
+		Vector<String> v = Split(errors[i].Error, '\f', false);
+		
+		for (int j = 0; j < v.GetCount(); j++)
+			result << v[j];
+
+		result << "\r\n";
+	}
+	
+	return result;
 }
 
 }
