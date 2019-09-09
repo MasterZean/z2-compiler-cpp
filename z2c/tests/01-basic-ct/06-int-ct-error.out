@@ -1,0 +1,7 @@
+(int32)-2147483648ll;
+DummyClass(2, 1): error:
+	'Int' literal constant too big
+DummyClass(3, 1): error:
+	'Int' literal constant too big
+DummyClass(4, 1): error:
+	'Int' literal constant too big
