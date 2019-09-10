@@ -178,4 +178,31 @@ BlockNode* IRGenerator::closeBlock() {
 	return block;
 }
 
+Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
+	if (op <= OpNode::opMod)
+		return opArit(left, right, op, p);
+	/*else if (op <= OpNode::opShl)
+		return shl(left, right, p);
+	else if (op <= OpNode::opShr)
+		return shr(left, right, p);
+	else if (op <= OpNode::opNeq)
+		return opRel(left, right, op, p);
+	else if (op <= OpNode::opBitAnd)
+		return op_bitand(left, right);
+	else if (op <= OpNode::opBitXor)
+		return op_bitxor(left, right);
+	else if (op <= OpNode::opBitOr)
+		return op_bitor(left, right);
+	else if (op <= OpNode::opLogOr)
+		return opLog(left, right, op);*/
+	else {
+		ASSERT(0);
+		return nullptr;
+	}
+}
+
+Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point& p) {
+	return nullptr;
+}
+
 }

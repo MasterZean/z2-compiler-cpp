@@ -65,6 +65,15 @@ void ErrorReporter::Error(const String& path, const Point& p, const String& text
 	throw ZSyntaxError(String().Cat() << path << "(" << p.x << ", " << p.y << ")", text);
 }
 
+void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2) {
+	Error(path, p, "duplicate definition '" + text + "', previous definition was at " +
+			text2 + "(" + IntStr(p2.x) + ", " + IntStr(p2.y) + ")");
+}
+
+void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
+	Cout() << path << "(" << p.x << ", " << p.y << "): warning:\r\n\t" << text;
+}
+
 void ErrorReporter::SyntaxError(const String& path, const Point& p, const String& text) {
 	Error(path, p, "syntax error: " + text + " found");
 }
@@ -117,13 +126,12 @@ void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, con
 	Error(path, p, "undeclared identifier '" + id + "'");
 }
 
-void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2) {
-	Error(path, p, "duplicate definition '" + text + "', previous definition was at " +
-			text2 + "(" + IntStr(p2.x) + ", " + IntStr(p2.y) + ")");
+void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
+	Error(path, p, "second operand of division is 0 or equivalent");
 }
 
-void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
-	Cout() << path << "(" << p.x << ", " << p.y << "): warning:\r\n\t" << text;
+void ErrorReporter::IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2) {
+	Error(path, p, "can't apply operator '" + op + "' on types: \n\t\t'\f" + text + "\f' and \n\t\t'\f" + text2 + "\f'");
 }
 
 

@@ -37,6 +37,9 @@ public:
 	static void IdentifierExpected(const String& path, const Point& p, const String& id, const String& found);
 	static void UndeclaredIdentifier(const String& path, const Point& p, const String& id);
 	
+	static void DivisionByZero(const String& path, const Point& p);
+	static void IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2);
+	
 	static void Error(const String& path, const Point& p, const String& text);
 	
 	static void Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2 = "");

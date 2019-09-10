@@ -1,6 +1,8 @@
 #ifndef _z2c2_Node_h_
 #define _z2c2_Node_h_
 
+#include <Core/Core.h>
+
 using namespace Upp;
 
 #include "ZParser.h"
@@ -9,6 +11,7 @@ namespace Z2 {
 
 class ZClass;
 class Variable;
+class Assembly;
 
 class NodeType {
 public:
@@ -67,6 +70,8 @@ public:
 	void SetClass(ZClass* cls) {
 		Class = cls;
 	}
+	
+	bool IsZero(Assembly& ass);
 };
 
 class ConstNode: public Node {
@@ -101,6 +106,49 @@ class BlockNode: public Node {
 public:
 	BlockNode() {
 		NT = NodeType::Block;
+	}
+};
+
+class OpNode: public Node {
+public:
+	enum Type {
+		opNotSet = -1,
+		opAdd = 0,
+		opSub = 1,
+		opMul = 2,
+		opDiv = 3,
+		opMod = 4,
+		opShl = 5,
+		opShr = 6,
+		opLess = 7,
+		opLessEq = 8,
+		opMore   = 9,
+		opMoreEq = 10,
+		opEq = 11,
+		opNeq = 12,
+		opBitAnd = 13,
+		opBitXor = 14,
+		opBitOr = 15,
+		opLogAnd = 16,
+		opLogOr = 17,
+		opAssign = 18,
+		opPlus = 19,
+		opMinus = 20,
+		opNot = 21,
+		opComp = 22,
+		opInc = 23,
+		opDec = 24,
+		opTernary = 25,
+	};
+	
+	Type Op = opNotSet;
+	
+	Node* OpA = nullptr;
+	Node* OpB = nullptr;
+	Node* OpC = nullptr;
+
+	OpNode() {
+		NT = NodeType::BinaryOp;
 	}
 };
 

@@ -6,6 +6,7 @@ file
 	Assembly.cpp,
 	Compiler.h,
 	Compiler.cpp,
+	Compiler_Expression.cpp,
 	CppNodeWalker.h,
 	CppNodeWalker.cpp,
 	ZParser.h,
@@ -13,6 +14,7 @@ file
 	ErrorReporter.h,
 	ErrorReporter.cpp,
 	Node.h,
+	Node.cpp,
 	IRGenerator.h,
 	IRGenerator.cpp,
 	z2c.cpp;

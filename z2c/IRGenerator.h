@@ -66,6 +66,9 @@ public:
 	
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
+	
+	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p);
+	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
 
 private:
 	Assembly& ass;

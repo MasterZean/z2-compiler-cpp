@@ -44,6 +44,8 @@ public:
 	
 	Point SourcePos = Point(-1, -1);
 	
+	bool MIsInteger = false;
+	
 	Overload& AddOverload();
 	
 	Array<Overload> Overloads;
@@ -102,6 +104,8 @@ public:
 	
 	Assembly();
 	
+	ZClass* AddCoreInteger(const String& backendName, int count);
+
 private:
 	
 	Array<ZClass> classes;

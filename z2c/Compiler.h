@@ -17,6 +17,12 @@ namespace Z2 {
 class Compiler {
 public:
 	Compiler(Assembly& aAss): ass(aAss), irg(aAss), cpp(aAss, ss) {
+		static bool tableSetup = false;
+		
+		if (!tableSetup) {
+			SetupTables();
+			tableSetup = true;
+		}
 	}
 	
 	bool CompileSnip(const String& snip);
@@ -28,6 +34,10 @@ public:
 	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
 	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
+	
+	Node* ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int prec, Node* left, CParser::Pos& backupPoint, bool secondOnlyAttempt = false);
+	
+	Node* ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser);
 	Node* ParseId(ZClass& conCls, Overload* conOver, ZParser& parser);
 	Node* ParseNumeric(ZClass& conCls, ZParser& parser);
 	
@@ -46,6 +56,13 @@ private:
 	StringStream ss;
 	
 	Vector<ZSyntaxError> errors;
+		
+	int GetPriority(CParser& parser, int& op, bool& opc);
+	
+	static Point OPS[256];
+	static bool OPCONT[256];
+	
+	static void SetupTables();
 };
 
 }

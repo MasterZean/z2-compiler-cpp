@@ -141,85 +141,6 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	return irg.defineLocalVar(v);
 }
 
-Node* Compiler::ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
-	Node* exp = nullptr;
-	
-	if (parser.IsInt())
-		exp = ParseNumeric(conCls, parser);
-	else if (parser.IsZId() || parser.IsChar('@'))
-		exp = ParseId(conCls, conOver, parser);
-	else {
-		Point p = parser.GetPoint();
-		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
-	}
-	
-	return exp;
-}
-
-Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
-	String s;
-	
-	if (parser.Char('@'))
-		s = "@" + parser.ExpectZId();
-	else
-		s = parser.ExpectZId();
-
-	if (conOver != nullptr) {
-		for (int j = 0; j < conOver->Params.GetCount(); j++) {
-			if (conOver->Params[j].Name == s)
-				return irg.mem(conOver->Params[j]);
-		}
-
-		for (int j = 0; j < conOver->Blocks.GetCount(); j++) {
-			Block& b = conOver->Blocks[j];
-			for (int k = 0; k < b.Variables.GetCount(); k++)
-				if (b.Variables[k]->Name == s)
-					return irg.mem(*b.Variables[k]);
-		}
-	}
-	
-	ErrorReporter::UndeclaredIdentifier(conCls.Name, parser.GetPoint(), parser.ReadId());
-	
-	return nullptr;
-}
-
-Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
-	Node* exp = nullptr;
-	
-	int64 oInt;
-	double oDub;
-	
-	int base = 10;
-	int type = parser.ReadInt64(oInt, oDub, base);
-
-	if (type == ZParser::ntInt)
-		exp = irg.constIntSigned(oInt, base);
-	else if (type == ZParser::ntDWord)
-		exp = irg.constIntUnsigned(oInt, base);
-	else if (type == ZParser::ntLong)
-		exp = irg.constIntSigned(oInt, base, ass.CLong);
-	else if (type == ZParser::ntQWord)
-		exp = irg.constIntUnsigned(oInt, base, ass.CQWord);
-	else if (type == ZParser::ntSmall)
-		exp = irg.constIntUnsigned(oInt, base, ass.CSmall);
-	else if (type == ZParser::ntShort)
-		exp = irg.constIntUnsigned(oInt, base, ass.CShort);
-	else if (type == ZParser::ntByte)
-		exp = irg.constIntUnsigned(oInt, base, ass.CByte);
-	else if (type == ZParser::ntWord)
-		exp = irg.constIntUnsigned(oInt, base, ass.CWord);
-	else if (type == ZParser::ntDouble)
-		exp = irg.constFloatDouble(oDub);
-	else if (type == ZParser::ntFloat)
-		exp = irg.constFloatSingle(oDub);
-	else if (type == ZParser::ntPtrSize)
-		exp = irg.constIntSigned(oInt, base, ass.CPtrSize);
-	else
-		ASSERT_(0, "Error in parse int");
-	
-	return exp;
-}
-
 String Compiler::GetErrors() {
 	String result;
 	
@@ -238,6 +159,7 @@ String Compiler::GetErrors() {
 	
 	return result;
 }
+
 
 }
 

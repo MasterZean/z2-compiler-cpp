@@ -7,33 +7,14 @@ Assembly::Assembly() {
 	ASSERT(classes.GetCount() == 1);
 	CBool->BackendName = "bool";
 	
-	CSmall = &classes.Add();
-	ASSERT(classes.GetCount() == 2);
-	CSmall->BackendName = "int8";
-	CByte = &classes.Add();
-	ASSERT(classes.GetCount() == 3);
-	CByte->BackendName = "uint8";
-	
-	CShort = &classes.Add();
-	ASSERT(classes.GetCount() == 4);
-	CShort->BackendName = "int16";
-	CWord = &classes.Add();
-	ASSERT(classes.GetCount() == 5);
-	CWord->BackendName = "uint16";
-	
-	CInt = &classes.Add();
-	ASSERT(classes.GetCount() == 6);
-	CInt->BackendName = "int32";
-	CDWord = &classes.Add();
-	ASSERT(classes.GetCount() == 7);
-	CDWord->BackendName = "uint32";
-	
-	CLong = &classes.Add();
-	ASSERT(classes.GetCount() == 8);
-	CLong->BackendName = "int64";
-	CQWord = &classes.Add();
-	ASSERT(classes.GetCount() == 9);
-	CQWord->BackendName = "uint64";
+	CSmall = AddCoreInteger("int8", 2);
+	CByte = AddCoreInteger("uint8", 3);
+	CShort = AddCoreInteger("int16", 4);
+	CWord = AddCoreInteger("uint16", 5);
+	CInt = AddCoreInteger("int32", 6);
+	CDWord = AddCoreInteger("uint32", 7);
+	CLong = AddCoreInteger("int64", 8);
+	CQWord = AddCoreInteger("uint64", 9);
 	
 	CFloat = &classes.Add();
 	ASSERT(classes.GetCount() == 10);
@@ -54,6 +35,16 @@ Assembly::Assembly() {
 	CDef = &classes.Add();
 	CVoid = &classes.Add();
 	CNull = &classes.Add();
+}
+
+ZClass* Assembly::AddCoreInteger(const String& backendName, int count) {
+	ZClass& cls = classes.Add();
+	ASSERT(classes.GetCount() == count);
+	
+	cls.BackendName = backendName;
+	cls.MIsInteger = true;
+	
+	return &cls;
 }
 
 Overload& ZClass::AddOverload() {

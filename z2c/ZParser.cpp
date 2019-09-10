@@ -219,7 +219,7 @@ uint64 ZParser::ReadNumber64Core(Point& p, int base) {
 		if(n1 > n)
 			ErrorReporter::IntegerConstantTooBig(Path, p);
 		
-		if ((int64)n < 0 && (int64)n != -9223372036854775808ll) {
+		if ((int64)n < 0 && (uint64)n != -9223372036854775808ul) {
 			expect = true;
 		}
 		
