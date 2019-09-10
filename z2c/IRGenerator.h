@@ -61,6 +61,9 @@ public:
 	ConstNode* constFloatSingle(double l);
 	ConstNode* constFloatDouble(double l);
 	
+	BlockNode* openBlock();
+	BlockNode* closeBlock();
+	
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
 
@@ -70,6 +73,7 @@ private:
 	NodePool<ConstNode> constNodes;
 	NodePool<VarNode> varNodes;
 	NodePool<MemNode> memNodes;
+	NodePool<BlockNode> blockNodes;
 };
 
 }

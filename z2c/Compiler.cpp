@@ -26,19 +26,41 @@ bool Compiler::CompilerOverload(Overload& conOver) {
 
 	CompileBlock(conOver.OwnerClass, conOver, parser, 1);
 	
+	cpp.ResetIndent();
+	
+	for (int i = 0; i < conOver.Nodes.GetCount(); i++)
+		cpp.WalkStatement(conOver.Nodes[i]);
+	
 	return true;
 }
 
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
 	bool valid = true;
 	
+	parser.OS();
+	
 	conOver.Blocks.Add();
 	conOver.Blocks.Top().Temps = 0;
 	
+	if (level > 1)
+		conOver.Nodes << irg.openBlock();
+	
 	while (!parser.IsChar('}')) {
-		if (!CompileStatement(conCls, conOver, parser))
-			valid = false;
+		if (parser.Char('{')) {
+			if (!CompileBlock(conCls, conOver, parser, level + 1))
+				valid = false;
+		}
+		else {
+			if (!CompileStatement(conCls, conOver, parser))
+				valid = false;
+		}
 	}
+	
+	if (level > 1)
+		conOver.Nodes << irg.closeBlock();
+	
+	parser.Expect('}');
+	parser.OS();
 	
 	conOver.Blocks.Drop();
 	
@@ -53,14 +75,17 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	try {
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, conOver, parser);
-		else {
-			exp = Parse(conCls, &conOver, parser);
+		else
+			exp = ParseExpression(conCls, &conOver, parser);
+			
+		int line = parser.GetLine();
+		parser.OS();
+		if (parser.GetLine() == line) {
 			parser.ExpectEndStat();
 			parser.OS();
 		}
 		
-		cpp.Walk(exp);
-		cpp.ES();
+		conOver.Nodes << exp;
 	}
 	catch (ZSyntaxError& err) {
 		errors.Add(err);
@@ -85,9 +110,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	parser.Expect('=');
 	parser.OS();
 			
-	Node* value = Parse(conCls, &conOver, parser);
-	parser.ExpectEndStat();
-	parser.OS();
+	Node* value = ParseExpression(conCls, &conOver, parser);
 	
 	if (conOver.Name == varName)
 		ErrorReporter::Dup(conCls.Name, p, conOver.SourcePos, varName);
@@ -118,7 +141,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	return irg.defineLocalVar(v);
 }
 
-Node* Compiler::Parse(ZClass& conCls, Overload* conOver, ZParser& parser) {
+Node* Compiler::ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* exp = nullptr;
 	
 	if (parser.IsInt())

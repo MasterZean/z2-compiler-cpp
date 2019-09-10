@@ -167,4 +167,15 @@ MemNode* IRGenerator::mem(Variable& v) {
 	return var;
 }
 
+BlockNode* IRGenerator::openBlock() {
+	BlockNode* block = blockNodes.Get();
+	block->IntVal = 1;
+	return block;
+}
+
+BlockNode* IRGenerator::closeBlock() {
+	BlockNode* block = blockNodes.Get();
+	return block;
+}
+
 }

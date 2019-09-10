@@ -44,6 +44,8 @@ void CppNodeWalker::Walk(Node* node) {
 		Walk((RawArrayNode*)node);
 	else if (node->NT == NodeType::Using)
 		Walk((UsingNode*)node);*/
+	else if (node->NT == NodeType::Block)
+		WalkNode(*(BlockNode*)node);
 	else
 		ASSERT_(0, "Invalid node");
 }
@@ -170,10 +172,10 @@ void CppNodeWalker::WalkNode(ConstNode& node) {
 		ZClass& ccc = ass.Classes[(int)node.IntVal];
 		stream << ass.CCls->NamespaceQual;
 		stream << "Class(" << ccc.RTTIIndex << ")";
-	}
+	}*/
 	else if (node.Class == ass.CNull)
 		stream << "nullptr";
-	else if (node.Class == ass.CString)
+	/*else if (node.Class == ass.CString)
 		stream << "S_[" << (int)node.IntVal << ']';
 	else if (node.Class->Scan.IsEnum) {
 		ZClass& ec = *node.Class;
@@ -204,5 +206,20 @@ void CppNodeWalker::WalkNode(MemNode& node) {
 	
 	stream << var.Name;
 }
+
+void CppNodeWalker::WalkNode(BlockNode& node) {
+	if (node.IntVal) {
+		SS();
+		stream << "{" << "\r\n";
+		indent++;
+	}
+	else {
+		indent--;
+		SS();
+		stream << "}" << "\r\n";
+	}
+}
+
+
 
 }

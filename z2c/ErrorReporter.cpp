@@ -1,7 +1,14 @@
 #include "ErrorReporter.h"
 
 namespace Z2 {
-	
+
+#ifdef PLATFORM_POSIX
+
+inline void SetConsoleTextAttribute(int, int) {
+}
+
+#endif
+
 void ZSyntaxError::PrettyPrint(Stream& stream) {
 #ifdef PLATFORM_WIN32
 

@@ -35,6 +35,7 @@ public:
 		Alloc,
 		Array,
 		Using,
+		Block,
 	};
 };
 	
@@ -93,6 +94,13 @@ public:
 
 	MemNode() {
 		NT = NodeType::Memory;
+	}
+};
+
+class BlockNode: public Node {
+public:
+	BlockNode() {
+		NT = NodeType::Block;
 	}
 };
 

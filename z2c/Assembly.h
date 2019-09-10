@@ -63,6 +63,8 @@ public:
 	
 	WithDeepCopy<Array<Block>> Blocks;
 	
+	Vector<Node*> Nodes;
+	
 	Overload(ZClass& aClass): OwnerClass(aClass) {
 	}
 	

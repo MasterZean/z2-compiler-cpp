@@ -27,7 +27,7 @@ public:
 	
 	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
-	Node* Parse(ZClass& conCls, Overload* conOver, ZParser& parser);
+	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	Node* ParseId(ZClass& conCls, Overload* conOver, ZParser& parser);
 	Node* ParseNumeric(ZClass& conCls, ZParser& parser);
 	

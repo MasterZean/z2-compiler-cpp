@@ -48,7 +48,6 @@ public:
 	String ExpectId(const String& id);
 	
 	void ExpectEndStat();
-	
 	void SkipError();
 	
 	bool OS() {

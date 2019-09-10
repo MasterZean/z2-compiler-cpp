@@ -6,7 +6,12 @@ using namespace Upp;
 
 using namespace Z2;
 
+int attemptedTests = 0;
+int failledTests = 0;
+
 void RunTest(const String& path) {
+	attemptedTests++;
+	
 	String test = NativePath(GetFileDirectory(path) + GetFileTitle(path));
 
 	String file = LoadFile(test + ".txt");
@@ -20,6 +25,8 @@ void RunTest(const String& path) {
 	String result = compiler.GetResult() + compiler.GetErrors();
 	
 	if (result != out) {
+		failledTests++;
+		
 		LOG("=============================== TEST ===============================");
 		DUMP(path);
 		LOG("------------------------------ RESULT ------------------------------");
@@ -53,6 +60,10 @@ void RunSuite(const String& suite) {
 void RunMicroTests() {
 	RunSuite(GetDataFile("tests/01-basic-ct"));
 	RunSuite(GetDataFile("tests/02-basic-var"));
+	RunSuite(GetDataFile("tests/03-block"));
+	
+	if (attemptedTests > 0 && failledTests != 0)
+		Cout() << IntStr(failledTests) << " out of " << IntStr(attemptedTests) << " tests FAILED!\r\n";
 }
 
 CONSOLE_APP_MAIN {
