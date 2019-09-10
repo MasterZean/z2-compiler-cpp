@@ -64,6 +64,8 @@ void RunMicroTests() {
 	
 	if (attemptedTests > 0 && failledTests != 0)
 		Cout() << IntStr(failledTests) << " out of " << IntStr(attemptedTests) << " tests FAILED!\r\n";
+	else if (attemptedTests > 0)
+		LOG(IntStr(attemptedTests) << " tests passed successfully.\r\n");
 }
 
 CONSOLE_APP_MAIN {

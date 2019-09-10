@@ -16,6 +16,7 @@ public:
 		ntInt,
 		ntLong,
 		ntByte,
+		ntWord,
 		ntDWord,
 		ntQWord,
 		ntFloat,

@@ -1,0 +1,3 @@
+uint8 a = 255u;
+DummyClass(2, 9): error:
+	'Byte' literal constant too big

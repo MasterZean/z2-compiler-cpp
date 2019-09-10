@@ -1,0 +1,4 @@
+val a = 0u16
+val b = 256u16
+val c = 65534u16
+val d = 65535u16

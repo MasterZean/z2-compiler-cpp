@@ -1,0 +1,3 @@
+4294967295u;
+DummyClass(2, 1): error:
+	'DWord' literal constant too big

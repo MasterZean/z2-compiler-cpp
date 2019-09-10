@@ -261,6 +261,42 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 				ErrorReporter::InvalidNumericLiteral(Path, p);
 			nt = ntQWord;
 		}
+		else if (IsDigit(*term)) {
+			uint64 n = 0;
+			
+			while (IsDigit(*term)) {
+				int c = ctoi(*term);
+				if(c < 0 || c >= 10) {
+					ErrorReporter::InvalidNumericLiteral(Path, p);
+					break;
+				}
+					
+				uint64 n1 = n;
+				n = 10 * n + c;
+				
+				if(n1 > n)
+					ErrorReporter::InvalidNumericLiteral(Path, p);
+				
+				term++;
+			}
+			
+			if (n == 8) {
+				if (i > 255)
+					ErrorReporter::IntegerConstantTooBig(Path, "Byte", p);
+				nt = ntByte;
+			}
+			else if (n == 16) {
+				if (i > 65535)
+					ErrorReporter::IntegerConstantTooBig(Path, "Word", p);
+				nt = ntWord;
+			}
+			else if (n == 32) {
+				if (i > 4294967295)
+					ErrorReporter::IntegerConstantTooBig(Path, "DWord", p);
+			}
+			else
+				ErrorReporter::InvalidNumericLiteral(Path, p);
+		}
 		else if (IsAlNum(*term))
 			ErrorReporter::InvalidNumericLiteral(Path, p);
 	}

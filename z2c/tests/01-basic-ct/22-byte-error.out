@@ -1,0 +1,3 @@
+255u;
+DummyClass(2, 1): error:
+	'Byte' literal constant too big

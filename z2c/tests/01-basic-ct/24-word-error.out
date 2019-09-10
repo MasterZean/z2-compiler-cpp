@@ -1,0 +1,3 @@
+65535u;
+DummyClass(2, 1): error:
+	'Word' literal constant too big

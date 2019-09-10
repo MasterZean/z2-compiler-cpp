@@ -1,0 +1,4 @@
+uint16 a = 0u;
+uint16 b = 256u;
+uint16 c = 65534u;
+uint16 d = 65535u;

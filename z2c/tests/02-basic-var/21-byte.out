@@ -1,0 +1,4 @@
+uint8 a = 0u;
+uint8 b = 200u;
+uint8 c = 254u;
+uint8 d = 255u;

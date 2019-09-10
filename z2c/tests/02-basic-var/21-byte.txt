@@ -1,0 +1,4 @@
+val a = 0u8
+val b = 200u8
+val c = 254u8
+val d = 255u8

@@ -204,6 +204,10 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 		exp = irg.constIntUnsigned(oInt, base, ass.CSmall);
 	else if (type == ZParser::ntShort)
 		exp = irg.constIntUnsigned(oInt, base, ass.CShort);
+	else if (type == ZParser::ntByte)
+		exp = irg.constIntUnsigned(oInt, base, ass.CByte);
+	else if (type == ZParser::ntWord)
+		exp = irg.constIntUnsigned(oInt, base, ass.CWord);
 	else if (type == ZParser::ntDouble)
 		exp = irg.constFloatDouble(oDub);
 	else if (type == ZParser::ntFloat)
