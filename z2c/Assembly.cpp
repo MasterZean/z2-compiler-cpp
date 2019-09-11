@@ -3,46 +3,38 @@
 namespace Z2 {
 	
 Assembly::Assembly() {
-	CBool = &classes.Add();
-	ASSERT(classes.GetCount() == 1);
-	CBool->BackendName = "bool";
+	CBool = AddCoreNumeric("Bool", "bool", 0);
 	
-	CSmall = AddCoreInteger("int8", 2);
-	CByte = AddCoreInteger("uint8", 3);
-	CShort = AddCoreInteger("int16", 4);
-	CWord = AddCoreInteger("uint16", 5);
-	CInt = AddCoreInteger("int32", 6);
-	CDWord = AddCoreInteger("uint32", 7);
-	CLong = AddCoreInteger("int64", 8);
-	CQWord = AddCoreInteger("uint64", 9);
+	CSmall = AddCoreInteger("Small", "int8", 1);
+	CByte = AddCoreInteger("Byte", "uint8", 2);
+	CShort = AddCoreInteger("Short", "int16", 3);
+	CWord = AddCoreInteger("Word", "uint16", 4);
+	CInt = AddCoreInteger("Int", "int32", 5);
+	CDWord = AddCoreInteger("DWord", "uint32", 6);
+	CLong = AddCoreInteger("Long", "int64", 7);
+	CQWord = AddCoreInteger("QWord", "uint64", 8);
 	
-	CFloat = &classes.Add();
-	ASSERT(classes.GetCount() == 10);
-	CFloat->BackendName = "float";
-	CDouble = &classes.Add();
-	ASSERT(classes.GetCount() == 11);
-	CDouble->BackendName = "double";
+	CFloat = AddCoreNumeric("Flaot", "float", 9);
+	CDouble = AddCoreNumeric("Double", "double", 10);
+	Classes.Add();     // 11 is Extended
 	
-	CChar = &classes.Add();
-	ASSERT(classes.GetCount() == 12);
-	CChar->BackendName = "uint32";
+	CChar = AddCoreNumeric("Char", "uint32", 12);
+	CPtrSize = AddCoreNumeric("PtrSize", "size_t", 13);
 	
-	CPtrSize = &classes.Add();
-	ASSERT(classes.GetCount() == 13);
-	CPtrSize->BackendName = "size_t";
-	
-	CCls = &classes.Add();
-	CDef = &classes.Add();
-	CVoid = &classes.Add();
-	CNull = &classes.Add();
+	CCls = &Classes.Add();
+	CDef = &Classes.Add();
+	CVoid = &Classes.Add();
+	CNull = &Classes.Add();
 }
 
-ZClass* Assembly::AddCoreInteger(const String& backendName, int count) {
-	ZClass& cls = classes.Add();
-	ASSERT(classes.GetCount() == count);
+ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, int index) {
+	ASSERT(Classes.GetCount() == index);
 	
+	ZClass& cls = Classes.Add();
+	cls.Name = name;
 	cls.BackendName = backendName;
-	cls.MIsInteger = true;
+	cls.MIsNumeric = true;
+	cls.MIndex = index;
 	
 	return &cls;
 }

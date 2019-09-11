@@ -31,6 +31,7 @@ public:
 	void WalkNode(VarNode& node);
 	void WalkNode(MemNode& node);
 	void WalkNode(BlockNode& node);
+	void WalkNode(OpNode& node);
 	
 	void ES() {
 		stream << ";\r\n";

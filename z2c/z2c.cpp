@@ -69,8 +69,7 @@ void RunMicroTests() {
 }
 
 CONSOLE_APP_MAIN {
-	if (true)
-		RunMicroTests();
+	RunMicroTests();
 	
 	Assembly ass;
 	Compiler compiler(ass);

@@ -219,7 +219,7 @@ uint64 ZParser::ReadNumber64Core(Point& p, int base) {
 		if(n1 > n)
 			ErrorReporter::IntegerConstantTooBig(Path, p);
 		
-		if ((int64)n < 0 && (uint64)n != -9223372036854775808ul) {
+		if ((int64)n < 0 && n != -9223372036854775808ul) {
 			expect = true;
 		}
 		
@@ -444,24 +444,14 @@ String ZParser::ExpectId(const String& id) {
 }
 
 void ZParser::ExpectEndStat() {
-	//if (skipnewlines)
-		//Expect(';');
-	//else {
-		if (Char(';')) {
-			/*skipnewlines = true;
-			Spaces();
-			skipnewlines = false;*/
-		}
-		else if (PeekChar() == '\n' || PeekChar() == '\r' || PeekChar() == '}' ||  PeekChar() == '/') {
-			/*skipnewlines = true;
-			Spaces();
-			skipnewlines = false;*/
-		}
-		else {
-			Point p = GetPoint();
-			ErrorReporter::EosExpected(Path, p, Identify());
-		}
-	//}*/
+	char ch = PeekChar();
+
+	if (Char(';')) {
+	}
+	else if (ch != '\n' && ch == '\r' && ch == '}' && ch == ')' && ch == ']') {
+		Point p = GetPoint();
+		ErrorReporter::EosExpected(Path, p, Identify());
+	}
 }
 
 void ZParser::SkipError() {
@@ -470,6 +460,94 @@ void ZParser::SkipError() {
 			break;
 		term++;
 	}
+}
+
+bool ZParser::WSCurrentLine() {
+	if(!term)
+		return false;
+	
+	if((byte)*term > ' ' &&
+	   !(term[0] == '/' && term[1] == '/') &&
+	   !(term[0] == '/' && term[1] == '*'))
+		return false;
+	
+	for(;;) {
+		if(*term == LINEINFO_ESC) {
+			term++;
+			fn.Clear();
+			while(*term) {
+				if(*term == LINEINFO_ESC) {
+					++term;
+					break;
+				}
+				if(*term == '\3') {
+					line = atoi(++term);
+					while(*term) {
+						if(*term == LINEINFO_ESC) {
+							++term;
+							break;
+						}
+						term++;
+					}
+					break;
+				}
+				fn.Cat(*term++);
+			}
+			continue;
+		}
+		else
+		if(term[0] == '/' && term[1] == '/' && skipcomments) {
+			term += 2;
+			while(*term && *term != '\n')
+				term++;
+		}
+		else
+		if(term[0] == '/' && term[1] == '*' && skipcomments) {
+			const char* backTerm = term;
+			if(nestcomments) {
+				int count = 1;
+				term += 2;
+				while(*term) {
+					if(term[0] == '*' && term[1] == '/') {
+						term += 2;
+						count--;
+						if (count == 0)
+							break;
+					}
+					else if(term[0] == '/' && term[1] == '*')
+						count++;
+					
+					if(*term++ == '\n') {
+						term = backTerm;
+						return true;
+					}
+				}
+			}
+			else {
+				term += 2;
+				while(*term) {
+					if(term[0] == '*' && term[1] == '/') {
+						term += 2;
+						break;
+					}
+					if(*term++ == '\n') {
+						term = backTerm;
+						return true;
+					}
+				}
+			}
+		}
+		if(!*term)
+			break;
+		if((byte)*term > ' ')
+			break;
+		if(*term == '\n')
+			return true;
+		
+		term++;
+	}
+	
+	return true;
 }
 
 }

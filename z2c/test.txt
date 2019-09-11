@@ -1,3 +1,8 @@
+val i = 2 + 
+3 +
+4
+
+
 val a = 7000
 val b=/****/-20;val c=a
 val d = 10s8;val e = d; val f = 100s16; val g= f;

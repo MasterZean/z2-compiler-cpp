@@ -2,13 +2,15 @@
 
 namespace Z2 {
 	
+extern String opss[];
+
 void CppNodeWalker::Walk(Node* node) {
 	ASSERT_(node, "Null node");
 	if (node->NT == NodeType::Const)
 		WalkNode(*(ConstNode*)node);
-	/*else if (node->NT == NodeType::BinaryOp)
-		Walk((OpNode*)node);
-	else if (node->NT == NodeType::UnaryOp)
+	else if (node->NT == NodeType::BinaryOp)
+		WalkNode(*(OpNode*)node);
+	/*else if (node->NT == NodeType::UnaryOp)
 		Walk((UnaryOpNode*)node);*/
 	else if (node->NT == NodeType::Memory)
 		WalkNode(*(MemNode*)node);
@@ -220,6 +222,12 @@ void CppNodeWalker::WalkNode(BlockNode& node) {
 	}
 }
 
+void CppNodeWalker::WalkNode(OpNode& node) {
+	Walk(node.OpA);
+	
+	stream << ' ' << opss[node.Op] << ' ';
 
+	Walk(node.OpB);
+}
 
 }

@@ -1,0 +1,26 @@
+2 + 3;
+2 + 3;
+2 + 3;
+2 + 3;
+2;
+3;
+2;
+3;
+3;
+3;
+4;
+5;
+DummyClass(9, 18): error:
+	syntax error: ; found
+DummyClass(11, 18): error:
+	syntax error: ; found
+DummyClass(13, 19): error:
+	syntax error: ; found
+DummyClass(14, 18): error:
+	syntax error: ; found
+DummyClass(16, 18): error:
+	syntax error: ; found
+DummyClass(17, 18): error:
+	syntax error: ; found
+DummyClass(18, 18): error:
+	syntax error: ; found

@@ -63,12 +63,18 @@ public:
 	int64  IntVal = 0;
 	double DblVal = 0;
 
-	void SetClass(ZClass& cls) {
+	void SetType(ZClass& cls) {
 		Class = &cls;
 	}
 	
-	void SetClass(ZClass* cls) {
+	void SetType(ZClass* cls) {
 		Class = cls;
+	}
+	
+	void SetType(ZClass* cls, ZClass* e1, ZClass* e2 = nullptr) {
+		Class = cls;
+		C1 = e1;
+		C2 = e2;
 	}
 	
 	bool IsZero(Assembly& ass);

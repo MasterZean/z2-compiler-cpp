@@ -9,6 +9,8 @@ String opss[]   = { "+",    "-",    "*",    "/",    "%",    "<<",   ">>",   "<",
 
 Node* Compiler::ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* left = ParseAtom(conCls, conOver, parser);
+	parser.WSCurrentLine();
+	
 	CParser::Pos backupPoint;
 	Node* exp = ParseBin(conCls, conOver, parser, 0, left, backupPoint);
 	
@@ -31,9 +33,10 @@ Node* Compiler::ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int
 			parser.GetChar();
 			if (opc == true)
 				parser.GetChar();
-			parser.Spaces();
+			parser.WS();
 		
 			right = ParseAtom(conCls, conOver, parser);
+			parser.WSCurrentLine();
 		}
 		else {
 			try {
@@ -42,9 +45,10 @@ Node* Compiler::ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int
 				parser.GetChar();
 				if (opc == true)
 					parser.GetChar();
-				parser.Spaces();
+				parser.WS();
 				
 				right = ParseAtom(conCls, conOver, parser);
+				parser.WSCurrentLine();
 			}
 			catch(...) {
 				parser.SetPos(backupPoint);
@@ -52,8 +56,8 @@ Node* Compiler::ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int
 				return left;
 			}
 		}
-		
 		ASSERT(right->Class);
+		
 		int nextp = GetPriority(parser, tempop, tempopc);
 		if (p < nextp) {
 			backupPoint = parser.GetPos();
@@ -206,6 +210,7 @@ int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {
 void Compiler::SetupTables() {
 	for (int i = 0; i < 255; i++)
 		OPS[i] = Point(-1, -1);
+
 	OPS['*'] = Point( 2, 210 -  0);
 	OPS['/'] = Point( 3, 210 -  0);
 	OPS['%'] = Point( 4, 210 -  0);

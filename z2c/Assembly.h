@@ -45,6 +45,8 @@ public:
 	Point SourcePos = Point(-1, -1);
 	
 	bool MIsInteger = false;
+	bool MIsNumeric = false;
+	int  MIndex = -1;
 	
 	Overload& AddOverload();
 	
@@ -104,11 +106,15 @@ public:
 	
 	Assembly();
 	
-	ZClass* AddCoreInteger(const String& backendName, int count);
-
-private:
+	ZClass* AddCoreNumeric(const String& name, const String& backendName, int index);
 	
-	Array<ZClass> classes;
+	ZClass* AddCoreInteger(const String& name, const String& backendName, int index) {
+		ZClass* cls = AddCoreNumeric(name, backendName, index);
+		cls->MIsInteger = true;
+		return cls;
+	}
+
+	Array<ZClass> Classes;
 };
 
 }

@@ -51,9 +51,11 @@ public:
 	void ExpectEndStat();
 	void SkipError();
 	
-	bool OS() {
+	bool WS() {
 		return Spaces();
 	}
+	
+	bool WSCurrentLine();
 	
 private:
 	uint64 ReadNumber64Core(Point& p, int base);

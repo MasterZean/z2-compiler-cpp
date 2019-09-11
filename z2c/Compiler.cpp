@@ -37,7 +37,7 @@ bool Compiler::CompilerOverload(Overload& conOver) {
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
 	bool valid = true;
 	
-	parser.OS();
+	parser.WS();
 	
 	conOver.Blocks.Add();
 	conOver.Blocks.Top().Temps = 0;
@@ -60,7 +60,7 @@ bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, 
 		conOver.Nodes << irg.closeBlock();
 	
 	parser.Expect('}');
-	parser.OS();
+	parser.WS();
 	
 	conOver.Blocks.Drop();
 	
@@ -78,13 +78,12 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		else
 			exp = ParseExpression(conCls, &conOver, parser);
 			
-		int line = parser.GetLine();
-		parser.OS();
-		if (parser.GetLine() == line) {
-			parser.ExpectEndStat();
-			parser.OS();
-		}
-		
+		// end statement
+		if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
+			parser.WSCurrentLine();
+		parser.ExpectEndStat();
+		parser.WS();
+				
 		conOver.Nodes << exp;
 	}
 	catch (ZSyntaxError& err) {
@@ -102,13 +101,13 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 
 Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	Point p = parser.GetPoint();
-	parser.OS();
+	parser.WS();
 			
 	String varName = parser.ExpectId();
-	parser.OS();
+	parser.WS();
 			
 	parser.Expect('=');
-	parser.OS();
+	parser.WS();
 			
 	Node* value = ParseExpression(conCls, &conOver, parser);
 	

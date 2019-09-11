@@ -77,6 +77,7 @@ private:
 	NodePool<VarNode> varNodes;
 	NodePool<MemNode> memNodes;
 	NodePool<BlockNode> blockNodes;
+	NodePool<OpNode> opNodes;
 };
 
 }
