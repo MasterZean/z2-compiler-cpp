@@ -25,11 +25,14 @@ public:
 		}
 	}
 	
-	bool CompileSnip(const String& snip);
+	Overload* CompileSnip(const String& snip);
 	
 	bool CompilerOverload(Overload& overload);
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
 	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);
+	
+	void WriteOverloadBody(Overload& overload, int indent = 0);
+	void WriteOverload(Overload& overload);
 	
 	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
@@ -47,6 +50,9 @@ public:
 	
 	String GetErrors();
 	
+	void ScanBlock(ZClass& conCls, ZParser& parser);
+	void ScanToken(ZClass& conCls, ZParser& parser);
+	
 	bool PrintErrors = true;
 	
 private:
@@ -56,6 +62,7 @@ private:
 	StringStream ss;
 	
 	Vector<ZSyntaxError> errors;
+	Vector<Overload*> postOverloads;
 		
 	int GetPriority(CParser& parser, int& op, bool& opc);
 	

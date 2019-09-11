@@ -59,8 +59,15 @@ public:
 	ZClass& OwnerClass;
 	
 	String Name;
+	String BackendName;
 	ZParser::Pos EntryPoint;
 	Point SourcePos = Point(-1, -1);
+	
+	bool IsDestructor = false;
+	bool IsVirtual = false;
+	bool IsInline = false;
+	
+	ZClass* Return;
 	
 	Array<Variable> Variables;
 	Array<Variable> Params;
@@ -112,6 +119,10 @@ public:
 		ZClass* cls = AddCoreNumeric(name, backendName, index);
 		cls->MIsInteger = true;
 		return cls;
+	}
+	
+	ZClass& AddClass() {
+		return Classes.Add();
 	}
 
 	Array<ZClass> Classes;

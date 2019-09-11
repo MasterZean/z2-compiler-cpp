@@ -3,6 +3,7 @@
 using namespace Upp;
 
 #include "Compiler.h"
+//#include "Assembly.h"
 
 using namespace Z2;
 
@@ -21,7 +22,9 @@ void RunTest(const String& path) {
 	Compiler compiler(ass);
 	compiler.PrintErrors = false;
 	
-	compiler.CompileSnip(file);
+	Overload* over = compiler.CompileSnip(file);
+	compiler.WriteOverloadBody(*over);
+	
 	String result = compiler.GetResult() + compiler.GetErrors();
 	
 	if (result != out) {
@@ -74,6 +77,12 @@ CONSOLE_APP_MAIN {
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
-	Cout() << compiler.GetResult();
+	Overload* over = compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
+	
+	for (int i = 0; i < over->OwnerClass.Overloads.GetCount(); i++) {
+		compiler.WriteOverload(over->OwnerClass.Overloads[i]);
+		
+		Cout() << compiler.GetResult();
+	}
 }
+

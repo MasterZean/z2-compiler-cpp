@@ -230,4 +230,37 @@ void CppNodeWalker::WalkNode(OpNode& node) {
 	Walk(node.OpB);
 }
 
+void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
+	if (over.IsVirtual)
+		stream << "virtual ";
+	else if (over.IsInline)
+		stream << "inline ";
+	// TODO: fix
+	//else if (over.IsClassCopyCon() || over.IsClassMoveCon() || over.IsClassCopyOperator() || over.IsClassMoveOperator() || over.IsClassEqOperator() || over.IsClassNeqOperator())
+	//	cs << "inline ";
+	
+	//if (cls.CoreSimple || over.IsStatic)
+	//	cs << "static ";
+	
+	if (WriteReturnType(over))
+		stream << " ";
+	
+	WriteOverloadNameParams(over);
+}
+
+bool CppNodeWalker::WriteReturnType(Overload &over) {
+	if (over.IsDestructor == true)
+		return false;
+
+	WriteClassName(*over.Return);
+	
+	return true;
+}
+
+void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
+	stream << over.BackendName;
+	
+	stream << "() {\r\n";
+}
+
 }

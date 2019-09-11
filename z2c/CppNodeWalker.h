@@ -44,11 +44,20 @@ public:
 			stream << "\t";
 	}
 	
-	void ResetIndent() {
-		indent = 0;
+	void ResetIndent(int ind = 0) {
+		indent = ind;
 	}
 	
 	bool DebugOriginalLine = false;
+	
+	void WriteClassName(const ZClass& ce) {
+		stream << ce.BackendName;
+	}
+	
+	void WriteOverloadDefinition(Overload &over);
+	
+	bool WriteReturnType(Overload &over);
+	void WriteOverloadNameParams(Overload &over);
 	
 private:
 	Assembly& ass;

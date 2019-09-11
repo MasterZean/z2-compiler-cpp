@@ -22,9 +22,17 @@ Assembly::Assembly() {
 	CPtrSize = AddCoreNumeric("PtrSize", "size_t", 13);
 	
 	CCls = &Classes.Add();
+	CCls->Name = "Class";
+	
 	CDef = &Classes.Add();
+	CDef->Name = "Def";
+	
 	CVoid = &Classes.Add();
+	CVoid->Name = "void";
+	CVoid->BackendName = "void";
+	
 	CNull = &Classes.Add();
+	CNull->Name = "Null";
 }
 
 ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, int index) {

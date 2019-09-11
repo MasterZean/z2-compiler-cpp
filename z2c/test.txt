@@ -2,6 +2,15 @@ val i = 2 +
 3 +
 4
 
+def f() {
+	val a = 5.6
+}
+
+def g() {
+	val b = 2.0f - 5
+	val c = b;
+	val d = c + 0u;
+}
 
 val a = 7000
 val b=/****/-20;val c=a

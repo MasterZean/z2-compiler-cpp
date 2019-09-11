@@ -95,6 +95,8 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	String s;
 	
+	Point p = parser.GetPoint();
+	
 	if (parser.Char('@'))
 		s = "@" + parser.ExpectZId();
 	else
@@ -114,7 +116,7 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		}
 	}
 	
-	ErrorReporter::UndeclaredIdentifier(conCls.Name, parser.GetPoint(), parser.ReadId());
+	ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
 	
 	return nullptr;
 }
