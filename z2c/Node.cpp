@@ -21,4 +21,11 @@ bool Node::IsZero(Assembly& ass) {
 	return false;
 }
 
+void Node::PromoteToFloatValue(Assembly& ass) {
+	if (Class == ass.CQWord)
+		DblVal = (double)(uint32)IntVal;
+	else if (Class->MIsInteger || Class == ass.CBool || Class == ass.CChar)
+		DblVal = (double)IntVal;
+}
+
 }

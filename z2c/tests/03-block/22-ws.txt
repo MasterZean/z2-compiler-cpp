@@ -1,0 +1,19 @@
+val a=2*3
+val b =2*3
+val c = 2*3 
+val d = 2 * 3  
+val e = 2
+* 3
+val f = 2   
+* 3
+val g = 2 * 
+3
+val h = 2 * 
+3
+val i = 2 * 
+3 *
+4
+val j = 2 * 
+3 *
+4 * 
+5

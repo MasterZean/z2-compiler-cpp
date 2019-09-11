@@ -57,7 +57,17 @@ public:
 	void fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls = nullptr);
 
 	ConstNode* constIntSigned(int64 l, int base = 10, ZClass* cls = nullptr);
+	
+	ConstNode* constIntSigned(int64 l, ZClass* cls = nullptr) {
+		return constIntSigned(l, 10, cls);
+	}
+	
 	ConstNode* constIntUnsigned(uint64 l, int base = 10, ZClass* cls = nullptr);
+	
+	ConstNode* constIntUnsigned(int64 l, ZClass* cls = nullptr) {
+		return constIntUnsigned(l, 10, cls);
+	}
+	
 	ConstNode* constFloatSingle(double l);
 	ConstNode* constFloatDouble(double l);
 	
@@ -69,6 +79,8 @@ public:
 	
 	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
+	
+	bool FoldConstants = false;
 
 private:
 	Assembly& ass;
@@ -78,6 +90,8 @@ private:
 	NodePool<MemNode> memNodes;
 	NodePool<BlockNode> blockNodes;
 	NodePool<OpNode> opNodes;
+	
+	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble);
 };
 
 }

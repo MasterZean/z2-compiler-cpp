@@ -73,6 +73,8 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	Node* exp = nullptr;
 	
 	try {
+		int line = parser.GetLine();
+		
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, conOver, parser);
 		else
@@ -83,7 +85,9 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			parser.WSCurrentLine();
 		parser.ExpectEndStat();
 		parser.WS();
-				
+		
+		exp->OriginalLine = line;
+		
 		conOver.Nodes << exp;
 	}
 	catch (ZSyntaxError& err) {

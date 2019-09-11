@@ -287,6 +287,17 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	
 	e1 = cls;
 	
+	bool ct = left->IsCT && right->IsCT;
+	
+	int64 dInt;
+	double dDouble;
+	
+	if (ct) {
+		Node* ret = opAritCT(left, right, op, cls, e1, dInt, dDouble);
+		if (ret)
+			return ret;
+	}
+	
 	OpNode* node = opNodes.Get();
 
 	if (left->C1 == ass.CBool && right->C1 == ass.CBool && e1 == ass.CSmall)
@@ -296,14 +307,341 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	node->OpB = right;
 	node->Op = op;
 
-	node->IsCT = left->IsCT && right->IsCT;
+	node->IsCT = ct;
 	node->SetType(cls, e1, e2);
-	//node->IntVal = dInt;
-	//node->DblVal = dDouble;
+	node->IntVal = dInt;
+	node->DblVal = dDouble;
 
 	ASSERT(node->Class);
 	
 	return node;
+}
+
+Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble) {
+	if (op == OpNode::opAdd) {
+		if (e == ass.CByte) {
+			dInt = (byte)((uint32)left->IntVal + (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CWord) {
+			dInt = (word)((uint32)left->IntVal + (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CDWord) {
+			dInt = (dword)((uint32)left->IntVal + (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CQWord) {
+			dInt = (qword)((uint64)left->IntVal + (uint64)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CSmall) {
+			dInt = (int8)((int32)left->IntVal + (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CShort) {
+			dInt = (int16)((int32)left->IntVal + (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CInt) {
+			dInt = (int32)((int32)left->IntVal + (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CLong) {
+			dInt = (int64)((int64)left->IntVal + (int64)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CPtrSize) {
+			dInt = (uint64)left->IntVal + (uint64)right->IntVal;
+			cls = ass.CPtrSize;
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CFloat) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal + right->DblVal;
+			if (FoldConstants)
+				return constFloatSingle(dDouble);
+		}
+		else if (e == ass.CDouble) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal + right->DblVal;
+			if (FoldConstants)
+				return constFloatDouble(dDouble);
+		}
+		else
+			ASSERT(0);
+	}
+	else if (op == OpNode::opSub) {
+		if (e == ass.CByte) {
+			dInt = (byte)((uint32)left->IntVal - (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CWord) {
+			dInt = (word)((uint32)left->IntVal - (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CDWord) {
+			dInt = (dword)((uint32)left->IntVal - (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CQWord) {
+			dInt = (qword)((uint64)left->IntVal - (uint64)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CSmall) {
+			dInt = (int8)((int32)left->IntVal - (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CShort) {
+			dInt = (int16)((int32)left->IntVal - (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CInt) {
+			dInt = (int32)((int32)left->IntVal - (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CLong) {
+			dInt = (int64)((int64)left->IntVal - (int64)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CPtrSize) {
+			dInt = (uint64)left->IntVal - (uint64)right->IntVal;
+			cls = ass.CPtrSize;
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CFloat) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal - right->DblVal;
+			if (FoldConstants)
+				return constFloatSingle(dDouble);
+		}
+		else if (e == ass.CDouble) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal - right->DblVal;
+			if (FoldConstants)
+				return constFloatDouble(dDouble);
+		}
+		else
+			ASSERT(0);
+	}
+	else if (op == OpNode::opMul) {
+		if (e == ass.CByte) {
+			dInt = (byte)((uint32)left->IntVal * (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CWord) {
+			dInt = (word)((uint32)left->IntVal * (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CDWord) {
+			dInt = (dword)((uint32)left->IntVal * (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CQWord) {
+			dInt = (qword)((uint64)left->IntVal * (uint64)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CSmall) {
+			dInt = (int8)((int32)left->IntVal * (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CShort) {
+			dInt = (int16)((int32)left->IntVal * (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CInt) {
+			dInt = (int32)((int32)left->IntVal * (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CLong) {
+			dInt = (int64)((int64)left->IntVal * (int64)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CPtrSize) {
+			dInt = (uint64)left->IntVal * (uint64)right->IntVal;
+			cls = ass.CPtrSize;
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CFloat) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal * right->DblVal;
+			if (FoldConstants)
+				return constFloatSingle(dDouble);
+		}
+		else if (e == ass.CDouble) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal * right->DblVal;
+			if (FoldConstants)
+				return constFloatDouble(dDouble);
+		}
+		else
+			ASSERT(0);
+	}
+	else if (op == OpNode::opDiv) {
+		if (e == ass.CByte) {
+			dInt = (byte)((uint32)left->IntVal / (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CWord) {
+			dInt = (word)((uint32)left->IntVal / (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CDWord) {
+			dInt = (dword)((uint32)left->IntVal / (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CQWord) {
+			dInt = (qword)((uint64)left->IntVal / (uint64)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CSmall) {
+			dInt = (int8)((int32)left->IntVal / (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CShort) {
+			dInt = (int16)((int32)left->IntVal / (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CInt) {
+			dInt = (int32)((int32)left->IntVal / (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CLong) {
+			dInt = (int64)((int64)left->IntVal / (int64)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CPtrSize) {
+			dInt = (uint64)left->IntVal / (uint64)right->IntVal;
+			cls = ass.CPtrSize;
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CFloat) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal / right->DblVal;
+			if (FoldConstants)
+				return constFloatSingle(dDouble);
+		}
+		else if (e == ass.CDouble) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = left->DblVal / right->DblVal;
+			if (FoldConstants)
+				return constFloatDouble(dDouble);
+		}
+		else
+			ASSERT(0);
+	}
+	else if (op == OpNode::opMod) {
+		if (e == ass.CByte) {
+			dInt = (byte)((uint32)left->IntVal % (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CWord) {
+			dInt = (word)((uint32)left->IntVal % (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CDWord) {
+			dInt = (dword)((uint32)left->IntVal % (uint32)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CQWord) {
+			dInt = (qword)((uint64)left->IntVal % (uint64)right->IntVal);
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CSmall) {
+			dInt = (int8)((int32)left->IntVal % (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CShort) {
+			dInt = (int16)((int32)left->IntVal % (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CInt) {
+			dInt = (int32)((int32)left->IntVal % (int32)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CLong) {
+			dInt = (int64)((int64)left->IntVal % (int64)right->IntVal);
+			if (FoldConstants)
+				return constIntSigned(dInt, cls);
+		}
+		else if (e == ass.CPtrSize) {
+			dInt = (uint64)left->IntVal % (uint64)right->IntVal;
+			cls = ass.CPtrSize;
+			if (FoldConstants)
+				return constIntUnsigned(dInt, cls);
+		}
+		else if (e == ass.CFloat) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = fmod(left->DblVal, right->DblVal);
+			if (FoldConstants)
+				return constFloatSingle(dDouble);
+		}
+		else if (e == ass.CDouble) {
+			left->PromoteToFloatValue(ass);
+			right->PromoteToFloatValue(ass);
+			dDouble = fmod(left->DblVal, right->DblVal);
+			if (FoldConstants)
+				return constFloatDouble(dDouble);
+		}
+		else
+			ASSERT(0);
+	}
+	else
+		ASSERT(0);
+	
+	return nullptr;
 }
 
 }

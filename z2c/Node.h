@@ -62,6 +62,8 @@ public:
 	
 	int64  IntVal = 0;
 	double DblVal = 0;
+	
+	int OriginalLine = 0;
 
 	void SetType(ZClass& cls) {
 		Class = &cls;
@@ -78,6 +80,7 @@ public:
 	}
 	
 	bool IsZero(Assembly& ass);
+	void PromoteToFloatValue(Assembly& ass);
 };
 
 class ConstNode: public Node {

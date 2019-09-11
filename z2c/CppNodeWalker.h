@@ -23,7 +23,13 @@ public:
 		else {
 			SS();
 			Walk(node);
-			ES();
+			
+			stream << ";";
+		
+			if (DebugOriginalLine && node->OriginalLine)
+				stream << "\t\t\t\t // " << node->OriginalLine;
+			
+			stream << "\r\n";
 		}
 	}
 	
@@ -33,10 +39,6 @@ public:
 	void WalkNode(BlockNode& node);
 	void WalkNode(OpNode& node);
 	
-	void ES() {
-		stream << ";\r\n";
-	}
-	
 	void SS() {
 		for (int i = 0; i < indent; i++)
 			stream << "\t";
@@ -45,6 +47,8 @@ public:
 	void ResetIndent() {
 		indent = 0;
 	}
+	
+	bool DebugOriginalLine = false;
 	
 private:
 	Assembly& ass;
