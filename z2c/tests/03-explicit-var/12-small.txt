@@ -1,0 +1,15 @@
+val a: Small = Small{0}
+val b: Small = Small{-128}
+val c: Small = Small{127}
+val d: Small = Small{-129}
+val e: Small = Small{128}
+val f: Small = Small{0.0f}
+val g: Small = Small{0.0}
+val h: Small = Small{0p}
+val i: Small = Small{128p}
+val j: Small = Small{'a'}
+val k: Small = Small{'\u00007F'}
+val l: Small = Small{'\u000080'}
+val m: Small = Small{false}
+val n: Small = Small{true}
+val o: Small = Small{}

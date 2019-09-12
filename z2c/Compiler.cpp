@@ -212,16 +212,17 @@ void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
 }
 
 Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
-	Point p = parser.GetPoint();
 	parser.WS();
-			
+	
+	Point ptName = parser.GetPoint();
+	
 	String varName = parser.ExpectZId();
 	parser.WS();
 	
 	ZClass* varClass = nullptr;
 	Node* value = nullptr;
 	
-	Point ep;
+	Point ptEqual;
 	
 	if (parser.Char(':')) {
 		parser.WS();
@@ -234,13 +235,13 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 		if (parser.Char('=')) {
 			parser.WS();
 			
-			ep = temp;
+			ptEqual = temp;
 			
 			value = ParseExpression(conCls, &conOver, parser);
 		}
 	}
 	else {
-		ep = parser.GetPoint();
+		ptEqual = parser.GetPoint();
 		parser.Expect('=');
 		parser.WS();
 		
@@ -248,11 +249,14 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 		varClass = value->Class;
 	}
 	
-	CheckLocalVar(conCls, conOver, varName, p);
+	CheckLocalVar(conCls, conOver, varName, ptName);
+	
+	if (varClass == ass.CCls)
+		ErrorReporter::CantCreateClassVar(conCls.Name, ptName, ass.CCls->Name);
 	
 	if (varClass && value) {
 		if (!CanAssign(varClass, value))
-			ErrorReporter::CantAssign(conCls.Name, ep, varClass->Name, value->Class->Name);
+			ErrorReporter::CantAssign(conCls.Name, ptEqual, varClass->Name, value->Class->Name);
 	}
 	else if (!value) {
 		ASSERT(varClass);
@@ -262,7 +266,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	
 	Variable& v = conOver.AddVariable();
 	v.Name = varName;
-	v.SourcePos = p;
+	v.SourcePos = ptName;
 	v.Value = value;
 	v.Class = varClass;
 		

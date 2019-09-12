@@ -228,6 +228,57 @@ ConstNode* IRGenerator::constBool(bool l) {
 	return node;
 }
 
+ConstNode* IRGenerator::constVoid() {
+	ConstNode* node = constNodes.Get();
+	
+	node->SetType(ass.CVoid);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+ConstNode* IRGenerator::constNull() {
+	ConstNode* node = constNodes.Get();
+	
+	node->SetType(ass.CNull);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+ConstNode* IRGenerator::constClass(ZClass* cls/*, Node* e*/) {
+	ConstNode* node = constNodes.Get();
+
+	node->SetType(ass.CCls);
+	node->IsConst = false;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	node->IntVal = cls->MIndex;
+	
+	ASSERT(node->Class);
+
+	/*if (e != NULL && e->HasSe) {
+		ListNode* l = listNodes.Get();
+		l->Params.Add(e);
+		l->Params.Add(node);
+		l->Tt = node->Tt;
+		l->C1 = node->C1;
+		l->C2 = node->C2;
+		ASSERT(l->Tt.Class);
+		return l;
+	}
+	else*/
+		return node;
+}
+
 VarNode* IRGenerator::defineLocalVar(Variable& v) {
 	VarNode* var = varNodes.Get();
 	
@@ -268,6 +319,29 @@ BlockNode* IRGenerator::closeBlock() {
 	BlockNode* block = blockNodes.Get();
 	return block;
 }
+
+CastNode* IRGenerator::cast(Node* object, ZClass* cls) {
+	if (object->NT == NodeType::Cast) {
+		CastNode* c = (CastNode*)object;
+		if (c->Class == cls)
+			return c;
+	}
+
+	CastNode* cast = castNodes.Get();
+	
+	cast->SetType(cls);
+	cast->Object = object;
+	cast->Class = cls;
+	cast->IsCT = object->IsCT;
+	cast->DblVal = object->DblVal;
+	cast->IntVal = object->IntVal;
+	cast->IsLiteral = object->IsLiteral;
+	
+	ASSERT(cast->Class);
+	
+	return cast;
+}
+
 
 Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	if (op <= OpNode::opMod)

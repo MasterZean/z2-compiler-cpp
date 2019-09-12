@@ -38,6 +38,7 @@ public:
 	void WalkNode(MemNode& node);
 	void WalkNode(BlockNode& node);
 	void WalkNode(OpNode& node);
+	void WalkNode(CastNode& node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)

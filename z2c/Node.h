@@ -163,6 +163,16 @@ public:
 	}
 };
 
+class CastNode: public Node {
+public:
+	Node* Object = nullptr;
+	ZClass* Class = nullptr;
+
+	CastNode() {
+		NT = NodeType::Cast;
+	}
+};
+
 }
 
 #endif

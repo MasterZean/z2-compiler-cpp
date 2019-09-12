@@ -15,7 +15,7 @@ class StopWatch : Moveable<StopWatch> {
 	LARGE_INTEGER freq;
 
 public:
-	double  Elapsed() {
+	double Elapsed() {
 		QueryPerformanceCounter(&stop);
 		return (stop.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
 	}

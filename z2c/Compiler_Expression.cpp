@@ -82,9 +82,9 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	
 	if (parser.IsInt())
 		exp = ParseNumeric(conCls, parser);
-	else if (parser.IsId("true"))
+	else if (parser.Id("true"))
 		exp = irg.constBool(true);
-	else if (parser.IsId("false"))
+	else if (parser.Id("false"))
 		exp = irg.constBool(false);
 	else if (parser.IsZId() || parser.IsChar('@'))
 		exp = ParseId(conCls, conOver, parser);
@@ -100,6 +100,17 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	else {
 		Point p = parser.GetPoint();
 		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
+	}
+	
+	while (OPCONT[parser.PeekChar()]) {
+		Point p = parser.GetPoint();
+
+		if (parser.Char('{')) {
+			if (exp->IsLiteral && exp->Class == ass.CCls)
+				exp = ParseTemporary(conCls, conOver, parser, p, ass.Classes[(int)exp->IntVal]);
+		}
+		else
+			break;
 	}
 	
 	return exp;
@@ -129,9 +140,11 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		}
 	}
 	
-	ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
+	ZClass* c = GetClass(conCls, p, s);
+	if (!c)
+		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
 	
-	return nullptr;
+	return irg.constClass(c);
 }
 
 Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
@@ -169,6 +182,18 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 		ASSERT_(0, "Error in parse int");
 	
 	return exp;
+}
+
+Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parser, const Point p, ZClass& cls) {
+	if (parser.Char('}'))
+		return GetVarDefault(&cls);
+	else {
+		Node* exp = ParseExpression(conCls, conOver, parser);
+		parser.WS();
+		parser.Expect('}');
+		
+		return irg.cast(exp, &cls);
+	}
 }
 
 int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {

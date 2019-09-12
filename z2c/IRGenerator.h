@@ -73,6 +73,11 @@ public:
 	
 	ConstNode* constChar(int l, int base = 10);
 	ConstNode* constBool(bool l);
+	ConstNode* constClass(ZClass* cls);
+	ConstNode* constNull();
+	ConstNode* constVoid();
+	
+	CastNode* cast(Node* object, ZClass* cls);
 	
 	BlockNode* openBlock();
 	BlockNode* closeBlock();
@@ -93,6 +98,7 @@ private:
 	NodePool<MemNode> memNodes;
 	NodePool<BlockNode> blockNodes;
 	NodePool<OpNode> opNodes;
+	NodePool<CastNode> castNodes;
 	
 	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble);
 };

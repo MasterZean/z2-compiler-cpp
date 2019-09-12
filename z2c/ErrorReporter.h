@@ -40,6 +40,7 @@ public:
 	static void UndeclaredClass(const String& path, const Point& p, const String& id);
 	
 	static void CantAssign(const String& path, const Point& p, const String& c1, const String& c2);
+	static void CantCreateClassVar(const String& path, const Point& p, const String& c);
 	
 	static void DivisionByZero(const String& path, const Point& p);
 	static void IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2);

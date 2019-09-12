@@ -22,6 +22,7 @@ Assembly::Assembly() {
 	CPtrSize = AddCoreNumeric("PtrSize", "size_t", 13);
 	
 	CCls = &AddClass("Class");
+	CCls->BackendName = "Class";
 	
 	CDef = &AddClass("Def");
 	
@@ -34,7 +35,7 @@ Assembly::Assembly() {
 ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, int index) {
 	ASSERT(Classes.GetCount() == index);
 	
-	ZClass& cls = Classes.Add(name);
+	ZClass& cls = AddClass(name);
 	cls.BackendName = backendName;
 	cls.MIsNumeric = true;
 	cls.MIndex = index;

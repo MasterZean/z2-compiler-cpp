@@ -14,9 +14,9 @@ void CppNodeWalker::Walk(Node* node) {
 		Walk((UnaryOpNode*)node);*/
 	else if (node->NT == NodeType::Memory)
 		WalkNode(*(MemNode*)node);
-	/*else if (node->NT == NodeType::Cast)
-		Walk((CastNode*)node);
-	else if (node->NT == NodeType::Temporary)
+	else if (node->NT == NodeType::Cast)
+		WalkNode(*(CastNode*)node);
+	/*else if (node->NT == NodeType::Temporary)
 		Walk((TempNode*)node);
 	else if (node->NT == NodeType::Def)
 		Walk((DefNode*)node);
@@ -174,11 +174,10 @@ void CppNodeWalker::WalkNode(ConstNode& node) {
 		
 		stream << '\'';
 	}
-	/*else if (node.Class == ass.CCls) {
+	else if (node.Class == ass.CCls) {
 		ZClass& ccc = ass.Classes[(int)node.IntVal];
-		stream << ass.CCls->NamespaceQual;
-		stream << "Class(" << ccc.RTTIIndex << ")";
-	}*/
+		stream << "Class(" << ccc./*RTTIIndex*/MIndex << ")";
+	}
 	else if (node.Class == ass.CNull)
 		stream << "nullptr";
 	/*else if (node.Class == ass.CString)
@@ -234,6 +233,12 @@ void CppNodeWalker::WalkNode(OpNode& node) {
 	stream << ' ' << opss[node.Op] << ' ';
 
 	Walk(node.OpB);
+}
+
+void CppNodeWalker::WalkNode(CastNode& node) {
+	stream << "(" << node.Class->BackendName << ")(";
+	Walk(node.Object);
+	stream << ")";
 }
 
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {

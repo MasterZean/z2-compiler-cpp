@@ -66,7 +66,7 @@ void RunSuite(const String& suite) {
 
 void RunMicroTests() {
 	StopWatch sw;
-	
+
 	RunSuite(GetDataFile("tests/01-basic-ct"));
 	RunSuite(GetDataFile("tests/02-basic-var"));
 	RunSuite(GetDataFile("tests/03-explicit-var"));
