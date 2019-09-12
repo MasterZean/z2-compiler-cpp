@@ -1,0 +1,14 @@
+val a: Small = 0
+val b: Small = -128
+val c: Small = 127
+val d: Small = -129
+val e: Small = 128
+val f: Small = 0.0f
+val g: Small = 0.0
+val h: Small = 0p
+val i: Small = 128p
+val j: Small = 'a'
+val k: Small = '\u00007F'
+val l: Small = '\u000080'
+val m: Small = false
+val n: Small = true

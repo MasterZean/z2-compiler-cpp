@@ -4,6 +4,7 @@ val i = 2 +
 
 def f() {
 	val a = 5.6
+	val b = ' '
 }
 
 def g() {

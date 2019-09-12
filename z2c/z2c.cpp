@@ -3,7 +3,7 @@
 using namespace Upp;
 
 #include "Compiler.h"
-//#include "Assembly.h"
+#include "StopWatch.h"
 
 using namespace Z2;
 
@@ -42,7 +42,7 @@ void RunTest(const String& path) {
 		LOG(out);
 		LOG("====================================================================");
 		LOG("");
-		
+
 		Cout() << path << " FAILLED!\n";
 	}
 }
@@ -65,14 +65,19 @@ void RunSuite(const String& suite) {
 }
 
 void RunMicroTests() {
+	StopWatch sw;
+	
 	RunSuite(GetDataFile("tests/01-basic-ct"));
 	RunSuite(GetDataFile("tests/02-basic-var"));
-	RunSuite(GetDataFile("tests/03-block"));
+	RunSuite(GetDataFile("tests/03-explicit-var"));
+	RunSuite(GetDataFile("tests/04-block"));
 	
 	if (attemptedTests > 0 && failledTests != 0)
 		Cout() << IntStr(failledTests) << " out of " << IntStr(attemptedTests) << " tests FAILED!\r\n";
-	else if (attemptedTests > 0)
-		LOG(IntStr(attemptedTests) << " tests passed successfully.\r\n");
+	else if (attemptedTests > 0) {
+		LOG(IntStr(attemptedTests) << " tests passed successfully in " + sw.ToString() + " seconds.\r\n");
+		Cout() << attemptedTests << " tests passed successfully in " << sw.ToString() << " seconds.\r\n";
+	}
 }
 
 CONSOLE_APP_MAIN {

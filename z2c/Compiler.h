@@ -35,6 +35,8 @@ public:
 	void WriteOverload(CppNodeWalker& cpp, Overload& overload);
 	
 	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
+	void  CheckLocalVar(ZClass& conCls, Overload& conOver, const String& varName, const Point& p);
+	Node* GetVarDefault(ZClass* cls);
 	
 	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
@@ -47,6 +49,9 @@ public:
 	String GetResult() {
 		return ss.GetResult();
 	}
+	
+	ZClass* GetClass(ZClass& conCls, const Point& p, const String& name);
+	bool CanAssign(ZClass* cls, Node* n);
 	
 	String GetErrors();
 	

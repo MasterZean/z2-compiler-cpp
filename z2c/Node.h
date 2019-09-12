@@ -67,10 +67,12 @@ public:
 
 	void SetType(ZClass& cls) {
 		Class = &cls;
+		C1 = Class;
 	}
 	
 	void SetType(ZClass* cls) {
 		Class = cls;
+		C1 = Class;
 	}
 	
 	void SetType(ZClass* cls, ZClass* e1, ZClass* e2 = nullptr) {

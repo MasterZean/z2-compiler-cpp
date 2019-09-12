@@ -130,6 +130,14 @@ void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, con
 	Error(path, p, "undeclared identifier '" + id + "'");
 }
 
+void ErrorReporter::UndeclaredClass(const String& path, const Point& p, const String& id) {
+	Error(path, p, "undeclared class '\f" + id + "\f'");
+}
+
+void ErrorReporter::CantAssign(const String& path, const Point& p, const String& c1, const String& c2) {
+	Error(path, p, "can't assign '\f" + c2 + "\f' instance to '\f" + c1 + "\f' instance");
+}
+
 void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 	Error(path, p, "second operand of division is 0 or equivalent");
 }
@@ -137,7 +145,6 @@ void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 void ErrorReporter::IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2) {
 	Error(path, p, "can't apply operator '" + op + "' on types: \n\t\t'\f" + text + "\f' and \n\t\t'\f" + text2 + "\f'");
 }
-
 
 }
 

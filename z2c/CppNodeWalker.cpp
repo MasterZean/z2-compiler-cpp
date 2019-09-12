@@ -202,7 +202,7 @@ void CppNodeWalker::WalkNode(VarNode& node) {
 	Variable& var = *node.Var;
 	ASSERT(var.Value);
 	
-	stream << var.Value->Class->BackendName << " " << var.Name << " = ";
+	stream << var.Class->BackendName << " " << var.Name << " = ";
 	Walk(var.Value);
 }
 

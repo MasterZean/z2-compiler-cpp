@@ -1,0 +1,22 @@
+int8 a = 0;
+int8 b = -128;
+int8 c = 127;
+int8 h = 0u;
+int8 j = 'a';
+int8 k = 127;
+DummyClass(4, 14): error:
+	can't assign 'Int' instance to 'Small' instance
+DummyClass(5, 14): error:
+	can't assign 'Int' instance to 'Small' instance
+DummyClass(6, 14): error:
+	can't assign 'Float' instance to 'Small' instance
+DummyClass(7, 14): error:
+	can't assign 'Double' instance to 'Small' instance
+DummyClass(9, 14): error:
+	can't assign 'PtrSize' instance to 'Small' instance
+DummyClass(12, 14): error:
+	can't assign 'Char' instance to 'Small' instance
+DummyClass(13, 14): error:
+	can't assign 'Bool' instance to 'Small' instance
+DummyClass(14, 14): error:
+	can't assign 'Bool' instance to 'Small' instance

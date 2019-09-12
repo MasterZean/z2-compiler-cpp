@@ -14,32 +14,27 @@ Assembly::Assembly() {
 	CLong = AddCoreInteger("Long", "int64", 7);
 	CQWord = AddCoreInteger("QWord", "uint64", 8);
 	
-	CFloat = AddCoreNumeric("Flaot", "float", 9);
+	CFloat = AddCoreNumeric("Float", "float", 9);
 	CDouble = AddCoreNumeric("Double", "double", 10);
-	Classes.Add();     // 11 is Extended
+	Classes.Add("");     // 11 is Extended
 	
 	CChar = AddCoreNumeric("Char", "uint32", 12);
 	CPtrSize = AddCoreNumeric("PtrSize", "size_t", 13);
 	
-	CCls = &Classes.Add();
-	CCls->Name = "Class";
+	CCls = &AddClass("Class");
 	
-	CDef = &Classes.Add();
-	CDef->Name = "Def";
+	CDef = &AddClass("Def");
 	
-	CVoid = &Classes.Add();
-	CVoid->Name = "void";
+	CVoid = &AddClass("Void");
 	CVoid->BackendName = "void";
 	
-	CNull = &Classes.Add();
-	CNull->Name = "Null";
+	CNull = &AddClass("Null");
 }
 
 ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, int index) {
 	ASSERT(Classes.GetCount() == index);
 	
-	ZClass& cls = Classes.Add();
-	cls.Name = name;
+	ZClass& cls = Classes.Add(name);
 	cls.BackendName = backendName;
 	cls.MIsNumeric = true;
 	cls.MIndex = index;

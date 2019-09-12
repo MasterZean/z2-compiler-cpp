@@ -1,0 +1,12 @@
+val a: Byte
+val b: Small
+val c: Word
+val d: Short
+val e: DWord
+val f: Int
+val g: QWord
+val h: Long
+val i: Float
+val j: Double
+val m: Char
+val n: PtrSize

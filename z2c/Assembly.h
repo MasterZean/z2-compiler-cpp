@@ -20,6 +20,7 @@ public:
 	
 	ZClass& OwnerClass;
 	Node* Value = nullptr;
+	ZClass* Class = nullptr;
 	
 	Variable(ZClass& aClass): OwnerClass(aClass) {
 	}
@@ -121,11 +122,13 @@ public:
 		return cls;
 	}
 	
-	ZClass& AddClass() {
-		return Classes.Add();
+	ZClass& AddClass(const String& name) {
+		ZClass& cls = Classes.Add(name);
+		cls.Name = name;
+		return cls;
 	}
 
-	Array<ZClass> Classes;
+	ArrayMap<String, ZClass> Classes;
 };
 
 }

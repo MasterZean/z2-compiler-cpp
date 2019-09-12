@@ -213,13 +213,28 @@ ConstNode* IRGenerator::constChar(int l, int base) {
 	return node;
 }
 
+ConstNode* IRGenerator::constBool(bool l) {
+	ConstNode* node = constNodes.Get();
+	
+	node->SetType(ass.CBool);
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	node->IntVal = l;
+	node->IsTemporary = true;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
 VarNode* IRGenerator::defineLocalVar(Variable& v) {
 	VarNode* var = varNodes.Get();
 	
 	ASSERT(v.Value);
 	
 	var->Var = &v;
-	var->SetType(v.Value->Class);
+	var->SetType(v.Class);
 	var->HasSe = true;
 	
 	var->IsAddressable = true;
@@ -233,7 +248,7 @@ MemNode* IRGenerator::mem(Variable& v) {
 	MemNode* var = memNodes.Get();
 	
 	var->Var = &v;
-	var->SetType(v.Value->Class);
+	var->SetType(v.Class);
 	var->HasSe = true;
 	
 	var->IsAddressable = true;

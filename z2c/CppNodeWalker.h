@@ -29,7 +29,7 @@ public:
 			if (DebugOriginalLine && node->OriginalLine)
 				stream << "\t\t\t\t // " << node->OriginalLine;
 			
-			stream << "\r\n";
+			NL();
 		}
 	}
 	

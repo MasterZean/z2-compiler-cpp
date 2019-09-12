@@ -82,6 +82,10 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	
 	if (parser.IsInt())
 		exp = ParseNumeric(conCls, parser);
+	else if (parser.IsId("true"))
+		exp = irg.constBool(true);
+	else if (parser.IsId("false"))
+		exp = irg.constBool(false);
 	else if (parser.IsZId() || parser.IsChar('@'))
 		exp = ParseId(conCls, conOver, parser);
 	else if (parser.IsCharConst()) {
@@ -248,4 +252,3 @@ Point Compiler::OPS[256];
 bool Compiler::OPCONT[256];
 
 }
-

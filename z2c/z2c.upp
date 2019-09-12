@@ -17,6 +17,7 @@ file
 	Node.cpp,
 	IRGenerator.h,
 	IRGenerator.cpp,
+	StopWatch.h,
 	z2c.cpp;
 
 mainconfig

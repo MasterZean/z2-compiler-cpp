@@ -71,7 +71,8 @@ public:
 	ConstNode* constFloatSingle(double l);
 	ConstNode* constFloatDouble(double l);
 	
-	ConstNode* constChar(int l, int base  =10);
+	ConstNode* constChar(int l, int base = 10);
+	ConstNode* constBool(bool l);
 	
 	BlockNode* openBlock();
 	BlockNode* closeBlock();
