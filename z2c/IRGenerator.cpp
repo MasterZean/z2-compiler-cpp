@@ -191,6 +191,28 @@ ConstNode* IRGenerator::constFloatDouble(double l) {
 	return node;
 }
 
+ConstNode* IRGenerator::constChar(int l, int base) {
+	ConstNode* node = constNodes.Get();
+	
+	if (l < 128)
+		node->SetType(ass.CChar, ass.CByte, ass.CSmall);
+	else if (l < 256)
+		node->SetType(ass.CChar, ass.CByte);
+	else
+		node->SetType(ass.CChar, ass.CChar);
+	
+	node->IsConst = true;
+	node->IsLiteral = true;
+	node->IsCT = true;
+	node->IntVal = l;
+	node->Base = base;
+	node->IsTemporary = true;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
 VarNode* IRGenerator::defineLocalVar(Variable& v) {
 	VarNode* var = varNodes.Get();
 	

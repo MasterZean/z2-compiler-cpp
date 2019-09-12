@@ -57,6 +57,12 @@ public:
 	
 	bool WSCurrentLine();
 	
+	bool IsCharConst() {
+		return term[0] == '\'';
+	}
+	
+	uint32 ReadChar();
+	
 private:
 	uint64 ReadNumber64Core(Point& p, int base);
 	NumberType ReadF(Point& p, int sign, double& oDub);

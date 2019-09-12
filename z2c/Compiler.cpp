@@ -40,20 +40,17 @@ bool Compiler::CompilerOverload(Overload& overload) {
 	return true;
 }
 
-void Compiler::WriteOverloadBody(Overload& overload, int indent) {
-	//ss.Create();
-	
+void Compiler::WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent) {
 	cpp.ResetIndent(indent);
 	
 	for (int i = 0; i < overload.Nodes.GetCount(); i++)
 		cpp.WalkStatement(overload.Nodes[i]);
 }
 
-void Compiler::WriteOverload(Overload& overload) {
-	ss.Create();
+void Compiler::WriteOverload(CppNodeWalker& cpp, Overload& overload) {
 	cpp.WriteOverloadDefinition(overload);
-	WriteOverloadBody(overload, 1);
-	ss << "}\r\n\r\n";
+	WriteOverloadBody(cpp, overload, 1);
+	cpp.CloseOverload();
 }
 
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
@@ -180,8 +177,8 @@ void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
 		parser.ReadId();
 	else if (parser.IsId())
 		parser.ReadId();
-	//else if (parser.IsCharConst())
-	//	parser.ReadChar();
+	else if (parser.IsCharConst())
+		parser.ReadChar();
 	else {
 		for (int i = 0; i < 9; i++)
 			if (parser.Char2(tab2[i], tab3[i]))

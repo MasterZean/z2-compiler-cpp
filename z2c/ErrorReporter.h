@@ -23,6 +23,7 @@ public:
 	static void SyntaxError(const String& path, const Point& p, const String& text);
 	
 	static void InvalidNumericLiteral(const String& path, const Point& p);
+	static void InvalidCharLiteral(const String& path, const Point& p);
 	static void IntegerConstantTooBig(const String& path, const Point& p);
 	static void IntegerConstantTooBig(const String& path, const String& cls, const Point& p);
 	static void FloatConstantTooBig(const String& path, const Point& p);

@@ -165,6 +165,10 @@ void CppNodeWalker::WalkNode(ConstNode& node) {
 			stream << "\\\\";
 		else if (node.IntVal == '\0')
 			stream << "\\0";
+		else if (node.IntVal < 16)
+			stream << "\\x00" << Format64Hex(node.IntVal);
+		else if (node.IntVal < 32)
+			stream << "\\x0" << Format64Hex(node.IntVal);
 		else
 			stream << (char)node.IntVal;
 		
@@ -212,13 +216,15 @@ void CppNodeWalker::WalkNode(MemNode& node) {
 void CppNodeWalker::WalkNode(BlockNode& node) {
 	if (node.IntVal) {
 		SS();
-		stream << "{" << "\r\n";
+		stream << "{";
+		NL();
 		indent++;
 	}
 	else {
 		indent--;
 		SS();
-		stream << "}" << "\r\n";
+		stream << "}";
+		NL();
 	}
 }
 
@@ -260,7 +266,8 @@ bool CppNodeWalker::WriteReturnType(Overload &over) {
 void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
 	stream << over.BackendName;
 	
-	stream << "() {\r\n";
+	stream << "() {";
+	NL();
 }
 
 }

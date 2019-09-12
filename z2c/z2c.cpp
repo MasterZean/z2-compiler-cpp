@@ -15,17 +15,21 @@ void RunTest(const String& path) {
 	
 	String test = NativePath(GetFileDirectory(path) + GetFileTitle(path));
 
-	String file = LoadFile(test + ".txt");
-	String out = LoadFile(test + ".out");
+	String file = LoadFileBOM(test + ".txt");
+	String out = LoadFileBOM(test + ".out");
 	
 	Assembly ass;
 	Compiler compiler(ass);
 	compiler.PrintErrors = false;
 	
 	Overload* over = compiler.CompileSnip(file);
-	compiler.WriteOverloadBody(*over);
 	
-	String result = compiler.GetResult() + compiler.GetErrors();
+	StringStream ss;
+	CppNodeWalker cpp(ass, ss);
+	
+	compiler.WriteOverloadBody(cpp, *over);
+	
+	String result = ss.GetResult() + compiler.GetErrors();
 	
 	if (result != out) {
 		failledTests++;
@@ -80,9 +84,12 @@ CONSOLE_APP_MAIN {
 	Overload* over = compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
 	
 	for (int i = 0; i < over->OwnerClass.Overloads.GetCount(); i++) {
-		compiler.WriteOverload(over->OwnerClass.Overloads[i]);
+		StringStream ss;
+		CppNodeWalker cpp(ass, ss);
 		
-		Cout() << compiler.GetResult();
+		compiler.WriteOverload(cpp, over->OwnerClass.Overloads[i]);
+		
+		Cout() << ss.GetResult();
 	}
 }
 

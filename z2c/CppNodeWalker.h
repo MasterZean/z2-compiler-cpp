@@ -44,6 +44,11 @@ public:
 			stream << "\t";
 	}
 	
+	void NL() {
+		stream << "\r\n";
+		line++;
+	}
+	
 	void ResetIndent(int ind = 0) {
 		indent = ind;
 	}
@@ -56,6 +61,12 @@ public:
 	
 	void WriteOverloadDefinition(Overload &over);
 	
+	void CloseOverload() {
+		stream << "}";
+		NL();
+		NL();
+	}
+	
 	bool WriteReturnType(Overload &over);
 	void WriteOverloadNameParams(Overload &over);
 	
@@ -64,6 +75,7 @@ private:
 	Stream& stream;
 	
 	int indent = 0;
+	int line = 1;
 };
 
 }

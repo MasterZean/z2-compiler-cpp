@@ -84,6 +84,15 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		exp = ParseNumeric(conCls, parser);
 	else if (parser.IsZId() || parser.IsChar('@'))
 		exp = ParseId(conCls, conOver, parser);
+	else if (parser.IsCharConst()) {
+		Point p = parser.GetPoint();
+		
+		uint32 ch = parser.ReadChar();
+		if (ch == -1)
+			ErrorReporter::InvalidCharLiteral(conCls.Name, p);
+		
+		exp = irg.constChar(ch);
+	}
 	else {
 		Point p = parser.GetPoint();
 		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());

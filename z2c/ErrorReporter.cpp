@@ -79,7 +79,11 @@ void ErrorReporter::SyntaxError(const String& path, const Point& p, const String
 }
 
 void ErrorReporter::InvalidNumericLiteral(const String& path, const Point& p) {
-	Error(path, p, "invalid numeric literal");
+	Error(path, p, "invalid numeric literal constant");
+}
+
+void ErrorReporter::InvalidCharLiteral(const String& path, const Point& p) {
+	Error(path, p, "invalid '\fChar\f' literal constant");
 }
 
 void ErrorReporter::IntegerConstantTooBig(const String& path, const Point& p) {

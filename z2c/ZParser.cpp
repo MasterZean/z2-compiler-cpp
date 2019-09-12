@@ -550,4 +550,103 @@ bool ZParser::WSCurrentLine() {
 	return true;
 }
 
+uint32 ZParser::ReadChar() {
+	if (term[0] != '\'')
+		return -1;
+	
+	if (term[1] == '\\') {
+		term += 2;
+		uint32 c = -1;
+		if (*term == 't') {
+			c = '\t';
+			term++;
+		}
+		else if (*term == 'n') {
+			c = '\n';
+			term++;
+		}
+		else if (*term == 'r') {
+			c = '\r';
+			term++;
+		}
+		else if (*term == 'a') {
+			c = '\a';
+			term++;
+		}
+		else if (*term == 'b') {
+			c = '\b';
+			term++;
+		}
+		else if (*term == 'f') {
+			c = '\f';
+			term++;
+		}
+		else if (*term == 'v') {
+			c = '\v';
+			term++;
+		}
+		else if (*term == '\'') {
+			c = '\'';
+			term++;
+		}
+		else if (*term == '0') {
+			c = '\0';
+			term++;
+		}
+		else if (*term == '\\') {
+			c = '\\';
+			term++;
+		}
+		else if (*term == 'u') {
+			term++;
+			c = 0;
+			for(int i = 0; i < 6; i++) {
+				uint32 cc = ctoi(*term);
+				if(cc < 0 || cc >= 16)
+					return -1;
+				c = 16 * c + cc;
+				term++;
+			}
+		}
+		else
+			return -1;
+		
+		if (*term != '\'')
+			return -1;
+		
+		term += 1;
+		
+		return c;
+	}
+	else {
+		term += 1;
+		uint32 c = (byte)*term;
+		if (c == 0)
+			return -1;
+		if (c < 0x80)
+			term += 1;
+		else if (c < 0xC0)
+			return -1;
+		else if (c < 0xE0) {
+			c = ((c - 0xC0) << 6) + (byte)term[1] - 0x80;
+			term += 2;
+		}
+		else if (c < 0xF0) {
+			c = ((c - 0xE0) << 12) + (((byte)term[1] - 0x80) << 6) + (byte)term[2] - 0x80;
+			term += 3;
+		}
+		else if (c < 0xF5) {
+			c = ((c - 0xE0) << 18) + (((byte)term[1] - 0x80) << 12) + (((byte)term[2] - 0x80) << 6) + (byte)term[3] - 0x80;
+			term += 4;
+		}
+		
+		if (*term != '\'')
+			return -1;
+		
+		term += 1;
+		
+		return c;
+	}
+}
+
 }
