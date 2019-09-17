@@ -1,0 +1,13 @@
+val a: Small = -0s16
+val b: Small = 0s16
+val c: Small = -1s16
+val d: Small = 1s16
+val e: Small = -100s16
+val f: Small = 100s16
+val g: Small = -127s16
+val h: Small = 127s16
+val i: Small = -128s16
+val j: Small = 128s16
+val k: Small = -200s16
+val l: Small = 200s16
+

@@ -264,6 +264,9 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 	}
 	ASSERT(value);
 	
+	if (varClass != value->Class)
+		value = irg.cast(value, varClass);
+	
 	Variable& v = conOver.AddVariable();
 	v.Name = varName;
 	v.SourcePos = ptName;

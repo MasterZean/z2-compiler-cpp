@@ -109,7 +109,12 @@ Node* NodeRunner::ExecuteNode(MemNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(CastNode& node) {
-	return nullptr;
+	Execute(node.Object);
+	
+	node.IntVal = node.Object->IntVal;
+	node.DblVal = node.Object->DblVal;
+	
+	return &node;
 }
 
 }

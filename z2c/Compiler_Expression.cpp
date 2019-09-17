@@ -165,9 +165,9 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 	else if (type == ZParser::ntQWord)
 		exp = irg.constIntUnsigned(oInt, base, ass.CQWord);
 	else if (type == ZParser::ntSmall)
-		exp = irg.constIntUnsigned(oInt, base, ass.CSmall);
+		exp = irg.constIntSigned(oInt, base, ass.CSmall);
 	else if (type == ZParser::ntShort)
-		exp = irg.constIntUnsigned(oInt, base, ass.CShort);
+		exp = irg.constIntSigned(oInt, base, ass.CShort);
 	else if (type == ZParser::ntByte)
 		exp = irg.constIntUnsigned(oInt, base, ass.CByte);
 	else if (type == ZParser::ntWord)
@@ -192,10 +192,7 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		parser.WS();
 		parser.Expect('}');
 		
-		if (exp->C1 != &cls)
-			return irg.cast(exp, &cls);
-		else
-			return exp;
+		return irg.cast(exp, &cls);
 	}
 }
 

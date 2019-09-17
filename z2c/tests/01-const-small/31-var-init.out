@@ -2,8 +2,8 @@ int8 a = 0;
 int8 b = -128;
 int8 c = 127;
 int8 h = 0u;
-int8 j = 'a';
-int8 k = 127;
+int8 j = (int8)('a');
+int8 k = (int8)(127);
 DummyClass(4, 14): error:
 	can't assign 'Int' instance to 'Small' instance
 DummyClass(5, 14): error:

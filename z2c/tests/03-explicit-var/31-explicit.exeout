@@ -1,0 +1,12 @@
+var a: Byte = Byte{0}
+var b: Small = Small{0}
+var c: Word = Word{0}
+var d: Short = Short{0}
+var e: DWord = DWord{0}
+var f: Int = Int{0}
+var g: QWord = QWord{0}
+var h: Long = Long{0}
+var i: Float = Float{0}
+var j: Double = Double{0}
+var m: Char = Char{0}
+var n: PtrSize = PtrSize{0}

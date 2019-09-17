@@ -1,4 +1,5 @@
-val i = 2 + 				
+val cc: Small = -1s16
+val val i = 2 + 				
 3 +
 4
 val j = Int{}

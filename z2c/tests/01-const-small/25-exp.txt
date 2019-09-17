@@ -1,0 +1,13 @@
+val a: Small = -0
+val b: Small = 0
+val c: Small = -1
+val d: Small = 1
+val e: Small = -100
+val f: Small = 100
+val g: Small = -127
+val h: Small = 127
+val i: Small = -128
+val j: Small = 128
+val k: Small = -200
+val l: Small = 200
+

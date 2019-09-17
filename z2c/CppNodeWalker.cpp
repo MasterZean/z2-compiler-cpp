@@ -259,7 +259,16 @@ void CppNodeWalker::WalkNode(VarNode& node) {
 	ASSERT(var.Value);
 	
 	stream << var.Class->BackendName << " " << var.Name << " = ";
-	Walk(var.Value);
+	
+	if (var.Value->NT == NodeType::Cast) {
+		CastNode* cast = (CastNode*)var.Value;
+		if (cast->Object->C1 == cast->Class)
+			Walk(cast->Object);
+		else
+			Walk(cast);
+	}
+	else
+		Walk(var.Value);
 }
 
 void CppNodeWalker::WalkNode(MemNode& node) {

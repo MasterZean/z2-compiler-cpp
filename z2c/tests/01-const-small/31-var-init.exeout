@@ -1,0 +1,6 @@
+var a: Small = Small{0}
+var b: Small = Small{-128}
+var c: Small = Small{127}
+var h: Small = Small{0}
+var j: Small = Small{97}
+var k: Small = Small{127}
