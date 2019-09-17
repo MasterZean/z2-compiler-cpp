@@ -3,10 +3,10 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 namespace Z2 {
 	
+using namespace Upp;
+
 #ifdef PLATFORM_WIN32
 
 class StopWatch : Moveable<StopWatch> {

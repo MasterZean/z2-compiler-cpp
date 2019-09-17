@@ -1,0 +1,9 @@
+var a: Small = Small{0}
+var b: Small = Small{0}
+var c: Small = Small{-1}
+var d: Small = Small{1}
+var e: Small = Small{-100}
+var f: Small = Small{100}
+var g: Small = Small{-127}
+var h: Small = Small{127}
+var i: Small = Small{-128}

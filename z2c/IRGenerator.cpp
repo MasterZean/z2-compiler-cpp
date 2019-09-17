@@ -403,7 +403,7 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	int64 dInt;
 	double dDouble;
 	
-	if (ct) {
+	if (ct & FoldConstants) {
 		Node* ret = opAritCT(left, right, op, cls, e1, dInt, dDouble);
 		if (ret)
 			return ret;

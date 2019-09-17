@@ -3,12 +3,13 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 #include "Node.h"
 #include "Assembly.h"
+#include "IRGenerator.h"
 
 namespace Z2 {
+	
+using namespace Upp;
 
 class CppNodeWalker {
 public:

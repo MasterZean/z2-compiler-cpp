@@ -4,6 +4,7 @@ using namespace Upp;
 
 #include "Compiler.h"
 #include "StopWatch.h"
+#include "NodeRunner.h"
 
 using namespace Z2;
 
@@ -17,6 +18,10 @@ void RunTest(const String& path) {
 
 	String file = LoadFileBOM(test + ".txt");
 	String out = LoadFileBOM(test + ".out");
+	String out2 = String::GetVoid();
+	
+	if (FileExists(test + ".exeout"))
+		out2 = LoadFileBOM(test + ".exeout");
 	
 	Assembly ass;
 	Compiler compiler(ass);
@@ -29,12 +34,15 @@ void RunTest(const String& path) {
 	
 	compiler.WriteOverloadBody(cpp, *over);
 	
-	String result = ss.GetResult() + compiler.GetErrors();
+	String result = ss.GetResult();
+	result << compiler.GetErrors();
+	
+	bool failled = false;
 	
 	if (result != out) {
-		failledTests++;
+		failled = true;
 		
-		LOG("=============================== TEST ===============================");
+		LOG("========================= CODE GENERATION ==========================");
 		DUMP(path);
 		LOG("------------------------------ RESULT ------------------------------");
 		LOG(result);
@@ -45,6 +53,33 @@ void RunTest(const String& path) {
 
 		Cout() << path << " FAILLED!\n";
 	}
+	
+	if (!out2.IsVoid()) {
+		StringStream ss;
+		NodeRunner exe(ass, ss);
+		
+		exe.Execute(*over);
+		
+		String result = ss.GetResult();
+		
+		if (result != out2) {
+			failled = true;
+			
+			LOG("============================ EXECUTION =============================");
+			DUMP(path);
+			LOG("------------------------------ RESULT ------------------------------");
+			LOG(result);
+			LOG("----------------------------- EXPECTED -----------------------------");
+			LOG(out2);
+			LOG("====================================================================");
+			LOG("");
+	
+			Cout() << path << " FAILLED!\n";
+		}
+	}
+	
+	if (failled)
+		failledTests++;
 }
 
 void RunSuite(const String& suite) {
@@ -82,7 +117,7 @@ void RunMicroTests() {
 
 CONSOLE_APP_MAIN {
 	RunMicroTests();
-	
+
 	Assembly ass;
 	Compiler compiler(ass);
 	
@@ -95,6 +130,15 @@ CONSOLE_APP_MAIN {
 		compiler.WriteOverload(cpp, over->OwnerClass.Overloads[i]);
 		
 		Cout() << ss.GetResult();
+		
+		StringStream ss2;
+		NodeRunner exe(ass, ss2);
+		
+		exe.Execute(over->OwnerClass.Overloads[i]);
+		
+		String result = ss2.GetResult();
+		
+		Cout() << ss2.GetResult();
 	}
 }
 

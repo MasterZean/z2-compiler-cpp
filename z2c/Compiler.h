@@ -3,8 +3,6 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 #include "ZParser.h"
 #include "Node.h"
 #include "IRGenerator.h"
@@ -13,6 +11,8 @@ using namespace Upp;
 #include "ErrorReporter.h"
 
 namespace Z2 {
+	
+using namespace Upp;
 
 class Compiler {
 public:

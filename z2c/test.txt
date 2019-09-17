@@ -1,7 +1,7 @@
-val i = 2 + 
+val i = 2 + 				
 3 +
 4
-val j = Int
+val j = Int{}
 
 def f() {
 	val a = 5.6

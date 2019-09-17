@@ -6,6 +6,7 @@ extern String opss[];
 
 void CppNodeWalker::Walk(Node* node) {
 	ASSERT_(node, "Null node");
+	
 	if (node->NT == NodeType::Const)
 		WalkNode(*(ConstNode*)node);
 	else if (node->NT == NodeType::BinaryOp)
@@ -78,7 +79,63 @@ void CppNodeWalker::WalkNode(ConstNode& node) {
 		else
 			stream << Format64(node.IntVal) << "u";
 	}
-	else if (node.Class == ass.CInt || node.Class == ass.CSmall || node.Class == ass.CShort) {
+	else if (node.Class == ass.CSmall) {
+		if (node.Base == 16) {
+			if (node.IntVal >= 0) {
+				String temp = ToUpper(FormatIntHex(node.IntVal, 2));
+				temp = temp.Mid(temp.GetCount() - 2);
+				stream << "0x" << temp;
+			}
+			else  {
+				String temp = ToUpper(FormatIntHex(-node.IntVal, 2));
+				temp = temp.Mid(temp.GetCount() - 2);
+				stream << "-0x" << temp;
+			}
+		}
+		else if (node.Base == 8) {
+			if (node.IntVal >= 0) {
+				String temp = ToUpper(FormatIntOct(node.IntVal, 3));
+				temp = temp.Mid(temp.GetCount() - 3);
+				stream << "0" << temp;
+			}
+			else  {
+				String temp = ToUpper(FormatIntOct(-node.IntVal, 3));
+				temp = temp.Mid(temp.GetCount() - 3);
+				stream << "-0" << temp;
+			}
+		}
+		else
+			stream << IntStr64(node.IntVal);
+	}
+	else if (node.Class == ass.CShort) {
+		if (node.Base == 16) {
+			if (node.IntVal >= 0) {
+				String temp = ToUpper(FormatIntHex(node.IntVal, 4));
+				temp = temp.Mid(temp.GetCount() - 4);
+				stream << "0x" << temp;
+			}
+			else  {
+				String temp = ToUpper(FormatIntHex(-node.IntVal, 4));
+				temp = temp.Mid(temp.GetCount() - 4);
+				stream << "-0x" << temp;
+			}
+		}
+		else if (node.Base == 8) {
+			if (node.IntVal >= 0) {
+				String temp = ToUpper(FormatIntOct(node.IntVal, 6));
+				temp = temp.Mid(temp.GetCount() - 6);
+				stream << "0" << temp;
+			}
+			else  {
+				String temp = ToUpper(FormatIntOct(-node.IntVal, 6));
+				temp = temp.Mid(temp.GetCount() - 6);
+				stream << "-0" << temp;
+			}
+		}
+		else
+			stream << IntStr64(node.IntVal);
+	}
+	else if (node.Class == ass.CInt) {
 		if (node.Base == 16) {
 			if (node.IntVal == -2147483648ll)
 				stream << "(int32)" << "0x" << ToUpper(Format64Hex(node.IntVal)) << "ll";

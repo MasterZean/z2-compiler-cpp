@@ -3,11 +3,11 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 #include "Node.h"
 
 namespace Z2 {
+	
+using namespace Upp;
 	
 class Assembly;
 	
@@ -88,6 +88,8 @@ public:
 	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
 	
+	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble);
+	
 	bool FoldConstants = false;
 
 private:
@@ -99,8 +101,6 @@ private:
 	NodePool<BlockNode> blockNodes;
 	NodePool<OpNode> opNodes;
 	NodePool<CastNode> castNodes;
-	
-	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble);
 };
 
 }

@@ -9,6 +9,8 @@ file
 	Compiler_Expression.cpp,
 	CppNodeWalker.h,
 	CppNodeWalker.cpp,
+	NodeRunner.h,
+	NodeRunner.cpp,
 	ZParser.h,
 	ZParser.cpp,
 	ErrorReporter.h,

@@ -192,7 +192,10 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		parser.WS();
 		parser.Expect('}');
 		
-		return irg.cast(exp, &cls);
+		if (exp->C1 != &cls)
+			return irg.cast(exp, &cls);
+		else
+			return exp;
 	}
 }
 

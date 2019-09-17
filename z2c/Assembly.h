@@ -3,11 +3,11 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 #include "ZParser.h"
 
 namespace Z2 {
+	
+using namespace Upp;
 	
 class Overload;
 class ZClass;
