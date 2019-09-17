@@ -1,0 +1,39 @@
+{
+	uint8 a = 0u + false;
+}
+{
+	uint8 a = 0u + 0;
+}
+{
+	uint8 a = 0u + 0u;
+}
+{
+	int16 a = 0u + 0;
+}
+{
+	uint16 a = 0u + 0u;
+}
+{
+	int32 a = 0u + 0;
+}
+{
+	uint32 a = 0u + 0u;
+}
+{
+	int64 a = 0u + 0ll;
+}
+{
+	uint64 a = 0u + 0ull;
+}
+{
+	float a = 0u + 0.0f;
+}
+{
+	double a = 0u + 0.0;
+}
+{
+	uint32 a = 0u + '\0';
+}
+{
+	size_t a = 0u + 0u;
+}

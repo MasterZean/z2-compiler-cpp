@@ -1,0 +1,21 @@
+int16 a = (int16)(0);
+int16 b = (int16)(0);
+int16 c = (int16)(-1);
+int16 d = (int16)(1);
+int16 e = (int16)(-100);
+int16 f = (int16)(100);
+int16 g = (int16)(-127);
+int16 h = (int16)(127);
+int16 i = (int16)(-128);
+int16 j = 128;
+int16 k = -200;
+int16 l = 200;
+int16 m = -32767;
+int16 n = 32767;
+int16 o = -32768;
+DummyClass(16, 14): error:
+	can't assign 'Int' instance to 'Short' instance
+DummyClass(17, 14): error:
+	can't assign 'Int' instance to 'Short' instance
+DummyClass(18, 14): error:
+	can't assign 'Int' instance to 'Short' instance

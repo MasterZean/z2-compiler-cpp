@@ -1,0 +1,39 @@
+{
+	var a: Small = Small{0}
+}
+{
+	var a: Small = Small{0}
+}
+{
+	var a: Byte = Byte{0}
+}
+{
+	var a: Short = Short{0}
+}
+{
+	var a: Word = Word{0}
+}
+{
+	var a: Int = Int{0}
+}
+{
+	var a: DWord = DWord{0}
+}
+{
+	var a: Long = Long{0}
+}
+{
+	var a: QWord = QWord{0}
+}
+{
+	var a: Float = Float{0}
+}
+{
+	var a: Double = Double{0}
+}
+{
+	var a: Char = Char{0}
+}
+{
+	var a: PtrSize = PtrSize{0}
+}

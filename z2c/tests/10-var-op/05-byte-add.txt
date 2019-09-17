@@ -1,0 +1,13 @@
+{ val a = Byte{} + Bool{} }
+{ val a = Byte{} + Small{} }
+{ val a = Byte{} + Byte{} }
+{ val a = Byte{} + Short{} }
+{ val a = Byte{} + Word{} }
+{ val a = Byte{} + Int{} }
+{ val a = Byte{} + DWord{} }
+{ val a = Byte{} + Long{} }
+{ val a = Byte{} + QWord{} }
+{ val a = Byte{} + Float{} }
+{ val a = Byte{} + Double{} }
+{ val a = Byte{} + Char{} }
+{ val a = Byte{} + PtrSize{} }

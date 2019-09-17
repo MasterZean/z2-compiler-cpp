@@ -1,0 +1,30 @@
+int16 a = (int16)(0);
+int16 b = (int16)(-128);
+int16 c = (int16)(127);
+int16 d = -129;
+int16 e = 128;
+int16 aa = -32768;
+int16 bb = 32767;
+int16 h = (int16)(0u);
+int16 i = 128u;
+int16 j = (int16)('a');
+int16 k = (int16)(127);
+int16 l = (int16)(128);
+DummyClass(8, 15): error:
+	can't assign 'Int' instance to 'Short' instance
+DummyClass(9, 15): error:
+	can't assign 'Int' instance to 'Short' instance
+DummyClass(10, 14): error:
+	can't assign 'Float' instance to 'Short' instance
+DummyClass(11, 14): error:
+	can't assign 'Double' instance to 'Short' instance
+DummyClass(14, 15): error:
+	can't assign 'PtrSize' instance to 'Short' instance
+DummyClass(18, 15): error:
+	can't assign 'Char' instance to 'Short' instance
+DummyClass(19, 15): error:
+	can't assign 'Char' instance to 'Short' instance
+DummyClass(20, 14): error:
+	can't assign 'Bool' instance to 'Short' instance
+DummyClass(21, 14): error:
+	can't assign 'Bool' instance to 'Short' instance

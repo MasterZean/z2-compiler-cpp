@@ -102,11 +102,15 @@ void RunSuite(const String& suite) {
 void RunMicroTests() {
 	StopWatch sw;
 
+	//RunTest("");
+	
 	RunSuite(GetDataFile("tests/01-const-small"));
+	RunSuite(GetDataFile("tests/02-const-short"));
 	RunSuite(GetDataFile("tests/01-basic-ct"));
 	RunSuite(GetDataFile("tests/02-basic-var"));
 	RunSuite(GetDataFile("tests/03-explicit-var"));
 	RunSuite(GetDataFile("tests/04-block"));
+	RunSuite(GetDataFile("tests/10-var-op"));
 	
 	if (attemptedTests > 0 && failledTests != 0)
 		Cout() << IntStr(failledTests) << " out of " << IntStr(attemptedTests) << " tests FAILED!\r\n";

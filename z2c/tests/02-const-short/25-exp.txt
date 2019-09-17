@@ -1,0 +1,19 @@
+val a: Short = -0
+val b: Short = 0
+val c: Short = -1
+val d: Short = 1
+val e: Short = -100
+val f: Short = 100
+val g: Short = -127
+val h: Short = 127
+val i: Short = -128
+val j: Short = 128
+val k: Short = -200
+val l: Short = 200
+val m: Short = -32767
+val n: Short = 32767
+val o: Short = -32768
+val p: Short = 32768
+val q: Short = -40000
+val r: Short = 40000
+

@@ -1,0 +1,39 @@
+{
+	int8 a = (bool)(1) + (bool)(2);
+}
+{
+	int8 a = (bool)(1) + (int8)(2);
+}
+{
+	uint8 a = (bool)(1) + (uint8)(2);
+}
+{
+	int16 a = (bool)(1) + (int16)(2);
+}
+{
+	uint16 a = (bool)(1) + (uint16)(2);
+}
+{
+	int32 a = (bool)(1) + (int32)(2);
+}
+{
+	uint32 a = (bool)(1) + (uint32)(2);
+}
+{
+	int64 a = (bool)(1) + (int64)(2);
+}
+{
+	uint64 a = (bool)(1) + (uint64)(2);
+}
+{
+	float a = (bool)(1) + (float)(2);
+}
+{
+	double a = (bool)(1) + (double)(2);
+}
+{
+	uint32 a = (bool)(1) + (uint32)(2);
+}
+{
+	size_t a = (bool)(1) + (size_t)(2);
+}

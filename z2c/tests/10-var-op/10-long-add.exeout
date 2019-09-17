@@ -1,0 +1,39 @@
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: Long = Long{3}
+}
+{
+	var a: QWord = QWord{3}
+}
+{
+	var a: Float = Float{3}
+}
+{
+	var a: Double = Double{3}
+}
+{
+	var a: Char = Char{3}
+}
+{
+	var a: PtrSize = PtrSize{3}
+}

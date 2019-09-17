@@ -1,0 +1,20 @@
+val a = -0s16
+val b = 0s16
+val c = -1s16
+val d = 1s16
+val e = -100s16
+val f = 100s16
+val g = -127s16
+val h = 127s16
+val i = -128s16
+val j = 128s16
+val k = -200s16
+val l = 200s16
+val m = -32767s16
+val n = 32767s16
+val o = -32768s16
+val p = 32768s16
+val q = -40000s16
+val r = 40000s16
+
+

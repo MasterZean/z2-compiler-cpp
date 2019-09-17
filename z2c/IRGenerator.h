@@ -88,7 +88,7 @@ public:
 	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
 	
-	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble);
+	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble);
 	
 	bool FoldConstants = false;
 

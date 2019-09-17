@@ -1,0 +1,15 @@
+var a: Short = Short{0}
+var b: Short = Short{0}
+var c: Short = Short{-1}
+var d: Short = Short{1}
+var e: Short = Short{-100}
+var f: Short = Short{100}
+var g: Short = Short{-127}
+var h: Short = Short{127}
+var i: Short = Short{-128}
+var j: Short = Short{128}
+var k: Short = Short{-200}
+var l: Short = Short{200}
+var m: Short = Short{-32767}
+var n: Short = Short{32767}
+var o: Short = Short{-32768}

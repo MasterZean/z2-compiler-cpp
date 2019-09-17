@@ -1,0 +1,19 @@
+val a: Short = -0s
+val b: Short = 0s
+val c: Short = -1s
+val d: Short = 1s
+val e: Short = -100s
+val f: Short = 100s
+val g: Short = -127s
+val h: Short = 127s
+val i: Short = -128s
+val j: Short = 128s
+val k: Short = -200s
+val l: Short = 200s
+val m: Short = -32767s
+val n: Short = 32767s
+val o: Short = -32768s
+val p: Short = 32768s
+val q: Short = -40000s
+val r: Short = 40000s
+

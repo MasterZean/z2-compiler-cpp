@@ -1,0 +1,21 @@
+0x0000;
+0x0000;
+-0x0001;
+0x0001;
+-0x0064;
+0x0064;
+-0x007F;
+0x007F;
+-0x0080;
+0x0080;
+-0x00C8;
+0x00C8;
+-0x7FFF;
+0x7FFF;
+-0x8000;
+DummyClass(16, 1): error:
+	'Short' literal constant too big
+DummyClass(17, 1): error:
+	'Short' literal constant too big
+DummyClass(18, 1): error:
+	'Short' literal constant too big

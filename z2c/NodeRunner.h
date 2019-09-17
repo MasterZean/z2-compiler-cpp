@@ -30,10 +30,23 @@ public:
 	
 	void WriteValue(Node* node);
 	
+	void SS() {
+		for (int i = 0; i < indent; i++)
+			stream << "\t";
+	}
+	
+	void NL() {
+		stream << "\r\n";
+		line++;
+	}
+	
 private:
 	Assembly& ass;
 	Stream& stream;
 	IRGenerator irg;
+	
+	int indent = 0;
+	int line = 0;
 };
 
 }

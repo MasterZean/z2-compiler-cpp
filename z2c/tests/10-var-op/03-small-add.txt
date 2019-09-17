@@ -1,0 +1,13 @@
+{ val a = Small{} + Bool{} }
+{ val a = Small{} + Small{} }
+{ val a = Small{} + Byte{} }
+{ val a = Small{} + Short{} }
+{ val a = Small{} + Word{} }
+{ val a = Small{} + Int{} }
+{ val a = Small{} + DWord{} }
+{ val a = Small{} + Long{} }
+{ val a = Small{} + QWord{} }
+{ val a = Small{} + Float{} }
+{ val a = Small{} + Double{} }
+{ val a = Small{} + Char{} }
+{ val a = Small{} + PtrSize{} }

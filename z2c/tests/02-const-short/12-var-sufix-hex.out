@@ -1,0 +1,21 @@
+int16 a = 0x0000;
+int16 b = 0x0000;
+int16 c = -0x0001;
+int16 d = 0x0001;
+int16 e = -0x0064;
+int16 f = 0x0064;
+int16 g = -0x007F;
+int16 h = 0x007F;
+int16 i = -0x0080;
+int16 j = 0x0080;
+int16 k = -0x00C8;
+int16 l = 0x00C8;
+int16 m = -0x7FFF;
+int16 n = 0x7FFF;
+int16 o = -0x8000;
+DummyClass(16, 9): error:
+	'Short' literal constant too big
+DummyClass(17, 9): error:
+	'Short' literal constant too big
+DummyClass(18, 9): error:
+	'Short' literal constant too big

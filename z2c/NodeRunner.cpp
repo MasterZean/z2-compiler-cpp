@@ -55,18 +55,38 @@ Node* NodeRunner::Execute(Node* node) {
 
 void NodeRunner::Execute(Overload& over) {
 	for (int i = 0; i < over.Nodes.GetCount(); i++) {
-		Node* node = Execute(over.Nodes[i]);
-		if (node) {
-			if (over.Nodes[i]->NT == NodeType::Var) {
-				VarNode* var = (VarNode*)over.Nodes[i];
-				stream << "var " << var->Var->Name << ": ";
-				stream << var->Var->Class->Name << " = ";
-				WriteValue(var->Var->Value);
+		Node* in = over.Nodes[i];
+		if (in->NT == NodeType::Block) {
+			if (in->IntVal == 1) {
+				SS();
+				stream << "{";
+				NL();
+				indent++;
 			}
-			else
-				WriteValue(node);
+			else {
+				indent--;
+				SS();
+				stream << "}";
+				NL();
+			}
 		}
-		stream << "\r\n";
+		else {
+			SS();
+			
+			Node* node = Execute(in);
+			if (node) {
+				if (in->NT == NodeType::Var) {
+					VarNode* var = (VarNode*)in;
+					stream << "var " << var->Var->Name << ": ";
+					stream << var->Var->Class->Name << " = ";
+					WriteValue(var->Var->Value);
+				}
+				else
+					WriteValue(node);
+			}
+			
+			NL();
+		}
 	}
 }
 
@@ -101,7 +121,7 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 	int64 dInt;
 	double dDouble;
 	
-	return irg.opAritCT(l, r, node.Op, l->Class, l->Class, dInt, dDouble);
+	return irg.opAritCT(l, r, node.Op, node.Class, node.C1, dInt, dDouble);
 }
 
 Node* NodeRunner::ExecuteNode(MemNode& node) {
@@ -113,6 +133,17 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 	
 	node.IntVal = node.Object->IntVal;
 	node.DblVal = node.Object->DblVal;
+	
+	if (node.Class == ass.CFloat) {
+		if (node.Object->Class != ass.CFloat && node.Object->Class != ass.CDouble) {
+			node.DblVal = node.IntVal;
+		}
+	}
+	else if (node.Class == ass.CDouble) {
+		if (node.Object->Class != ass.CFloat && node.Object->Class != ass.CDouble) {
+			node.DblVal = node.IntVal;
+		}
+	}
 	
 	return &node;
 }

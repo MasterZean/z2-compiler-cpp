@@ -1,3 +1,5 @@
+true  + Small{0}
+-0o100000s16
 val cc: Small = -1s16
 val val i = 2 + 				
 3 +

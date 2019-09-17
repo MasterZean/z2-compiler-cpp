@@ -381,7 +381,7 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 		return nullptr;
 
 	ZClass* cls = &ass.Classes[t];
-	ZClass* e1 = 0;
+	ZClass* e1 = cls;
 	ZClass* e2 = 0;
 	
 	if (left->Class != right->Class) {
@@ -395,9 +395,7 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 		if (right->Class == left->C2)
 			e2 = left->C2;
 	}
-	
-	e1 = cls;
-	
+		
 	bool ct = left->IsCT && right->IsCT;
 	
 	int64 dInt;
@@ -428,7 +426,7 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	return node;
 }
 
-Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& cls, ZClass* e, int64& dInt, double& dDouble) {
+Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble) {
 	if (op == OpNode::opAdd) {
 		if (e == ass.CByte) {
 			dInt = (byte)((uint32)left->IntVal + (uint32)right->IntVal);
@@ -472,7 +470,6 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 		}
 		else if (e == ass.CPtrSize) {
 			dInt = (uint64)left->IntVal + (uint64)right->IntVal;
-			cls = ass.CPtrSize;
 			if (FoldConstants)
 				return constIntUnsigned(dInt, cls);
 		}
@@ -489,6 +486,11 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 			dDouble = left->DblVal + right->DblVal;
 			if (FoldConstants)
 				return constFloatDouble(dDouble);
+		}
+		else if (e == ass.CChar) {
+			dInt = (int32)((int32)left->IntVal + (int32)right->IntVal);
+			if (FoldConstants)
+				return constChar(dInt);
 		}
 		else
 			ASSERT(0);
@@ -536,7 +538,6 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 		}
 		else if (e == ass.CPtrSize) {
 			dInt = (uint64)left->IntVal - (uint64)right->IntVal;
-			cls = ass.CPtrSize;
 			if (FoldConstants)
 				return constIntUnsigned(dInt, cls);
 		}
@@ -553,6 +554,11 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 			dDouble = left->DblVal - right->DblVal;
 			if (FoldConstants)
 				return constFloatDouble(dDouble);
+		}
+		else if (e == ass.CChar) {
+			dInt = (int32)((int32)left->IntVal - (int32)right->IntVal);
+			if (FoldConstants)
+				return constChar(dInt);
 		}
 		else
 			ASSERT(0);
@@ -600,7 +606,6 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 		}
 		else if (e == ass.CPtrSize) {
 			dInt = (uint64)left->IntVal * (uint64)right->IntVal;
-			cls = ass.CPtrSize;
 			if (FoldConstants)
 				return constIntUnsigned(dInt, cls);
 		}
@@ -617,6 +622,11 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 			dDouble = left->DblVal * right->DblVal;
 			if (FoldConstants)
 				return constFloatDouble(dDouble);
+		}
+		else if (e == ass.CChar) {
+			dInt = (int32)((int32)left->IntVal * (int32)right->IntVal);
+			if (FoldConstants)
+				return constChar(dInt);
 		}
 		else
 			ASSERT(0);
@@ -664,7 +674,6 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 		}
 		else if (e == ass.CPtrSize) {
 			dInt = (uint64)left->IntVal / (uint64)right->IntVal;
-			cls = ass.CPtrSize;
 			if (FoldConstants)
 				return constIntUnsigned(dInt, cls);
 		}
@@ -681,6 +690,11 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 			dDouble = left->DblVal / right->DblVal;
 			if (FoldConstants)
 				return constFloatDouble(dDouble);
+		}
+		else if (e == ass.CChar) {
+			dInt = (int32)((int32)left->IntVal / (int32)right->IntVal);
+			if (FoldConstants)
+				return constChar(dInt);
 		}
 		else
 			ASSERT(0);
@@ -728,7 +742,6 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 		}
 		else if (e == ass.CPtrSize) {
 			dInt = (uint64)left->IntVal % (uint64)right->IntVal;
-			cls = ass.CPtrSize;
 			if (FoldConstants)
 				return constIntUnsigned(dInt, cls);
 		}
@@ -745,6 +758,11 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass*& c
 			dDouble = fmod(left->DblVal, right->DblVal);
 			if (FoldConstants)
 				return constFloatDouble(dDouble);
+		}
+		else if (e == ass.CChar) {
+			dInt = (int32)((int32)left->IntVal % (int32)right->IntVal);
+			if (FoldConstants)
+				return constChar(dInt);
 		}
 		else
 			ASSERT(0);
