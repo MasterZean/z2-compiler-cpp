@@ -1,0 +1,29 @@
+70u >> 4;
+70u >> 4u;
+70u >> 4;
+70u >> 4u;
+70u >> 4;
+70u >> 4u;
+70u >> 4ll;
+70u >> 4ull;
+70u >> 4u;
+DummyClass(1, 5): error:
+	can't apply operator '>>' on types: 
+		'DWord' and 
+		'Bool'
+DummyClass(2, 5): error:
+	can't apply operator '>>' on types: 
+		'DWord' and 
+		'Bool'
+DummyClass(11, 5): error:
+	can't apply operator '>>' on types: 
+		'DWord' and 
+		'Float'
+DummyClass(12, 5): error:
+	can't apply operator '>>' on types: 
+		'DWord' and 
+		'Double'
+DummyClass(13, 5): error:
+	can't apply operator '>>' on types: 
+		'DWord' and 
+		'Char'

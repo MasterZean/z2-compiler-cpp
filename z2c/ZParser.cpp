@@ -245,6 +245,11 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 		l = true;
 		if (IsAlNum(*term))
 			ErrorReporter::InvalidNumericLiteral(Path, p);
+		uint64 n = i;
+		if (sign == 1 && n > 9223372036854775807)
+			ErrorReporter::IntegerConstantTooBig(Path, "Long", p);
+		if (sign == -1 && n > 9223372036854775808ul)
+			ErrorReporter::IntegerConstantTooBig(Path, "Long", p);
 		nt = ntLong;
 	}
 	else if (*term == 'u') {
@@ -304,6 +309,11 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 			l = true;
 			if (IsAlNum(*term))
 				ErrorReporter::InvalidNumericLiteral(Path, p);
+			uint64 n = i;
+			if (sign == 1 && n > 9223372036854775807)
+				ErrorReporter::IntegerConstantTooBig(Path, "Long", p);
+			if (sign == -1 && n > 9223372036854775808ul)
+				ErrorReporter::IntegerConstantTooBig(Path, "Long", p);
 			nt = ntLong;
 		}
 		else if (IsDigit(*term)) {

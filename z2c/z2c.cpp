@@ -118,11 +118,26 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/03-explicit-var"));
 	RunSuite(GetDataFile("tests/04-block"));
 	RunSuite(GetDataFile("tests/10-var-op"));
+	
 	RunSuite(GetDataFile("tests/11-shl/01-bool"));
 	RunSuite(GetDataFile("tests/11-shl/02-small"));
 	RunSuite(GetDataFile("tests/11-shl/03-byte"));
 	RunSuite(GetDataFile("tests/11-shl/04-short"));
 	RunSuite(GetDataFile("tests/11-shl/05-word"));
+	RunSuite(GetDataFile("tests/11-shl/06-int"));
+	RunSuite(GetDataFile("tests/11-shl/07-dword"));
+	RunSuite(GetDataFile("tests/11-shl/08-long"));
+	RunSuite(GetDataFile("tests/11-shl/09-qword"));
+	
+	RunSuite(GetDataFile("tests/12-shr/01-bool"));
+	RunSuite(GetDataFile("tests/12-shr/02-small"));
+	RunSuite(GetDataFile("tests/12-shr/03-byte"));
+	RunSuite(GetDataFile("tests/12-shr/04-short"));
+	RunSuite(GetDataFile("tests/12-shr/05-word"));
+	RunSuite(GetDataFile("tests/12-shr/06-int"));
+	RunSuite(GetDataFile("tests/12-shr/07-dword"));
+	RunSuite(GetDataFile("tests/12-shr/08-long"));
+	RunSuite(GetDataFile("tests/12-shr/09-qword"));
 	
 	DUMP(ext);
 		

@@ -149,24 +149,24 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 		return irg.opAritCT(left, right, node.Op, node.Class, node.C1, dInt, dDouble);
 	}
 	else if (node.Op <= OpNode::opShl) {
-		if (node.Class == ass.CByte || node.Class == ass.CWord || node.Class == ass.CDWord) {
-			uint32 dInt = (uint32)left->IntVal << (uint32)right->IntVal;
+		if (node.Class == ass.CByte || node.Class == ass.CWord || node.Class == ass.CDWord || node.Class == ass.CQWord) {
+			uint64 dInt = (uint64)left->IntVal << (uint64)right->IntVal;
 			return irg.constIntUnsigned(dInt, node.Class);
 		}
-		else if (node.Class == ass.CSmall || node.Class == ass.CShort || node.Class == ass.CInt) {
-			int dInt = (int32)left->IntVal << (int32)right->IntVal;
+		else if (node.Class == ass.CSmall || node.Class == ass.CShort || node.Class == ass.CInt || node.Class == ass.CLong) {
+			int64 dInt = (int64)left->IntVal << (int64)right->IntVal;
 			return irg.constIntSigned(dInt, node.Class);
 		}
 		else
 			ASSERT_(0, "shl");
 	}
 	else if (node.Op <= OpNode::opShr) {
-		if (node.Class == ass.CByte || node.Class == ass.CWord || node.Class == ass.CDWord) {
-			uint32 dInt = (uint32)left->IntVal >> (uint32)right->IntVal;
+		if (node.Class == ass.CByte || node.Class == ass.CWord || node.Class == ass.CDWord || node.Class == ass.CQWord) {
+			uint64 dInt = (uint64)left->IntVal >> (uint64)right->IntVal;
 			return irg.constIntUnsigned(dInt, node.Class);
 		}
-		else if (node.Class == ass.CSmall || node.Class == ass.CShort || node.Class == ass.CInt) {
-			int dInt = (int32)left->IntVal >> (int32)right->IntVal;
+		else if (node.Class == ass.CSmall || node.Class == ass.CShort || node.Class == ass.CInt || node.Class == ass.CLong) {
+			int64 dInt = (int64)left->IntVal >> (int64)right->IntVal;
 			return irg.constIntSigned(dInt, node.Class);
 		}
 		else

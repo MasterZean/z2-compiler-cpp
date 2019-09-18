@@ -1,0 +1,29 @@
+70ll << 4;
+70ll << 4u;
+70ll << 4;
+70ll << 4u;
+70ll << 4;
+70ll << 4u;
+70ll << 4ll;
+70ll << 4ull;
+70ll << 4u;
+DummyClass(1, 5): error:
+	can't apply operator '<<' on types: 
+		'Long' and 
+		'Bool'
+DummyClass(2, 5): error:
+	can't apply operator '<<' on types: 
+		'Long' and 
+		'Bool'
+DummyClass(11, 5): error:
+	can't apply operator '<<' on types: 
+		'Long' and 
+		'Float'
+DummyClass(12, 5): error:
+	can't apply operator '<<' on types: 
+		'Long' and 
+		'Double'
+DummyClass(13, 5): error:
+	can't apply operator '<<' on types: 
+		'Long' and 
+		'Char'

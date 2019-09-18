@@ -1,0 +1,14 @@
+70ul >> true
+70ul >> false
+70ul >> 4s8
+70ul >> 4u8
+70ul >> 4s16
+70ul >> 4u16
+70ul >> 4
+70ul >> 4u
+70ul >> 4l
+70ul >> 4ul
+70ul >> 4.0f
+70ul >> 4.0
+70ul >> '4'
+70ul >> 4p

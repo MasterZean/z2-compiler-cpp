@@ -1,0 +1,56 @@
+DummyClass(1, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Bool'
+DummyClass(2, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Bool'
+DummyClass(3, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Small'
+DummyClass(4, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Byte'
+DummyClass(5, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Short'
+DummyClass(6, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Word'
+DummyClass(7, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Int'
+DummyClass(8, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'DWord'
+DummyClass(9, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Long'
+DummyClass(10, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'QWord'
+DummyClass(11, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Float'
+DummyClass(12, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Double'
+DummyClass(13, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'Char'
+DummyClass(14, 7): error:
+	can't apply operator '>>' on types: 
+		'Bool' and 
+		'PtrSize'

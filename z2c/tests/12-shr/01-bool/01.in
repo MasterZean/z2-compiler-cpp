@@ -1,0 +1,14 @@
+true >> true
+true >> false
+true >> 4s8
+true >> 4u8
+true >> 4s16
+true >> 4u16
+true >> 4
+true >> 4u
+true >> 4l
+true >> 4ul
+true >> 4.0f
+true >> 4.0
+true >> '4'
+true >> 4p

@@ -1,0 +1,29 @@
+70ull << 4;
+70ull << 4u;
+70ull << 4;
+70ull << 4u;
+70ull << 4;
+70ull << 4u;
+70ull << 4ll;
+70ull << 4ull;
+70ull << 4u;
+DummyClass(1, 6): error:
+	can't apply operator '<<' on types: 
+		'QWord' and 
+		'Bool'
+DummyClass(2, 6): error:
+	can't apply operator '<<' on types: 
+		'QWord' and 
+		'Bool'
+DummyClass(11, 6): error:
+	can't apply operator '<<' on types: 
+		'QWord' and 
+		'Float'
+DummyClass(12, 6): error:
+	can't apply operator '<<' on types: 
+		'QWord' and 
+		'Double'
+DummyClass(13, 6): error:
+	can't apply operator '<<' on types: 
+		'QWord' and 
+		'Char'
