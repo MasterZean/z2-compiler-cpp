@@ -1,6 +1,8 @@
 #include "ErrorReporter.h"
 
 namespace Z2 {
+	
+String NL = "\r\n";
 
 #ifdef PLATFORM_POSIX
 
@@ -71,7 +73,7 @@ void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, con
 }
 
 void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
-	Cout() << path << "(" << p.x << ", " << p.y << "): warning:\r\n\t" << text;
+	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text;
 }
 
 void ErrorReporter::SyntaxError(const String& path, const Point& p, const String& text) {
@@ -147,7 +149,7 @@ void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 }
 
 void ErrorReporter::IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2) {
-	Error(path, p, "can't apply operator '" + op + "' on types: \n\t\t'\f" + text + "\f' and \n\t\t'\f" + text2 + "\f'");
+	Error(path, p, "can't apply operator '" + op + "' on types: " << NL << "\t\t'\f" + text + "\f' and " << NL << "\t\t'\f" + text2 + "\f'");
 }
 
 }

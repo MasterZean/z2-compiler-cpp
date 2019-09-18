@@ -106,6 +106,8 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		Point p = parser.GetPoint();
 
 		if (parser.Char('{')) {
+			parser.OpenCB++;
+			parser.WS();
 			if (exp->IsLiteral && exp->Class == ass.CCls)
 				exp = ParseTemporary(conCls, conOver, parser, p, ass.Classes[(int)exp->IntVal]);
 		}
@@ -191,6 +193,8 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		Node* exp = ParseExpression(conCls, conOver, parser);
 		parser.WS();
 		parser.Expect('}');
+		parser.WS();
+		parser.OpenCB--;
 		
 		return irg.cast(exp, &cls);
 	}

@@ -31,6 +31,8 @@ public:
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
 	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
+	Node* CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
+	
 	void WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent = 0);
 	void WriteOverload(CppNodeWalker& cpp, Overload& overload);
 	

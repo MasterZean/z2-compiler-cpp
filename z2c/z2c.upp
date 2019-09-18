@@ -20,6 +20,8 @@ file
 	IRGenerator.h,
 	IRGenerator.cpp,
 	StopWatch.h,
+	tables.h,
+	tables.cpp,
 	z2c.cpp;
 
 mainconfig

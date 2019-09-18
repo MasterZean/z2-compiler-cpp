@@ -1,0 +1,29 @@
+70u << 4;
+70u << 4u;
+70u << 4;
+70u << 4u;
+70u << 4;
+70u << 4u;
+70u << 4ll;
+70u << 4ull;
+70u << 4u;
+DummyClass(1, 7): error:
+	can't apply operator '<<' on types: 
+		'Word' and 
+		'Bool'
+DummyClass(2, 7): error:
+	can't apply operator '<<' on types: 
+		'Word' and 
+		'Bool'
+DummyClass(11, 7): error:
+	can't apply operator '<<' on types: 
+		'Word' and 
+		'Float'
+DummyClass(12, 7): error:
+	can't apply operator '<<' on types: 
+		'Word' and 
+		'Double'
+DummyClass(13, 7): error:
+	can't apply operator '<<' on types: 
+		'Word' and 
+		'Char'

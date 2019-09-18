@@ -1,12 +1,9 @@
 #include "ZParser.h"
 #include "ErrorReporter.h"
+#include "tables.h"
 
 namespace Z2 {
 	
-char tab1[24] = { '+', '-', '*', '/', '=', ';', '(', ')', '.', '<', '>', '&', ',', '%', '|', '^', ':', '!', '[', ']', '@', '~', '?', '#' };
-char tab2[9]  = { '<', '>', '=', '!', '<', '>', ':', '+', '-' };
-char tab3[9]  = { '<', '>', '=', '=', '=', '=', ':', '+', '-' };
-
 String ZParser::Identify() {
 	if (IsId("true"))
 		return "boolean constant 'true'";

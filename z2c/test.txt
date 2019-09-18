@@ -1,7 +1,10 @@
+Small{-0b10000000s8} << 1
+Small{ 0b10000000s8} << 1
+Small{-0b00000001s8} << 1
 true  + Small{0}
 -0o100000s16
 val cc: Small = -1s16
-val val i = 2 + 				
+val i = 2 + 				
 3 +
 4
 val j = Int{}

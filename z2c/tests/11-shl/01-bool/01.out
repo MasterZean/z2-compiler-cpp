@@ -1,0 +1,56 @@
+DummyClass(1, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Bool'
+DummyClass(2, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Bool'
+DummyClass(3, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Small'
+DummyClass(4, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Byte'
+DummyClass(5, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Short'
+DummyClass(6, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Word'
+DummyClass(7, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Int'
+DummyClass(8, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'DWord'
+DummyClass(9, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Long'
+DummyClass(10, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'QWord'
+DummyClass(11, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Float'
+DummyClass(12, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Double'
+DummyClass(13, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'Char'
+DummyClass(14, 6): error:
+	can't apply operator '<<' on types: 
+		'Bool' and 
+		'PtrSize'

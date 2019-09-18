@@ -1,29 +1,8 @@
 #include "Compiler.h"
 #include "ErrorReporter.h"
+#include "tables.h"
 
 namespace Z2 {
-
-extern char tab1[];
-extern char tab2[];
-extern char tab3[];
-
-int tabAss[][14] = {
-	              /*    b,  s8, u8, s16, u16, s32, u32, s64, u64, f32, f64, f80, c,  p
-	/*  0: Bool    */ { 1,  0,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  1: Small   */ { 0,  1,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  2: Byte    */ { 0,  0,  1,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  3: Short   */ { 0,  1,  1,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  4: Word    */ { 0,  0,  1,  0,   1,   0,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  5: Int     */ { 0,  1,  1,  1,   1,   1,   0,   0,   0,   0,   0,   0,   0,  0 },
-	/*  6: DWord   */ { 0,  0,  1,  0,   1,   0,   1,   0,   0,   0,   0,   0,   0,  0 },
-	/*  7: Long    */ { 0,  1,  1,  1,   1,   1,   1,   1,   0,   0,   0,   0,   0,  0 },
-	/*  8: QWord   */ { 0,  0,  1,  0,   1,   0,   1,   0,   1,   0,   0,   0,   0,  0 },
-	/*  9: Float   */ { 0,  1,  1,  1,   1,   0,   0,   0,   0,   1,   0,   0,   0,  0 },
-	/* 10: Double  */ { 0,  1,  1,  1,   1,   1,   1,   0,   0,   1,   1,   0,   0,  0 },
-	/* 11: Real80  */ { 0,  1,  1,  1,   1,   1,   1,   1,   1,   1,   1,   1,   0,  0 },
-	/* 12: Char    */ { 0,  1,  1,  1,   1,   1,   1,   0,   0,   0,   0,   0,   1,  0 },
-	/* 13: PtrSize */ { 0,  0,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  1 },
-};
 
 Overload* Compiler::CompileSnip(const String& snip) {
 	String temp = snip + "}";
@@ -137,7 +116,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			return true;
 		}
 		else
-			exp = ParseExpression(conCls, &conOver, parser);
+			exp = CompileExpression(conCls, &conOver, parser);
 			
 		// end statement
 		if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
@@ -155,14 +134,42 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			err.PrettyPrint(Cout());
 		valid = false;
 		
-		parser.SkipError();
-		parser.Spaces();
+		int line = parser.GetLine();
+		while (true) {
+			if (parser.IsChar('}')) {
+				if (parser.OpenCB) {
+					parser.Char('}');
+					parser.Spaces();
+					parser.OpenCB--;
+				}
+				else
+					break;
+			}
+			else if (parser.Char(';')) {
+				parser.Spaces();
+				break;
+			}
+			else {
+				parser.SkipError();
+				parser.Spaces();
+			}
+			
+			if (parser.GetLine() != line) {
+				parser.Spaces();
+				break;
+			}
+		}
 	}
 	catch (Exc& err) {
 		Cout() << err;
 	}
 	
 	return valid;
+}
+
+Node* Compiler::CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
+	parser.OpenCB = false;
+	return ParseExpression(conCls, conOver, parser);
 }
 
 void Compiler::ScanBlock(ZClass& conCls, ZParser& parser) {
@@ -237,7 +244,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 			
 			ptEqual = temp;
 			
-			value = ParseExpression(conCls, &conOver, parser);
+			value = CompileExpression(conCls, &conOver, parser);
 		}
 	}
 	else {
@@ -245,7 +252,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser) {
 		parser.Expect('=');
 		parser.WS();
 		
-		value = ParseExpression(conCls, &conOver, parser);
+		value = CompileExpression(conCls, &conOver, parser);
 		varClass = value->Class;
 	}
 	
@@ -319,12 +326,12 @@ bool Compiler::CanAssign(ZClass* cls, Node* n) {
 		ASSERT(t1 >= 0 && t1 <= 13);
 		ASSERT(t2 >= 0 && t2 <= 13);
 		
-		if (tabAss[t1][t2])
+		if (TabCanAssign[t1][t2])
 			return true;
 		else {
 			if (n->C2 != NULL) {
 				t2 = n->C2->MIndex;
-				return tabAss[t1][t2];
+				return TabCanAssign[t1][t2];
 			}
 			else
 				return false;

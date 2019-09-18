@@ -1,61 +1,8 @@
 #include "IRGenerator.h"
 #include "Assembly.h"
+#include "tables.h"
 
 namespace Z2 {
-	
-int tabAdd[][14] = {
-	              /*   b,  s8, u8, s16, u16, s32, u32, s64, u64, f32, f64,  f80, c,   p */
-	/*  0: Bool    */ { 1,  1,  2,  3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  1: Small   */ { 1,  1,  2,  3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  2: Byte    */ { 2,  2,  2,  3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  3: Short   */ { 3,  3,  3,  3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  4: Word    */ { 4,  4,  4,  4,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  5: Int     */ { 5,  5,  5,  5,   5,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  6: DWord   */ { 6,  6,  6,  6,   6,   6,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  7: Long    */ { 7,  7,  7,  7,   7,   7,   7,   7,   8,   9,   10,  11,  12,  13 },
-	/*  8: QWord   */ { 8,  8,  8,  8,   8,   8,   8,   8,   8,   9,   10,  11,  12,  13 },
-	/*  9: Float   */ { 9,  9,  9,  9,   9,   9,   9,   9,   9,   9,   10,  11,  -1,  -1 },
-	/* 10: Double  */ { 10, 10, 10, 10,  10,  10,  10,  10,  10,  10,  10,  11,  -1,  -1 },
-	/* 11: Real80  */ { 11, 11, 11, 11,  11,  11,  11,  11,  11,  11,  11,  11,  -1,  -1 },
-	/* 12: Char    */ { 12, 12, 12, 12,  12,  12,  12,  12,  12,  -1,  -1,  -1,  12,  -1 },
-	/* 13: PtrSize */ { 13, 13, 13, 13,  13,  13,  13,  13,  13,  -1,  -1,  -1,  -1,  13 },
-};
-
-int tabRel[][14] = {
-	              /*   b,  s8, u8, s16, u16, s32, u32, s64, u64, f32, f64,  f80, c,   p */
-	/*  0: Bool    */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  1: Small   */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  2: Byte    */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  3: Short   */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  4: Word    */ { 4,  4,  4,  4,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13 },
-	/*  5: Int     */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  6: DWord   */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  7: Long    */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  8: QWord   */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/*  9: Float   */ { 10, 10, 10, 10,  10,  10,  10,  10,  10, 10,   10,  10,  10,  10 },
-	/* 10: Double  */ { 10, 10, 10, 10,  10,  10,  10,  10,  10, 10,   10,  10,  10,  10 },
-	/* 11: Real80  */ { 10, 10, 10, 10,  10,  10,  10,  10,  10, 10,   10,  10,  10,  10 },
-	/* 12: Char    */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-	/* 13: PtrSize */ { 5,  5,  5,  5,   5,   5,   5,   5,   5,  10,   10,  10,  5,   5  },
-};
-
-int tabSft[][14] = {
-	              /*    b,  s8, u8, s16, u16, s32, u32, s64, u64, f32, f64, f80, c,   p */
-	/*  0: Bool    */ { -1, -1, -1, -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1 },
-	/*  1: Small   */ { -1,  5,  5,  5,   5,   5,   5,   5,   5,  -1,  -1,  -1,  -1,   5 },
-	/*  2: Byte    */ { -1,  6,  6,  6,   6,   6,   6,   6,   6,  -1,  -1,  -1,  -1,   6 },
-	/*  3: Short   */ { -1,  5,  5,  5,   5,   5,   5,   5,   5,  -1,  -1,  -1,  -1,   5 },
-	/*  4: Word    */ { -1,  6,  6,  6,   6,   6,   6,   6,   6,  -1,  -1,  -1,  -1,   6 },
-	/*  5: Int     */ { -1,  5,  5,  5,   5,   5,   5,   5,   5,  -1,  -1,  -1,  -1,   5 },
-	/*  6: DWord   */ { -1,  6,  6,  6,   6,   6,   6,   6,   6,  -1,  -1,  -1,  -1,   6 },
-	/*  7: Long    */ { -1,  7,  7,  7,   7,   7,   7,   7,   7,  -1,  -1,  -1,  -1,   7 },
-	/*  8: QWord   */ { -1,  8,  8,  8,   8,   8,   8,   8,   8,  -1,  -1,  -1,  -1,   8 },
-	/*  9: Float   */ { -1,  9,  9,  9,   9,   9,   9,   9,   9,  -1,  -1,  -1,  -1,   9 },
-	/* 10: Double  */ { -1, 10, 10, 10,  10,  10,  10,  10,  10,  -1,  -1,  -1,  -1,  10 },
-	/* 11: Real80  */ { -1, 11, 11, 11,  11,  11,  11,  11,  11,  -1,  -1,  -1,  -1,  11 },
-	/* 12: Char    */ { -1, 12, 12, 12,  12,  12,  12,  12,  12,  -1,  -1,  -1,  -1,  12 },
-	/* 13: PtrSize */ { -1, 13, 13, 13,  13,  13,  13,  13,  13,  -1,  -1,  -1,  -1,  13 },
-};
 	
 void IRGenerator::fillSignedTypeInfo(int64 l, Node* node, ZClass* cls) {
 	node->Class = ass.CInt;
@@ -346,11 +293,11 @@ CastNode* IRGenerator::cast(Node* object, ZClass* cls) {
 Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	if (op <= OpNode::opMod)
 		return opArit(left, right, op, p);
-	/*else if (op <= OpNode::opShl)
-		return shl(left, right, p);
+	else if (op <= OpNode::opShl)
+		return opShl(left, right, p);
 	else if (op <= OpNode::opShr)
-		return shr(left, right, p);
-	else if (op <= OpNode::opNeq)
+		return opShr(left, right, p);
+	/*else if (op <= OpNode::opNeq)
 		return opRel(left, right, op, p);
 	else if (op <= OpNode::opBitAnd)
 		return op_bitand(left, right);
@@ -376,7 +323,7 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	ASSERT(t1 >= 0 && t1 <= 13);
 	ASSERT(t2 >= 0 && t2 <= 13);
 	
-	int t = tabAdd[t1][t2];
+	int t = TabArithmetic[t1][t2];
 	if (t == -1)
 		return nullptr;
 
@@ -771,6 +718,66 @@ Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cl
 		ASSERT(0);
 	
 	return nullptr;
+}
+
+Node* IRGenerator::opShl(Node* left, Node* right, const Point& p) {
+	bool n = left->Class->MIsNumeric && right->Class->MIsNumeric;
+	
+	//if (!n)
+	//	return GetOp(Over, strops[5], left, right, ass, this, *Comp, p);
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabShift[t1][t2];
+	if (t == -1)
+		return nullptr;
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = OpNode::opShl;
+
+	node->IsConst = left->IsCT && right->IsCT;
+	node->IsCT = node->IsConst;
+	node->SetType(ass.Classes[t]);
+	node->DblVal = 0;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+Node* IRGenerator::opShr(Node* left, Node* right, const Point& p) {
+	bool n = left->Class->MIsNumeric && right->Class->MIsNumeric;
+	
+	//if (!n)
+	//	return GetOp(Over, strops[6], left, right, ass, this, *Comp, p);
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabShift[t1][t2];
+	if (t == -1)
+		return nullptr;
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = OpNode::opShr;
+
+	node->IsConst = left->IsCT && right->IsCT;;
+	node->IsCT = node->IsConst;
+	node->SetType(ass.Classes[t]);
+	node->DblVal = 0;
+	
+	ASSERT(node->Class);
+	
+	return node;
 }
 
 }

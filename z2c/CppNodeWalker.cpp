@@ -80,26 +80,27 @@ void CppNodeWalker::WalkNode(ConstNode& node) {
 			stream << Format64(node.IntVal) << "u";
 	}
 	else if (node.Class == ass.CSmall) {
+		int val = (int8)node.IntVal;
 		if (node.Base == 16) {
 			if (node.IntVal >= 0) {
-				String temp = ToUpper(FormatIntHex(node.IntVal, 2));
+				String temp = ToUpper(FormatIntHex(val, 2));
 				temp = temp.Mid(temp.GetCount() - 2);
 				stream << "0x" << temp;
 			}
 			else  {
-				String temp = ToUpper(FormatIntHex(-node.IntVal, 2));
+				String temp = ToUpper(FormatIntHex(-val, 2));
 				temp = temp.Mid(temp.GetCount() - 2);
 				stream << "-0x" << temp;
 			}
 		}
 		else if (node.Base == 8) {
 			if (node.IntVal >= 0) {
-				String temp = ToUpper(FormatIntOct(node.IntVal, 3));
+				String temp = ToUpper(FormatIntOct(val, 3));
 				temp = temp.Mid(temp.GetCount() - 3);
 				stream << "0" << temp;
 			}
 			else  {
-				String temp = ToUpper(FormatIntOct(-node.IntVal, 3));
+				String temp = ToUpper(FormatIntOct(-val, 3));
 				temp = temp.Mid(temp.GetCount() - 3);
 				stream << "-0" << temp;
 			}

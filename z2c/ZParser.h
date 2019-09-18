@@ -63,6 +63,8 @@ public:
 	
 	uint32 ReadChar();
 	
+	int OpenCB = 0;
+	
 private:
 	uint64 ReadNumber64Core(Point& p, int base);
 	NumberType ReadF(Point& p, int sign, double& oDub);

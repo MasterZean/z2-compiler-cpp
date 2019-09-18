@@ -10,18 +10,19 @@ using namespace Z2;
 
 int attemptedTests = 0;
 int failledTests = 0;
+Index<String> ext;
 
 void RunTest(const String& path) {
 	attemptedTests++;
 	
 	String test = NativePath(GetFileDirectory(path) + GetFileTitle(path));
 
-	String file = LoadFileBOM(test + ".txt");
+	String file = LoadFileBOM(test + ".in");
 	String out = LoadFileBOM(test + ".out");
 	String out2 = String::GetVoid();
 	
-	if (FileExists(test + ".exeout"))
-		out2 = LoadFileBOM(test + ".exeout");
+	if (FileExists(test + ".outemu"))
+		out2 = LoadFileBOM(test + ".outemu");
 	
 	Assembly ass;
 	Compiler compiler(ass);
@@ -43,13 +44,16 @@ void RunTest(const String& path) {
 		failled = true;
 		
 		LOG("========================= CODE GENERATION ==========================");
-		DUMP(path);
+		LOG(test + ".out");
 		LOG("------------------------------ RESULT ------------------------------");
 		LOG(result);
 		LOG("----------------------------- EXPECTED -----------------------------");
 		LOG(out);
 		LOG("====================================================================");
 		LOG("");
+
+		//SaveFile("c:\\temp\\a.txt", result);
+		//SaveFile("c:\\temp\\b.txt", out);
 
 		Cout() << path << " FAILLED!\n";
 	}
@@ -66,7 +70,7 @@ void RunTest(const String& path) {
 			failled = true;
 			
 			LOG("============================ EXECUTION =============================");
-			DUMP(path);
+			LOG(test + ".outemu");
 			LOG("------------------------------ RESULT ------------------------------");
 			LOG(result);
 			LOG("----------------------------- EXPECTED -----------------------------");
@@ -88,7 +92,10 @@ void RunSuite(const String& suite) {
 	FindFile ff(NativePath(suite + "/*"));
 	
 	while (ff) {
-		if (ff.IsFile() && GetFileExt(ff.GetName()) == ".txt")
+		if (ff.IsFile())
+			ext.FindAdd(GetFileExt(ff.GetName()));
+		
+		if (ff.IsFile() && GetFileExt(ff.GetName()) == ".in")
 			files << ff.GetPath();
 		ff.Next();
 	}
@@ -104,14 +111,21 @@ void RunMicroTests() {
 
 	//RunTest("");
 	
-	RunSuite(GetDataFile("tests/01-const-small"));
-	RunSuite(GetDataFile("tests/02-const-short"));
+	RunSuite(GetDataFile("tests/01-const/01-small"));
+	RunSuite(GetDataFile("tests/01-const/03-short"));
 	RunSuite(GetDataFile("tests/01-basic-ct"));
 	RunSuite(GetDataFile("tests/02-basic-var"));
 	RunSuite(GetDataFile("tests/03-explicit-var"));
 	RunSuite(GetDataFile("tests/04-block"));
 	RunSuite(GetDataFile("tests/10-var-op"));
+	RunSuite(GetDataFile("tests/11-shl/01-bool"));
+	RunSuite(GetDataFile("tests/11-shl/02-small"));
+	RunSuite(GetDataFile("tests/11-shl/03-byte"));
+	RunSuite(GetDataFile("tests/11-shl/04-short"));
+	RunSuite(GetDataFile("tests/11-shl/05-word"));
 	
+	DUMP(ext);
+		
 	if (attemptedTests > 0 && failledTests != 0)
 		Cout() << IntStr(failledTests) << " out of " << IntStr(attemptedTests) << " tests FAILED!\r\n";
 	else if (attemptedTests > 0) {
