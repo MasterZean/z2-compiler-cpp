@@ -19,6 +19,8 @@ public:
 	String Name;
 	Point SourcePos = Point(-1, -1);
 	
+	bool MIsMember = false;
+	
 	ZClass& OwnerClass;
 	Node* Value = nullptr;
 	ZClass* Class = nullptr;
@@ -52,8 +54,10 @@ public:
 	
 	Method& GetAddMethod(const String& name);
 	
+	Variable& AddVariable(const String& name);
+	
 	ArrayMap<String, Method> Methods;
-	Array<Variable> Variables;
+	ArrayMap<String, Variable> Variables;
 };
 
 class Method: Moveable<Method> {

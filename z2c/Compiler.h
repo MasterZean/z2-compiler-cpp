@@ -27,7 +27,12 @@ public:
 	
 	Overload* CompileSnip(const String& snip);
 	
-	bool CompilerOverload(Overload& overload);
+	ZClass* CompileSource(const String& snip);
+	bool CompileSource(ZClass& conCls, ZParser& parser);
+	
+	bool CompileOverloadJump(Overload& overload);
+	bool CompileOverload(Overload& overload, ZParser& parser);
+	
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
 	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);
 	
@@ -36,8 +41,8 @@ public:
 	void WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent = 0);
 	void WriteOverload(CppNodeWalker& cpp, Overload& overload);
 	
-	Node* CompileVar(ZClass& conCls, Overload& conOver, ZParser& parser);
-	void  CheckLocalVar(ZClass& conCls, Overload& conOver, const String& varName, const Point& p);
+	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser);
+	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
 	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
@@ -45,7 +50,7 @@ public:
 	Node* ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int prec, Node* left, CParser::Pos& backupPoint, bool secondOnlyAttempt = false);
 	
 	Node* ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser);
-	Node* ParseId(ZClass& conCls, Overload* conOver, ZParser& parser);
+	Node* ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser);
 	Node* ParseNumeric(ZClass& conCls, ZParser& parser);
 	Node* ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parser, const Point p, ZClass& cls);
 	

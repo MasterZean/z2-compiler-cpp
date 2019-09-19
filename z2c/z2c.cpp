@@ -150,17 +150,17 @@ void RunMicroTests() {
 }
 
 CONSOLE_APP_MAIN {
-	RunMicroTests();
-
+	//RunMicroTests();
+	
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	Overload* over = compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
+	ZClass* cls = compiler.CompileSource(LoadFile(GetDataFile("test.txt")));
 	
 	const int TempCU = 1;
 	
-	for (int j = 0; j < over->OwnerClass.Methods.GetCount(); j++) {
-		Method& m = over->OwnerClass.Methods[j];
+	for (int j = 0; j < cls->Methods.GetCount(); j++) {
+		Method& m = cls->Methods[j];
 	
 		for (int i = 0; i < m.Overloads.GetCount(); i++) {
 			Overload& o = m.Overloads[i];
@@ -184,7 +184,7 @@ CONSOLE_APP_MAIN {
 		}
 	}
 	
-	Cout() << "==========================================================================\r\n";
+	/*Cout() << "==========================================================================\r\n";
 	
 	StringStream ss;
 	NodeRunner exe(ass, ss);
@@ -193,6 +193,6 @@ CONSOLE_APP_MAIN {
 			
 	String result = ss.GetResult();
 			
-	Cout() << ss.GetResult();
+	Cout() << ss.GetResult();*/
 }
 

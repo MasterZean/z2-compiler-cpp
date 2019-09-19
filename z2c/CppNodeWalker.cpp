@@ -275,6 +275,8 @@ void CppNodeWalker::WalkNode(MemNode& node) {
 	Variable& var = *node.Var;
 	ASSERT(var.Value);
 	
+	if (var.MIsMember)
+		stream << "::";
 	stream << var.Name;
 }
 
@@ -308,7 +310,7 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 }
 
 void CppNodeWalker::WalkNode(CallNode& node) {
-	stream << node.Over->OwnerMethod.Name << "()";
+	stream << "::" << node.Over->OwnerMethod.Name << "()";
 }
 
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {

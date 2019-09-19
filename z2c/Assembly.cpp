@@ -52,6 +52,15 @@ Method& ZClass::GetAddMethod(const String& name) {
 		return Methods[i];
 }
 
+Variable& ZClass::AddVariable(const String& name) {
+	int i = Variables.Find(name);
+	
+	if (i == -1)
+		return Variables.Add(name, Variable(*this));
+	else
+		return Variables[i];
+}
+
 Overload& Method::AddOverload() {
 	return Overloads.Add(Overload(*this));
 }

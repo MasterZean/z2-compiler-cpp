@@ -73,7 +73,7 @@ void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, con
 }
 
 void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
-	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text;
+	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text << NL;
 }
 
 void ErrorReporter::SyntaxError(const String& path, const Point& p, const String& text) {

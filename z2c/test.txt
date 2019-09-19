@@ -1,7 +1,6 @@
+namespace foo
+
 val a = 7000
-
-f()
-
 val b = 0
 val c = 1
 
@@ -13,8 +12,15 @@ def f() {
 }
 
 def g() {
-	val a = -5
-	val b = -6
+	val a = ::a
+	val b = ::b
+	val h = 0
+	h
+	::h()
+}
+
+def h() {
+	val c = ::c
 }
 
 val d = 2
