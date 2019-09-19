@@ -12,6 +12,7 @@ using namespace Upp;
 class Overload;
 class ZClass;
 class Node;
+class Method;
 
 class Variable: Moveable<Variable> {
 public:
@@ -49,24 +50,40 @@ public:
 	bool MIsNumeric = false;
 	int  MIndex = -1;
 	
-	Overload& AddOverload();
+	Method& GetAddMethod(const String& name);
 	
-	Array<Overload> Overloads;
+	ArrayMap<String, Method> Methods;
 	Array<Variable> Variables;
 };
 
-class Overload: Moveable<Overload> {
+class Method: Moveable<Method> {
 public:
 	ZClass& OwnerClass;
 	
 	String Name;
 	String BackendName;
+	
+	Method(ZClass& aClass, const String& name): OwnerClass(aClass), Name(name) {
+	}
+	
+	Overload& AddOverload();
+	
+	Array<Overload> Overloads;
+};
+
+class Overload: Moveable<Overload> {
+public:
+	ZClass& OwnerClass;
+	Method& OwnerMethod;
+	
 	ZParser::Pos EntryPoint;
 	Point SourcePos = Point(-1, -1);
 	
 	bool IsDestructor = false;
 	bool IsVirtual = false;
 	bool IsInline = false;
+	
+	int MDecWritten = 0;
 	
 	ZClass* Return;
 	
@@ -76,8 +93,9 @@ public:
 	WithDeepCopy<Array<Block>> Blocks;
 	
 	Vector<Node*> Nodes;
+	Vector<Overload*> DepOver;
 	
-	Overload(ZClass& aClass): OwnerClass(aClass) {
+	Overload(Method& aMethod): OwnerClass(aMethod.OwnerClass), OwnerMethod(aMethod) {
 	}
 	
 	Variable& AddVariable() {

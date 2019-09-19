@@ -289,6 +289,16 @@ CastNode* IRGenerator::cast(Node* object, ZClass* cls) {
 	return cast;
 }
 
+CallNode* IRGenerator::call(Overload& over) {
+	CallNode* call = callNodes.Get();
+	
+	call->SetType(ass.CVoid);
+	call->Over = &over;
+	
+	ASSERT(call->Class);
+	
+	return call;
+}
 
 Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	if (op <= OpNode::opMod)

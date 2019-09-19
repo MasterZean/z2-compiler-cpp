@@ -157,22 +157,42 @@ CONSOLE_APP_MAIN {
 	
 	Overload* over = compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
 	
-	for (int i = 0; i < over->OwnerClass.Overloads.GetCount(); i++) {
-		StringStream ss;
-		CppNodeWalker cpp(ass, ss);
-		
-		compiler.WriteOverload(cpp, over->OwnerClass.Overloads[i]);
-		
-		Cout() << ss.GetResult();
-		
-		StringStream ss2;
-		NodeRunner exe(ass, ss2);
-		
-		exe.Execute(over->OwnerClass.Overloads[i]);
-		
-		String result = ss2.GetResult();
-		
-		Cout() << ss2.GetResult();
+	const int TempCU = 1;
+	
+	for (int j = 0; j < over->OwnerClass.Methods.GetCount(); j++) {
+		Method& m = over->OwnerClass.Methods[j];
+	
+		for (int i = 0; i < m.Overloads.GetCount(); i++) {
+			Overload& o = m.Overloads[i];
+			StringStream ss;
+			CppNodeWalker cpp(ass, ss);
+			
+			int written = 0;
+			for (int k = 0; k < o.DepOver.GetCount(); k++)
+				if (o.DepOver[i]->MDecWritten != TempCU) {
+					cpp.WriteOverloadDeclaration(*o.DepOver[i]);
+					o.DepOver[i]->MDecWritten = TempCU;
+					written++;
+				}
+				
+			if (written)
+				cpp.NL();
+			
+			compiler.WriteOverload(cpp, o);
+			
+			Cout() << ss.GetResult();
+		}
 	}
+	
+	Cout() << "==========================================================================\r\n";
+	
+	StringStream ss;
+	NodeRunner exe(ass, ss);
+			
+	exe.Execute(*over);
+			
+	String result = ss.GetResult();
+			
+	Cout() << ss.GetResult();
 }
 

@@ -54,12 +54,17 @@ public:
 	}
 	
 	ZClass* GetClass(ZClass& conCls, const Point& p, const String& name);
+	ZClass* GetClass(const String& name);
+	
 	bool CanAssign(ZClass* cls, Node* n);
 	
 	String GetErrors();
 	
 	void ScanBlock(ZClass& conCls, ZParser& parser);
 	void ScanToken(ZClass& conCls, ZParser& parser);
+	
+	void Scan(ZClass& conCls, ZParser& parser);
+	void ScanToken(ZParser& parser);
 	
 	bool PrintErrors = true;
 	

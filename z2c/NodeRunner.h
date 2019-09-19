@@ -27,6 +27,7 @@ public:
 	Node* ExecuteNode(BlockNode& node);
 	Node* ExecuteNode(OpNode& node);
 	Node* ExecuteNode(CastNode& node);
+	Node* ExecuteNode(CallNode& node);
 	
 	void WriteValue(Node* node);
 	
@@ -39,6 +40,9 @@ public:
 		stream << "\r\n";
 		line++;
 	}
+	
+	int CallDepth = 0;
+	int StartCallDepth = 2;
 	
 private:
 	Assembly& ass;

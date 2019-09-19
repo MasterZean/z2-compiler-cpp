@@ -43,8 +43,17 @@ ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, 
 	return &cls;
 }
 
-Overload& ZClass::AddOverload() {
-	return Overloads.Add(*this);
+Method& ZClass::GetAddMethod(const String& name) {
+	int i = Methods.Find(name);
+	
+	if (i == -1)
+		return Methods.Add(name, Method(*this, name));
+	else
+		return Methods[i];
+}
+
+Overload& Method::AddOverload() {
+	return Overloads.Add(Overload(*this));
 }
 
 }

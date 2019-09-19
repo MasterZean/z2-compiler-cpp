@@ -142,7 +142,22 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		}
 	}
 	
-	ZClass* c = GetClass(conCls, p, s);
+	int i = conCls.Methods.Find(s);
+	
+	if (i != -1) {
+		parser.Expect('(');
+		parser.Expect(')');
+		parser.WSCurrentLine();
+			
+		Method& m = conCls.Methods[i];
+		
+		if (conOver)
+			conOver->DepOver.Add(&m.Overloads[0]);
+		
+		return irg.call(m.Overloads[0]);
+	}
+	
+	ZClass* c = GetClass(s);
 	if (!c)
 		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
 	

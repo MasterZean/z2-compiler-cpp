@@ -18,10 +18,10 @@ void CppNodeWalker::Walk(Node* node) {
 	else if (node->NT == NodeType::Cast)
 		WalkNode(*(CastNode*)node);
 	/*else if (node->NT == NodeType::Temporary)
-		Walk((TempNode*)node);
-	else if (node->NT == NodeType::Def)
-		Walk((DefNode*)node);
-	else if (node->NT == NodeType::List)
+		Walk((TempNode*)node);*/
+	else if (node->NT == NodeType::Call)
+		WalkNode(*(CallNode*)node);
+	/*else if (node->NT == NodeType::List)
 		Walk((ListNode*)node);
 	else if (node->NT == NodeType::Construct)
 		Walk((ConstructNode*)node);
@@ -52,7 +52,6 @@ void CppNodeWalker::Walk(Node* node) {
 	else
 		ASSERT_(0, "Invalid node");
 }
-
 
 void CppNodeWalker::WalkNode(ConstNode& node) {
 	if (node.Class == ass.CQWord) {
@@ -308,6 +307,10 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 	stream << ")";
 }
 
+void CppNodeWalker::WalkNode(CallNode& node) {
+	stream << node.Over->OwnerMethod.Name << "()";
+}
+
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	if (over.IsVirtual)
 		stream << "virtual ";
@@ -326,6 +329,12 @@ void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	WriteOverloadNameParams(over);
 }
 
+void CppNodeWalker::WriteOverloadDeclaration(Overload &over) {
+	WriteOverloadDefinition(over);
+	stream << ";";
+	NL();
+}
+
 bool CppNodeWalker::WriteReturnType(Overload &over) {
 	if (over.IsDestructor == true)
 		return false;
@@ -336,10 +345,8 @@ bool CppNodeWalker::WriteReturnType(Overload &over) {
 }
 
 void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
-	stream << over.BackendName;
-	
-	stream << "() {";
-	NL();
+	stream << over.OwnerMethod.BackendName;
+	stream << "()";
 }
 
 }

@@ -40,6 +40,7 @@ public:
 	void WalkNode(BlockNode& node);
 	void WalkNode(OpNode& node);
 	void WalkNode(CastNode& node);
+	void WalkNode(CallNode& node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)
@@ -62,6 +63,12 @@ public:
 	}
 	
 	void WriteOverloadDefinition(Overload &over);
+	void WriteOverloadDeclaration(Overload &over);
+	
+	void OpenOverload() {
+		stream << " {";
+		NL();
+	}
 	
 	void CloseOverload() {
 		stream << "}";

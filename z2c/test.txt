@@ -1,27 +1,21 @@
--0b10000000s8 >> 1
--0b10000000'00000000'00000000'00000000'00000000'00000000'00000000'00000000l
-Small{-0b10000000s8} << 1
-Small{ 0b10000000s8} << 1
-Small{-0b00000001s8} << 1
-true  + Small{0}
--0o100000s16
-val cc: Small = -1s16
-val i = 2 + 				
-3 +
-4
-val j = Int{}
+val a = 7000
+
+f()
+
+val b = 0
+val c = 1
 
 def f() {
-	val a = 5.6
-	val b = ' '
+	val a = 5
+	val b = 6
+
+	g()
 }
 
 def g() {
-	val b = 2.0f - 5
-	val c = b;
-	val d = c + 0u;
+	val a = -5
+	val b = -6
 }
 
-val a = 7000
-val b=/****/-20;val c=a
-val d = 10s8;val e = d; val f = 100s16; val g= f;
+val d = 2
+val e = 3

@@ -12,6 +12,7 @@ using namespace Upp;
 class ZClass;
 class Variable;
 class Assembly;
+class Overload;
 
 class NodeType {
 public:
@@ -23,7 +24,7 @@ public:
 		Memory,
 		Cast,
 		Temporary,
-		Def,
+		Call,
 		List,
 		Construct,
 		Ptr,
@@ -170,6 +171,15 @@ public:
 
 	CastNode() {
 		NT = NodeType::Cast;
+	}
+};
+
+class CallNode: public Node {
+public:
+	Overload* Over = nullptr;
+
+	CallNode() {
+		NT = NodeType::Call;
 	}
 };
 

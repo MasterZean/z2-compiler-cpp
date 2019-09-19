@@ -16,10 +16,10 @@ Node* NodeRunner::Execute(Node* node) {
 	else if (node->NT == NodeType::Cast)
 		return ExecuteNode(*(CastNode*)node);
 	/*else if (node->NT == NodeType::Temporary)
-		Walk((TempNode*)node);
-	else if (node->NT == NodeType::Def)
-		Walk((DefNode*)node);
-	else if (node->NT == NodeType::List)
+		Walk((TempNode*)node);*/
+	else if (node->NT == NodeType::Call)
+		return ExecuteNode(*(CallNode*)node);
+	/*else if (node->NT == NodeType::List)
 		Walk((ListNode*)node);
 	else if (node->NT == NodeType::Construct)
 		Walk((ConstructNode*)node);
@@ -54,6 +54,13 @@ Node* NodeRunner::Execute(Node* node) {
 }
 
 void NodeRunner::Execute(Overload& over) {
+	CallDepth++;
+	
+	if (CallDepth >= StartCallDepth) {
+		stream << "// call " << over.OwnerMethod.Name;
+		NL();
+	}
+	
 	for (int i = 0; i < over.Nodes.GetCount(); i++) {
 		Node* in = over.Nodes[i];
 		if (in->NT == NodeType::Block) {
@@ -83,11 +90,17 @@ void NodeRunner::Execute(Overload& over) {
 				}
 				else
 					WriteValue(node);
+				NL();
 			}
-			
-			NL();
 		}
 	}
+	
+	if (CallDepth >= StartCallDepth) {
+		stream << "// return " << over.OwnerMethod.Name;
+		NL();
+	}
+	
+	CallDepth--;
 }
 
 void NodeRunner::WriteValue(Node* node) {
@@ -200,6 +213,12 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 	}
 	
 	return &node;
+}
+
+Node* NodeRunner::ExecuteNode(CallNode& node) {
+	Execute(*node.Over);
+	
+	return nullptr;
 }
 
 }
