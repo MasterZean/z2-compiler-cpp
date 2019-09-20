@@ -52,8 +52,8 @@ void RunTest(const String& path) {
 		LOG("====================================================================");
 		LOG("");
 
-		//SaveFile("c:\\temp\\a.txt", result);
-		//SaveFile("c:\\temp\\b.txt", out);
+		SaveFile("c:\\temp\\a.txt", result);
+		SaveFile("c:\\temp\\b.txt", out);
 
 		Cout() << path << " FAILLED!\n";
 	}
@@ -150,7 +150,7 @@ void RunMicroTests() {
 }
 
 CONSOLE_APP_MAIN {
-	//RunMicroTests();
+	RunMicroTests();
 	
 	Assembly ass;
 	Compiler compiler(ass);

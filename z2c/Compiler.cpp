@@ -8,9 +8,6 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	ZClass& tempClass = ass.AddClass("DummyClass");
 	tempClass.BackendName = "DummyClass";
 	
-	//ZParser scan(snip);
-	//Scan(tempClass, scan);
-	
 	String temp = snip + "}";
 	ZParser tempParser(temp);
 	
@@ -22,11 +19,6 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	tempOver.Return = ass.CVoid;
 	
 	CompileOverloadJump(tempOver);
-	
-	//	CompileSource(tempClass, tempParser);
-	
-	//for (int i = 0; i < postOverloads.GetCount(); i++)
-	//	CompileOverloadJump(*postOverloads[i]);
 	
 	return &tempOver;
 }
@@ -138,7 +130,6 @@ bool Compiler::CompileOverloadJump(Overload& overload) {
 }
 
 bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
-	DUMP(overload.OwnerMethod.Name);
 	return CompileBlock(overload.OwnerClass, overload, parser, 1);
 }
 
