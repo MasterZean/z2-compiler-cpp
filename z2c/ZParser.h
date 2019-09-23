@@ -62,6 +62,7 @@ public:
 	}
 	
 	uint32 ReadChar();
+	String ReadZId();
 	
 	int OpenCB = 0;
 	

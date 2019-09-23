@@ -31,6 +31,7 @@ ZClass* Compiler::CompileSource(const String& snip) {
 	Scan(tempClass, scan);
 	
 	ZParser tempParser(snip);
+	tempParser.Path = tempClass.Name;
 	
 	/*Method& main = tempClass.GetAddMethod("@main");
 	main.BackendName = "_main";
@@ -60,8 +61,8 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 			
 			Point p = parser.GetPoint();
 			
-			if (parser.IsId()) {
-				String name = parser.ReadId();
+			if (parser.IsZId()) {
+				String name = parser.ReadZId();
 				
 				Method& main = conCls.GetAddMethod(name);
 				main.BackendName = name;
@@ -76,7 +77,7 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 }
 
 void Compiler::ScanToken(ZParser& parser) {
-	parser.Spaces();
+	parser.WS();
 	
 	if (parser.IsInt()) {
 		try {
@@ -87,11 +88,13 @@ void Compiler::ScanToken(ZParser& parser) {
 		}
 		catch (ZSyntaxError& err) {
 			parser.SkipError();
-			parser.Spaces();
+			parser.WS();
 		}
 	}
 	else if (parser.IsString())
 		parser.ReadString();
+	else if (parser.IsZId())
+		parser.ReadZId();
 	else if (parser.IsId())
 		parser.ReadId();
 	else if (parser.IsCharConst())
@@ -117,7 +120,7 @@ void Compiler::ScanToken(ZParser& parser) {
 		//parser.Error(p, "syntax error: " + parser.Identify() + " found");
 	}
 	
-	parser.Spaces();
+	parser.WS();
 }
 
 bool Compiler::CompileOverloadJump(Overload& overload) {
@@ -394,7 +397,7 @@ void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
 	else if (parser.IsString())
 		parser.ReadString();
 	else if (parser.IsZId())
-		parser.ReadId();
+		parser.ReadZId();
 	else if (parser.IsId())
 		parser.ReadId();
 	else if (parser.IsCharConst())
@@ -412,6 +415,8 @@ void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
 		Point p = parser.GetPoint();
 		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
 	}
+	
+	parser.WS();
 }
 
 Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {

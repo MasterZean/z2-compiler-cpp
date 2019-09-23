@@ -184,15 +184,19 @@ CONSOLE_APP_MAIN {
 		}
 	}
 	
-	/*Cout() << "==========================================================================\r\n";
+	Cout() << "==========================================================================\r\n";
 	
-	StringStream ss;
-	NodeRunner exe(ass, ss);
-			
-	exe.Execute(*over);
-			
-	String result = ss.GetResult();
-			
-	Cout() << ss.GetResult();*/
+	int i = cls->Methods.Find("@main");
+	
+	if (i != -1) {
+		StringStream ss;
+		NodeRunner exe(ass, ss);
+				
+		exe.Execute(cls->Methods[i].Overloads[0]);
+				
+		String result = ss.GetResult();
+				
+		Cout() << ss.GetResult();
+	}
 }
 

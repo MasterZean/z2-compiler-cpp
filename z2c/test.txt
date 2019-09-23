@@ -14,13 +14,17 @@ def f() {
 def g() {
 	val a = ::a
 	val b = ::b
-	val h = 0
+	val h = 10
 	h
 	::h()
 }
 
 def h() {
 	val c = ::c
+}
+
+def @main() {
+	f()
 }
 
 val d = 2
