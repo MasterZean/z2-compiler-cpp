@@ -258,6 +258,10 @@ void CppNodeWalker::WalkNode(VarNode& node) {
 	Variable& var = *node.Var;
 	ASSERT(var.Value);
 	
+	WriteVar(var);
+}
+
+void CppNodeWalker::WriteVar(Variable& var) {
 	stream << var.Class->BackendName << " " << var.Name << " = ";
 	
 	if (var.Value->NT == NodeType::Cast) {
@@ -358,6 +362,17 @@ bool CppNodeWalker::WriteReturnType(Overload &over) {
 void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
 	stream << over.OwnerMethod.BackendName;
 	stream << "()";
+}
+
+void CppNodeWalker::WriteClassVars(ZClass& cls) {
+	for (int i = 0; i < cls.Variables.GetCount(); i++) {
+		WriteVar(cls.Variables[i]);
+		stream << ";";
+		NL();
+	}
+	
+	if (cls.Variables.GetCount())
+		NL();
 }
 
 }

@@ -66,9 +66,6 @@ public:
 	
 	String GetErrors();
 	
-	void ScanBlock(ZClass& conCls, ZParser& parser);
-	void ScanToken(ZClass& conCls, ZParser& parser);
-	
 	void Scan(ZClass& conCls, ZParser& parser);
 	void ScanToken(ZParser& parser);
 	

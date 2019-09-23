@@ -63,6 +63,9 @@ public:
 		stream << ce.BackendName;
 	}
 	
+	void WriteClassVars(ZClass& cls);
+	void WriteVar(Variable& var);
+	
 	void WriteOverloadDefinition(Overload &over);
 	void WriteOverloadDeclaration(Overload &over);
 	

@@ -157,6 +157,11 @@ CONSOLE_APP_MAIN {
 	
 	ZClass* cls = compiler.CompileSource(LoadFile(GetDataFile("test.txt")));
 	
+	StringStream ss;
+	CppNodeWalker cpp(ass, ss);
+	
+	cpp.WriteClassVars(*cls);
+			
 	const int TempCU = 1;
 	
 	for (int j = 0; j < cls->Methods.GetCount(); j++) {
@@ -164,8 +169,6 @@ CONSOLE_APP_MAIN {
 	
 		for (int i = 0; i < m.Overloads.GetCount(); i++) {
 			Overload& o = m.Overloads[i];
-			StringStream ss;
-			CppNodeWalker cpp(ass, ss);
 			
 			int written = 0;
 			for (int k = 0; k < o.DepOver.GetCount(); k++)
@@ -179,10 +182,10 @@ CONSOLE_APP_MAIN {
 				cpp.NL();
 			
 			compiler.WriteOverload(cpp, o);
-			
-			Cout() << ss.GetResult();
 		}
 	}
+	
+	Cout() << ss.GetResult();
 	
 	Cout() << "==========================================================================\r\n";
 	

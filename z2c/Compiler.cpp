@@ -495,7 +495,13 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 				String name = parser.ReadZId();
 				
 				Method& main = conCls.GetAddMethod(name);
-				main.BackendName = name;
+				if (name[0] == '@') {
+					main.BackendName = "_";
+					main.BackendName << name.Mid(1);
+				}
+				else
+					main.BackendName = name;
+				
 				main.AddOverload();
 				main.Overloads.Top().ParamPoint = parser.GetPos();
 			}
@@ -505,54 +511,6 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 		else
 			ScanToken(parser);
 	}
-}
-
-void Compiler::ScanBlock(ZClass& conCls, ZParser& parser) {
-	while (!parser.IsChar('}')) {
-		if (parser.Char('{')) {
-			parser.WS();
-		    ScanBlock(conCls, parser);
-		}
-		else
-			ScanToken(conCls, parser);
-	}
-	
-	parser.Expect('}');
-	parser.WS();
-}
-
-void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
-	parser.WS();
-	
-	if (parser.IsInt()) {
-		int64 oInt;
-		double oDub;
-		int base;
-		parser.ReadInt64(oInt, oDub, base);
-	}
-	else if (parser.IsString())
-		parser.ReadString();
-	else if (parser.IsZId())
-		parser.ReadZId();
-	else if (parser.IsId())
-		parser.ReadId();
-	else if (parser.IsCharConst())
-		parser.ReadChar();
-	else {
-		for (int i = 0; i < 9; i++)
-			if (parser.Char2(tab2[i], tab3[i]))
-			    return;
-		for (int i = 0; i < 24; i++)
-			if (parser.Char(tab1[i]))
-			    return;
-		if (parser.IsChar('{') || parser.IsChar('}'))
-			return;
-
-		Point p = parser.GetPoint();
-		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
-	}
-	
-	parser.WS();
 }
 
 // TODO: fix
