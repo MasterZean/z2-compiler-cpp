@@ -24,6 +24,8 @@ file
 	tables.cpp,
 	CommandLine.h,
 	CommandLine.cpp,
+	BuildMethod.h,
+	BuildMethod.cpp,
 	z2c.cpp;
 
 mainconfig
