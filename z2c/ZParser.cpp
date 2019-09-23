@@ -472,7 +472,7 @@ void ZParser::ExpectEndStat() {
 
 	if (Char(';')) {
 	}
-	else if (ch != '\n' && ch == '\r' && ch == '}' && ch == ')' && ch == ']') {
+	else if (ch != '\n' && ch != '\r' && ch != '}' && ch != ')' && ch != ']') {
 		Point p = GetPoint();
 		ErrorReporter::EosExpected(Path, p, Identify());
 	}

@@ -10,6 +10,7 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	
 	String temp = snip + "}";
 	ZParser tempParser(temp);
+	tempParser.Path = tempClass.Name;
 	
 	Method& main = tempClass.GetAddMethod("@main");
 	main.BackendName = "_main";
@@ -18,7 +19,9 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	tempOver.EntryPoint = tempParser.GetPos();
 	tempOver.Return = ass.CVoid;
 	
-	CompileOverloadJump(tempOver);
+	tempParser.SetPos(tempOver.EntryPoint);
+	
+	CompileOverload(tempOver, tempParser);
 	
 	return &tempOver;
 }
@@ -33,103 +36,9 @@ ZClass* Compiler::CompileSource(const String& snip) {
 	ZParser tempParser(snip);
 	tempParser.Path = tempClass.Name;
 	
-	/*Method& main = tempClass.GetAddMethod("@main");
-	main.BackendName = "_main";
-	
-	Overload& tempOver = main.AddOverload();
-	tempOver.EntryPoint = tempParser.GetPos();
-	tempOver.Return = ass.CVoid;*/
-	
-	///CompilerOverload(tempOver);
-	
 	CompileSource(tempClass, tempParser);
 	
 	return &tempClass;
-	
-	//for (int i = 0; i < postOverloads.GetCount(); i++)
-	//	CompileOverloadJump(*postOverloads[i]);
-	
-	//return &tempOver;
-}
-
-void Compiler::Scan(ZClass& conCls, ZParser& parser) {
-	// TODO: rewrite for performance
-	
-	while (!parser.IsEof()) {
-		if (parser.Id("def")) {
-			parser.Spaces();
-			
-			Point p = parser.GetPoint();
-			
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				
-				Method& main = conCls.GetAddMethod(name);
-				main.BackendName = name;
-				main.AddOverload();
-			}
-			else
-				ScanToken(parser);
-		}
-		else
-			ScanToken(parser);
-	}
-}
-
-void Compiler::ScanToken(ZParser& parser) {
-	parser.WS();
-	
-	if (parser.IsInt()) {
-		try {
-			int64 oInt;
-			double oDub;
-			int base;
-			parser.ReadInt64(oInt, oDub, base);
-		}
-		catch (ZSyntaxError& err) {
-			parser.SkipError();
-			parser.WS();
-		}
-	}
-	else if (parser.IsString())
-		parser.ReadString();
-	else if (parser.IsZId())
-		parser.ReadZId();
-	else if (parser.IsId())
-		parser.ReadId();
-	else if (parser.IsCharConst())
-		parser.ReadChar();
-	else {
-		for (int i = 0; i < 9; i++)
-			if (parser.Char2(tab2[i], tab3[i])) {
-				parser.Spaces();
-			    return;
-			}
-		for (int i = 0; i < 24; i++)
-			if (parser.Char(tab1[i])) {
-				parser.Spaces();
-			    return;
-			}
-		if (parser.Char('{') || parser.Char('}')) {
-			parser.Spaces();
-		    return;
-		}
-		DUMP(parser.Identify());
-		ASSERT(0);
-		//Point p = parser.GetPoint();
-		//parser.Error(p, "syntax error: " + parser.Identify() + " found");
-	}
-	
-	parser.WS();
-}
-
-bool Compiler::CompileOverloadJump(Overload& overload) {
-	ZParser parser;
-	parser.Path = overload.OwnerClass.Name;
-	
-	parser.SetPos(overload.EntryPoint);
-	
-	return CompileOverload(overload, parser);
 }
 
 bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
@@ -142,17 +51,26 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 	while (!parser.IsChar('}')) {
 		try {
 			int line = parser.GetLine();
+			bool checkEnd = true;
 			
 			if (parser.Id("val"))
 				CompileVar(conCls, nullptr, parser);
 			else if (parser.Id("def")) {
-				parser.WS();
+				parser.WSCurrentLine();
 				String name = parser.ExpectZId();
-				parser.WS();
+				parser.WSCurrentLine();
 				parser.Expect('(');
-				parser.WS();
+				parser.WSCurrentLine();
 				parser.Expect(')');
-				parser.WS();
+				parser.WSCurrentLine();
+				
+				ZClass* ret = ass.CVoid;
+				if (parser.Char(':')) {
+					parser.WSCurrentLine();
+					ret = GetClass(conCls, parser.GetPoint(), parser.ExpectZId());
+					parser.WSCurrentLine();
+				}
+				
 				parser.Expect('{');
 				parser.WS();
 				
@@ -161,12 +79,13 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 				
 				Overload& tempOver = conCls.Methods[i].Overloads[0];
 				tempOver.EntryPoint = parser.GetPos();
-				tempOver.Return = ass.CVoid;
+				tempOver.Return = ret;
 				
 				postOverloads.Add(&tempOver);
 				
-				//ScanBlock(conCls, parser);
 				CompileOverload(tempOver, parser);
+				
+				checkEnd = false;
 			}
 			else if (parser.Id("namespace")) {
 				parser.WSCurrentLine();
@@ -179,17 +98,14 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 				Point p = parser.GetPoint();
 				ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
 			}
-			//exp = CompileExpression(conCls, &conOver, parser);
-				
-			// end statement
-			if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
-				parser.WSCurrentLine();
-			parser.ExpectEndStat();
-			parser.WS();
 			
-			//exp->OriginalLine = line;
-			
-			//conOver.Nodes << exp;
+			if (checkEnd) {
+				// end statement
+				if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
+					parser.WSCurrentLine();
+				parser.ExpectEndStat();
+				parser.WS();
+			}
 		}
 		catch (ZSyntaxError& err) {
 			errors.Add(err);
@@ -231,20 +147,27 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 	return valid;
 }
 
-
-void Compiler::WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent) {
-	cpp.ResetIndent(indent);
+void Compiler::BuildSignature(ZClass& conCls, Overload& over) {
+	ZParser parser;
+	parser.SetPos(over.ParamPoint);
 	
-	for (int i = 0; i < overload.Nodes.GetCount(); i++)
-		cpp.WalkStatement(overload.Nodes[i]);
-}
-
-void Compiler::WriteOverload(CppNodeWalker& cpp, Overload& overload) {
-	cpp.WriteOverloadDefinition(overload);
+	parser.WSCurrentLine();
+	parser.Expect('(');
+	parser.WSCurrentLine();
+	parser.Expect(')');
+	parser.WSCurrentLine();
 	
-	cpp.OpenOverload();
-	WriteOverloadBody(cpp, overload, 1);
-	cpp.CloseOverload();
+	ZClass* ret = ass.CVoid;
+	if (parser.Char(':')) {
+		parser.WSCurrentLine();
+		ret = GetClass(conCls, parser.GetPoint(), parser.ExpectZId());
+		parser.WSCurrentLine();
+	}
+	
+	over.Return = ret;
+	over.IsScanned = true;
+	
+	ASSERT(over.Return);
 }
 
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
@@ -286,33 +209,24 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	Node* exp = nullptr;
 	
 	try {
+		if (conOver.Blocks.Top().Returned)
+			ErrorReporter::UnreachableCode(conCls.Name, parser.GetPoint());
+		
 		int line = parser.GetLine();
+		
+		bool returned = false;
 		
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, &conOver, parser);
-		else if (parser.Id("def")) {
-			parser.WS();
-			String name = parser.ExpectZId();
-			parser.WS();
-			parser.Expect('(');
-			parser.WS();
-			parser.Expect(')');
-			parser.WS();
-			parser.Expect('{');
-			parser.WS();
+		else if (parser.Id("return")) {
+			if (conOver.Return == ass.CVoid)
+				exp = irg.ret();
+			else {
+				parser.WSCurrentLine();
+				exp = irg.ret(CompileExpression(conCls, &conOver, parser));
+			}
 			
-			int i = conCls.Methods.Find(name);
-			ASSERT(i != -1);
-			
-			Overload& tempOver = conCls.Methods[i].Overloads[0];
-			tempOver.EntryPoint = parser.GetPos();
-			tempOver.Return = ass.CVoid;
-			
-			postOverloads.Add(&tempOver);
-			
-			ScanBlock(conCls, parser);
-			
-			return true;
+			returned = true;
 		}
 		else
 			exp = CompileExpression(conCls, &conOver, parser);
@@ -325,7 +239,10 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		
 		exp->OriginalLine = line;
 		
-		conOver.Nodes << exp;
+		if (conOver.Blocks.Top().Returned == false)
+			conOver.Nodes << exp;
+		
+		conOver.Blocks.Top().Returned = returned;
 	}
 	catch (ZSyntaxError& err) {
 		errors.Add(err);
@@ -367,56 +284,8 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 }
 
 Node* Compiler::CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
-	parser.OpenCB = false;
+	parser.OpenCB = 0;
 	return ParseExpression(conCls, conOver, parser);
-}
-
-void Compiler::ScanBlock(ZClass& conCls, ZParser& parser) {
-	while (!parser.IsChar('}')) {
-		if (parser.Char('{')) {
-			parser.WS();
-		    ScanBlock(conCls, parser);
-		}
-		else
-			ScanToken(conCls, parser);
-	}
-	
-	parser.Expect('}');
-	parser.WS();
-}
-
-void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
-	parser.WS();
-	
-	if (parser.IsInt()) {
-		int64 oInt;
-		double oDub;
-		int base;
-		parser.ReadInt64(oInt, oDub, base);
-	}
-	else if (parser.IsString())
-		parser.ReadString();
-	else if (parser.IsZId())
-		parser.ReadZId();
-	else if (parser.IsId())
-		parser.ReadId();
-	else if (parser.IsCharConst())
-		parser.ReadChar();
-	else {
-		for (int i = 0; i < 9; i++)
-			if (parser.Char2(tab2[i], tab3[i]))
-			    return;
-		for (int i = 0; i < 24; i++)
-			if (parser.Char(tab1[i]))
-			    return;
-		if (parser.IsChar('{') || parser.IsChar('}'))
-			return;
-
-		Point p = parser.GetPoint();
-		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
-	}
-	
-	parser.WS();
 }
 
 Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
@@ -437,7 +306,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		
 		Point tp = parser.GetPoint();
 		varClass = GetClass(conCls, tp, parser.ExpectZId());
-		parser.WS();
+		parser.WSCurrentLine();
 		
 		Point temp = parser.GetPoint();
 		if (parser.Char('=')) {
@@ -460,7 +329,9 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	CheckLocalVar(conCls, conOver, varName, ptName);
 	
 	if (varClass == ass.CCls)
-		ErrorReporter::CantCreateClassVar(conCls.Name, ptName, ass.CCls->Name);
+		ErrorReporter::CantCreateClassVar(conCls.Name, ptName, varClass->Name);
+	if (varClass == ass.CVoid)
+		ErrorReporter::CantCreateClassVar(conCls.Name, ptName, varClass->Name);
 	
 	if (varClass && value) {
 		if (!CanAssign(varClass, value))
@@ -609,6 +480,142 @@ String Compiler::GetErrors() {
 	}
 	
 	return result;
+}
+
+void Compiler::Scan(ZClass& conCls, ZParser& parser) {
+	// TODO: rewrite for performance
+	
+	while (!parser.IsEof()) {
+		if (parser.Id("def")) {
+			parser.Spaces();
+			
+			Point p = parser.GetPoint();
+			
+			if (parser.IsZId()) {
+				String name = parser.ReadZId();
+				
+				Method& main = conCls.GetAddMethod(name);
+				main.BackendName = name;
+				main.AddOverload();
+				main.Overloads.Top().ParamPoint = parser.GetPos();
+			}
+			else
+				ScanToken(parser);
+		}
+		else
+			ScanToken(parser);
+	}
+}
+
+void Compiler::ScanBlock(ZClass& conCls, ZParser& parser) {
+	while (!parser.IsChar('}')) {
+		if (parser.Char('{')) {
+			parser.WS();
+		    ScanBlock(conCls, parser);
+		}
+		else
+			ScanToken(conCls, parser);
+	}
+	
+	parser.Expect('}');
+	parser.WS();
+}
+
+void Compiler::ScanToken(ZClass& conCls, ZParser& parser) {
+	parser.WS();
+	
+	if (parser.IsInt()) {
+		int64 oInt;
+		double oDub;
+		int base;
+		parser.ReadInt64(oInt, oDub, base);
+	}
+	else if (parser.IsString())
+		parser.ReadString();
+	else if (parser.IsZId())
+		parser.ReadZId();
+	else if (parser.IsId())
+		parser.ReadId();
+	else if (parser.IsCharConst())
+		parser.ReadChar();
+	else {
+		for (int i = 0; i < 9; i++)
+			if (parser.Char2(tab2[i], tab3[i]))
+			    return;
+		for (int i = 0; i < 24; i++)
+			if (parser.Char(tab1[i]))
+			    return;
+		if (parser.IsChar('{') || parser.IsChar('}'))
+			return;
+
+		Point p = parser.GetPoint();
+		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
+	}
+	
+	parser.WS();
+}
+
+// TODO: fix
+void Compiler::ScanToken(ZParser& parser) {
+	parser.WS();
+	
+	if (parser.IsInt()) {
+		try {
+			int64 oInt;
+			double oDub;
+			int base;
+			parser.ReadInt64(oInt, oDub, base);
+		}
+		catch (ZSyntaxError& err) {
+			parser.SkipError();
+			parser.WS();
+		}
+	}
+	else if (parser.IsString())
+		parser.ReadString();
+	else if (parser.IsZId())
+		parser.ReadZId();
+	else if (parser.IsId())
+		parser.ReadId();
+	else if (parser.IsCharConst())
+		parser.ReadChar();
+	else {
+		for (int i = 0; i < 9; i++)
+			if (parser.Char2(tab2[i], tab3[i])) {
+				parser.Spaces();
+			    return;
+			}
+		for (int i = 0; i < 24; i++)
+			if (parser.Char(tab1[i])) {
+				parser.Spaces();
+			    return;
+			}
+		if (parser.Char('{') || parser.Char('}')) {
+			parser.Spaces();
+		    return;
+		}
+		DUMP(parser.Identify());
+		ASSERT(0);
+		//Point p = parser.GetPoint();
+		//parser.Error(p, "syntax error: " + parser.Identify() + " found");
+	}
+	
+	parser.WS();
+}
+
+void Compiler::WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent) {
+	cpp.ResetIndent(indent);
+	
+	for (int i = 0; i < overload.Nodes.GetCount(); i++)
+		cpp.WalkStatement(overload.Nodes[i]);
+}
+
+void Compiler::WriteOverload(CppNodeWalker& cpp, Overload& overload) {
+	cpp.WriteOverloadDefinition(overload);
+	
+	cpp.OpenOverload();
+	WriteOverloadBody(cpp, overload, 1);
+	cpp.CloseOverload();
 }
 
 }

@@ -36,9 +36,9 @@ void CppNodeWalker::Walk(Node* node) {
 	else if (node->NT == NodeType::Deref)
 		Walk((DerefNode*)node);
 	else if (node->NT == NodeType::Intrinsic)
-		Walk((IntNode*)node);
+		Walk((IntNode*)node);*/
 	else if (node->NT == NodeType::Return)
-		Walk((ReturnNode*)node);*/
+		WalkNode(*(RetNode*)node);
 	else if (node->NT == NodeType::Var)
 		WalkNode(*(VarNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
@@ -311,6 +311,15 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 
 void CppNodeWalker::WalkNode(CallNode& node) {
 	stream << "::" << node.Over->OwnerMethod.Name << "()";
+}
+
+void CppNodeWalker::WalkNode(RetNode& node) {
+	stream << "return";
+	
+	if (node.Value) {
+		stream << " ";
+		Walk(node.Value);
+	}
 }
 
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {

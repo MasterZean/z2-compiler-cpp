@@ -183,6 +183,15 @@ public:
 	}
 };
 
+class RetNode: public Node {
+public:
+	Node* Value = nullptr;
+	
+	RetNode() {
+		NT = NodeType::Return;
+	}
+};
+
 }
 
 #endif

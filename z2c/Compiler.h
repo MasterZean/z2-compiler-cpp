@@ -30,7 +30,8 @@ public:
 	ZClass* CompileSource(const String& snip);
 	bool CompileSource(ZClass& conCls, ZParser& parser);
 	
-	bool CompileOverloadJump(Overload& overload);
+	void BuildSignature(ZClass& conCls, Overload& over);
+	
 	bool CompileOverload(Overload& overload, ZParser& parser);
 	
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);

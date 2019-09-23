@@ -34,9 +34,9 @@ Node* NodeRunner::Execute(Node* node) {
 	else if (node->NT == NodeType::Deref)
 		Walk((DerefNode*)node);
 	else if (node->NT == NodeType::Intrinsic)
-		Walk((IntNode*)node);
+		Walk((IntNode*)node);*/
 	else if (node->NT == NodeType::Return)
-		Walk((ReturnNode*)node);*/
+		return ExecuteNode(*(RetNode*)node);
 	else if (node->NT == NodeType::Var)
 		return ExecuteNode(*(VarNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
@@ -53,13 +53,15 @@ Node* NodeRunner::Execute(Node* node) {
 	return nullptr;
 }
 
-void NodeRunner::Execute(Overload& over) {
+Node* NodeRunner::ExecuteOverload(Overload& over) {
 	CallDepth++;
 	
 	if (CallDepth >= StartCallDepth) {
 		stream << "// call " << over.OwnerMethod.Name;
 		NL();
 	}
+	
+	Node* ret = nullptr;
 	
 	for (int i = 0; i < over.Nodes.GetCount(); i++) {
 		Node* in = over.Nodes[i];
@@ -77,6 +79,10 @@ void NodeRunner::Execute(Overload& over) {
 				NL();
 			}
 		}
+		else if (in->NT == NodeType::Return) {
+			ret = Execute(in);
+			break;
+		}
 		else {
 			SS();
 			
@@ -88,7 +94,7 @@ void NodeRunner::Execute(Overload& over) {
 					stream << var->Var->Class->Name << " = ";
 					WriteValue(var->Var->Value);
 				}
-				else
+				else if (node->Class != ass.CVoid)
 					WriteValue(node);
 				NL();
 			}
@@ -101,6 +107,8 @@ void NodeRunner::Execute(Overload& over) {
 	}
 	
 	CallDepth--;
+	
+	return ret;
 }
 
 void NodeRunner::WriteValue(Node* node) {
@@ -216,7 +224,12 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(CallNode& node) {
-	Execute(*node.Over);
+	return ExecuteOverload(*node.Over);
+}
+
+Node* NodeRunner::ExecuteNode(RetNode& node) {
+	if (node.Value)
+		return Execute(node.Value);
 	
 	return nullptr;
 }

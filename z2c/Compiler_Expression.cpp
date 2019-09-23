@@ -156,6 +156,9 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 		if (conOver)
 			conOver->DepOver.Add(&m.Overloads[0]);
 		
+		if (m.Overloads[0].IsScanned == false)
+			BuildSignature(conCls, m.Overloads[0]);
+		
 		return irg.call(m.Overloads[0]);
 	}
 	
@@ -216,7 +219,7 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		Node* exp = ParseExpression(conCls, conOver, parser);
 		parser.WS();
 		parser.Expect('}');
-		parser.WS();
+		parser.WSCurrentLine();
 		parser.OpenCB--;
 		
 		return irg.cast(exp, &cls);

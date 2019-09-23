@@ -136,6 +136,10 @@ void ErrorReporter::UndeclaredClass(const String& path, const Point& p, const St
 	Error(path, p, "undeclared class '\f" + id + "\f'");
 }
 
+void ErrorReporter::UnreachableCode(const String& path, const Point& p) {
+	Error(path, p, "unreachable code after function return statement");
+}
+
 void ErrorReporter::CantAssign(const String& path, const Point& p, const String& c1, const String& c2) {
 	Error(path, p, "can't assign '\f" + c2 + "\f' instance to '\f" + c1 + "\f' instance");
 }

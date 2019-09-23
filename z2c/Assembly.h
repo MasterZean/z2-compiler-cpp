@@ -34,6 +34,7 @@ public:
 	WithDeepCopy<VectorMap<String, Variable*>> Variables;
 	
 	int Temps = 0;
+	bool Returned = false;
 	
 	void AddVaribleRef(Variable& var) {
 		Variables.Add(var.Name, &var);
@@ -81,6 +82,7 @@ public:
 	Method& OwnerMethod;
 	
 	ZParser::Pos EntryPoint;
+	ZParser::Pos ParamPoint;
 	Point SourcePos = Point(-1, -1);
 	
 	bool IsDestructor = false;
@@ -88,6 +90,7 @@ public:
 	bool IsInline = false;
 	
 	int MDecWritten = 0;
+	bool IsScanned = false;
 	
 	ZClass* Return;
 	

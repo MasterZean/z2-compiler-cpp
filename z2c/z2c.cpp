@@ -52,8 +52,8 @@ void RunTest(const String& path) {
 		LOG("====================================================================");
 		LOG("");
 
-		SaveFile("c:\\temp\\a.txt", result);
-		SaveFile("c:\\temp\\b.txt", out);
+		//SaveFile("c:\\temp\\a.txt", result);
+		//SaveFile("c:\\temp\\b.txt", out);
 
 		Cout() << path << " FAILLED!\n";
 	}
@@ -62,7 +62,7 @@ void RunTest(const String& path) {
 		StringStream ss;
 		NodeRunner exe(ass, ss);
 		
-		exe.Execute(*over);
+		exe.ExecuteOverload(*over);
 		
 		String result = ss.GetResult();
 		
@@ -169,9 +169,9 @@ CONSOLE_APP_MAIN {
 			
 			int written = 0;
 			for (int k = 0; k < o.DepOver.GetCount(); k++)
-				if (o.DepOver[i]->MDecWritten != TempCU) {
-					cpp.WriteOverloadDeclaration(*o.DepOver[i]);
-					o.DepOver[i]->MDecWritten = TempCU;
+				if (o.DepOver[k]->MDecWritten != TempCU) {
+					cpp.WriteOverloadDeclaration(*o.DepOver[k]);
+					o.DepOver[k]->MDecWritten = TempCU;
 					written++;
 				}
 				
@@ -192,7 +192,7 @@ CONSOLE_APP_MAIN {
 		StringStream ss;
 		NodeRunner exe(ass, ss);
 				
-		exe.Execute(cls->Methods[i].Overloads[0]);
+		exe.ExecuteOverload(cls->Methods[i].Overloads[0]);
 				
 		String result = ss.GetResult();
 				

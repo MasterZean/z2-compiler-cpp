@@ -41,6 +41,7 @@ public:
 	void WalkNode(OpNode& node);
 	void WalkNode(CastNode& node);
 	void WalkNode(CallNode& node);
+	void WalkNode(RetNode& node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)
