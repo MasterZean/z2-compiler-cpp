@@ -22,6 +22,8 @@ file
 	StopWatch.h,
 	tables.h,
 	tables.cpp,
+	CommandLine.h,
+	CommandLine.cpp,
 	z2c.cpp;
 
 mainconfig

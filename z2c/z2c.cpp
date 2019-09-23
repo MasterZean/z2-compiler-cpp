@@ -5,6 +5,7 @@ using namespace Upp;
 #include "Compiler.h"
 #include "StopWatch.h"
 #include "NodeRunner.h"
+#include "CommandLine.h"
 
 using namespace Z2;
 
@@ -152,12 +153,30 @@ void RunMicroTests() {
 CONSOLE_APP_MAIN {
 	RunMicroTests();
 	
+	Z2::CommandLine K;
+	if (!K.Read()) {
+		SetExitCode(-1);
+		return;
+	}
+	
+	if (K.Path.GetCount() == 0) {
+		Cout() << "No input filled specified.\n";
+		SetExitCode(-1);
+		return;
+	}
+	
+	if (K.OutPath.GetCount() == 0) {
+		Cout() << "No output filled specified.\n";
+		SetExitCode(-1);
+		return;
+	}
+	
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	ZClass* cls = compiler.CompileSource(LoadFile(GetDataFile("test.txt")));
+	ZClass* cls = compiler.CompileSource(LoadFile(K.Path));
 	
-	StringStream ss;
+	FileOut ss(K.OutPath);
 	CppNodeWalker cpp(ass, ss);
 	
 	cpp.WriteClassVars(*cls);
@@ -185,7 +204,7 @@ CONSOLE_APP_MAIN {
 		}
 	}
 	
-	Cout() << ss.GetResult();
+	//Cout() << ss.GetResult();
 	
 	Cout() << "==========================================================================\r\n";
 	
