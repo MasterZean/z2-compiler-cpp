@@ -1,20 +1,59 @@
+namespace foo
+
 val a = 7000
-
-f()
-
 val b = 0
 val c = 1
 
 def f() {
-	val a = 5
-	val b = 6
+	val a = f1()
+	+1
+	val b = f2()
+	val c = f3()
 
 	g()
+
+	return 
+	val a1 = -7000
+	val a2 = -7000
+	val a3 = -7000
 }
 
 def g() {
-	val a = -5
-	val b = -6
+	val a = ::a
+	val b = ::b
+	val h = 10
+	h
+	::h()
+
+	return 
+	val a1 = -8000
+	val a2 = -8000
+	val a3 = -8000
+}
+
+def h() {
+	val c = ::c
+
+	return 
+	val a1 = -9000
+	val a2 = -9000
+	val a3 = -9000
+}
+
+def @main() {
+	f()
+}
+
+def f1(): Short {
+	return 4
+}
+
+def f2(): Int {
+	return 6
+}
+
+def f3(): Long {
+	return 20
 }
 
 val d = 2

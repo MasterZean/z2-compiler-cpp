@@ -62,7 +62,7 @@ void RunTest(const String& path) {
 		StringStream ss;
 		NodeRunner exe(ass, ss);
 		
-		exe.Execute(*over);
+		exe.ExecuteOverload(*over);
 		
 		String result = ss.GetResult();
 		
@@ -151,27 +151,30 @@ void RunMicroTests() {
 
 CONSOLE_APP_MAIN {
 	RunMicroTests();
-
+	
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	Overload* over = compiler.CompileSnip(LoadFile(GetDataFile("test.txt")));
+	ZClass* cls = compiler.CompileSource(LoadFile(GetDataFile("test.txt")));
 	
+	StringStream ss;
+	CppNodeWalker cpp(ass, ss);
+	
+	cpp.WriteClassVars(*cls);
+			
 	const int TempCU = 1;
 	
-	for (int j = 0; j < over->OwnerClass.Methods.GetCount(); j++) {
-		Method& m = over->OwnerClass.Methods[j];
+	for (int j = 0; j < cls->Methods.GetCount(); j++) {
+		Method& m = cls->Methods[j];
 	
 		for (int i = 0; i < m.Overloads.GetCount(); i++) {
 			Overload& o = m.Overloads[i];
-			StringStream ss;
-			CppNodeWalker cpp(ass, ss);
 			
 			int written = 0;
 			for (int k = 0; k < o.DepOver.GetCount(); k++)
-				if (o.DepOver[i]->MDecWritten != TempCU) {
-					cpp.WriteOverloadDeclaration(*o.DepOver[i]);
-					o.DepOver[i]->MDecWritten = TempCU;
+				if (o.DepOver[k]->MDecWritten != TempCU) {
+					cpp.WriteOverloadDeclaration(*o.DepOver[k]);
+					o.DepOver[k]->MDecWritten = TempCU;
 					written++;
 				}
 				
@@ -179,20 +182,24 @@ CONSOLE_APP_MAIN {
 				cpp.NL();
 			
 			compiler.WriteOverload(cpp, o);
-			
-			Cout() << ss.GetResult();
 		}
 	}
 	
+	Cout() << ss.GetResult();
+	
 	Cout() << "==========================================================================\r\n";
 	
-	StringStream ss;
-	NodeRunner exe(ass, ss);
-			
-	exe.Execute(*over);
-			
-	String result = ss.GetResult();
-			
-	Cout() << ss.GetResult();
+	int i = cls->Methods.Find("@main");
+	
+	if (i != -1) {
+		StringStream ss;
+		NodeRunner exe(ass, ss);
+				
+		exe.ExecuteOverload(cls->Methods[i].Overloads[0]);
+				
+		String result = ss.GetResult();
+				
+		Cout() << ss.GetResult();
+	}
 }
 

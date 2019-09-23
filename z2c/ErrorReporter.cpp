@@ -73,7 +73,7 @@ void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, con
 }
 
 void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
-	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text;
+	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text << NL;
 }
 
 void ErrorReporter::SyntaxError(const String& path, const Point& p, const String& text) {
@@ -134,6 +134,10 @@ void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, con
 
 void ErrorReporter::UndeclaredClass(const String& path, const Point& p, const String& id) {
 	Error(path, p, "undeclared class '\f" + id + "\f'");
+}
+
+void ErrorReporter::UnreachableCode(const String& path, const Point& p) {
+	Error(path, p, "unreachable code after function return statement");
 }
 
 void ErrorReporter::CantAssign(const String& path, const Point& p, const String& c1, const String& c2) {

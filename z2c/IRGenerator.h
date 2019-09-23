@@ -93,6 +93,7 @@ public:
 	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble);
 	
 	CallNode* call(Overload& over);
+	RetNode* ret(Node* value = nullptr);
 	
 	bool FoldConstants = false;
 
@@ -106,6 +107,7 @@ private:
 	NodePool<OpNode> opNodes;
 	NodePool<CastNode> castNodes;
 	NodePool<CallNode> callNodes;
+	NodePool<RetNode> retNodes;
 };
 
 }

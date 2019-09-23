@@ -87,7 +87,7 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	else if (parser.Id("false"))
 		exp = irg.constBool(false);
 	else if (parser.IsZId() || parser.IsChar('@'))
-		exp = ParseId(conCls, conOver, parser);
+		exp = ParseId(conCls, conOver, conOver, parser);
 	else if (parser.IsCharConst()) {
 		Point p = parser.GetPoint();
 		
@@ -96,6 +96,9 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 			ErrorReporter::InvalidCharLiteral(conCls.Name, p);
 		
 		exp = irg.constChar(ch);
+	}
+	else if (parser.Char2(':', ':')) {
+		exp = ParseId(conCls, conOver, nullptr, parser);
 	}
 	else {
 		Point p = parser.GetPoint();
@@ -118,7 +121,7 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	return exp;
 }
 
-Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
+Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser) {
 	String s;
 	
 	Point p = parser.GetPoint();
@@ -128,14 +131,14 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	else
 		s = parser.ExpectZId();
 
-	if (conOver != nullptr) {
-		for (int j = 0; j < conOver->Params.GetCount(); j++) {
-			if (conOver->Params[j].Name == s)
-				return irg.mem(conOver->Params[j]);
+	if (searchOver != nullptr) {
+		for (int j = 0; j < searchOver->Params.GetCount(); j++) {
+			if (searchOver->Params[j].Name == s)
+				return irg.mem(searchOver->Params[j]);
 		}
 
-		for (int j = 0; j < conOver->Blocks.GetCount(); j++) {
-			Block& b = conOver->Blocks[j];
+		for (int j = 0; j < searchOver->Blocks.GetCount(); j++) {
+			Block& b = searchOver->Blocks[j];
 			for (int k = 0; k < b.Variables.GetCount(); k++)
 				if (b.Variables[k]->Name == s)
 					return irg.mem(*b.Variables[k]);
@@ -143,7 +146,6 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	}
 	
 	int i = conCls.Methods.Find(s);
-	
 	if (i != -1) {
 		parser.Expect('(');
 		parser.Expect(')');
@@ -154,7 +156,16 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		if (conOver)
 			conOver->DepOver.Add(&m.Overloads[0]);
 		
+		if (m.Overloads[0].IsScanned == false)
+			BuildSignature(conCls, m.Overloads[0]);
+		
 		return irg.call(m.Overloads[0]);
+	}
+	
+	i = conCls.Variables.Find(s);
+	if (i != -1) {
+		parser.WSCurrentLine();
+		return irg.mem(conCls.Variables[i]);
 	}
 	
 	ZClass* c = GetClass(s);
@@ -208,7 +219,7 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		Node* exp = ParseExpression(conCls, conOver, parser);
 		parser.WS();
 		parser.Expect('}');
-		parser.WS();
+		parser.WSCurrentLine();
 		parser.OpenCB--;
 		
 		return irg.cast(exp, &cls);

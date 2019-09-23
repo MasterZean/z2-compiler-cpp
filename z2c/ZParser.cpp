@@ -14,7 +14,7 @@ String ZParser::Identify() {
 	else if (IsEof())
 		return "end-of-file";
 	else if (IsZId())
-		return "identifier '" + ReadId() + "'";
+		return "identifier '" + ReadZId() + "'";
 	else if (IsId())
 		return "keyword '" + ReadId() + "'";
 	else if (IsString())
@@ -43,7 +43,9 @@ String ZParser::Identify() {
 }
 
 bool ZParser::IsZId() {
-	if (term[0] == 'a' && IsId0("alias"))
+	if (term[0] == '@')
+		return iscib(*(term + 1));
+	else if (term[0] == 'a' && IsId0("alias"))
 		return false;
 	else if (term[0] == 'b' && IsId0("break"))
 		return false;
@@ -127,6 +129,21 @@ bool ZParser::IsZId() {
 		return false;
 	
 	return IsId();
+}
+
+String ZParser::ReadZId() {
+	//if(!IsId())
+	//	ThrowError("missing id");
+	String result;
+	const char *b = term;
+	const char *p = b;
+	if (*p == '@')
+		p++;
+	while(iscid(*p))
+		p++;
+	term = p;
+	DoSpaces();
+	return String(b, (int)(uintptr_t)(p - b));
 }
 
 ZParser::NumberType ZParser::ReadInt64(int64& oInt, double& oDub, int& base) {
@@ -430,7 +447,7 @@ String ZParser::ExpectId() {
 
 String ZParser::ExpectZId() {
 	if (IsZId())
-		return ReadId();
+		return ReadZId();
 	else {
 		Point p = GetPoint();
 		ErrorReporter::IdentifierExpected(Path, p, Identify());
@@ -455,7 +472,7 @@ void ZParser::ExpectEndStat() {
 
 	if (Char(';')) {
 	}
-	else if (ch != '\n' && ch == '\r' && ch == '}' && ch == ')' && ch == ']') {
+	else if (ch != '\n' && ch != '\r' && ch != '}' && ch != ')' && ch != ']') {
 		Point p = GetPoint();
 		ErrorReporter::EosExpected(Path, p, Identify());
 	}

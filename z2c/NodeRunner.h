@@ -17,7 +17,7 @@ public:
 		irg.FoldConstants = true;
 	}
 	
-	void Execute(Overload& over);
+	Node* ExecuteOverload(Overload& over);
 	
 	Node* Execute(Node* node);
 	
@@ -28,6 +28,7 @@ public:
 	Node* ExecuteNode(OpNode& node);
 	Node* ExecuteNode(CastNode& node);
 	Node* ExecuteNode(CallNode& node);
+	Node* ExecuteNode(RetNode& node);
 	
 	void WriteValue(Node* node);
 	

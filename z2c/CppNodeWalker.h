@@ -41,6 +41,7 @@ public:
 	void WalkNode(OpNode& node);
 	void WalkNode(CastNode& node);
 	void WalkNode(CallNode& node);
+	void WalkNode(RetNode& node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)
@@ -61,6 +62,9 @@ public:
 	void WriteClassName(const ZClass& ce) {
 		stream << ce.BackendName;
 	}
+	
+	void WriteClassVars(ZClass& cls);
+	void WriteVar(Variable& var);
 	
 	void WriteOverloadDefinition(Overload &over);
 	void WriteOverloadDeclaration(Overload &over);
