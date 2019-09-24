@@ -3,9 +3,9 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 namespace Z2 {
+	
+using namespace Upp;
 	
 class CommandLine {
 public:

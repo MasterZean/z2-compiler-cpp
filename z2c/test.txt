@@ -5,7 +5,7 @@ val b = 0
 val c = 1
 
 def f() {
-	val a = f1()
+	val a = f1() < 5
 	+1
 	val b = f2()
 	val c = f3()

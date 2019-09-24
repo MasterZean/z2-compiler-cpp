@@ -578,7 +578,6 @@ void BuildMethod::Get(Vector<BuildMethod>& methods, bool print) {
 			}
 		}
 		
-		
 		{
 			LocalProcess lp(cppExe + " " + pc + " -m64 -o " + po);
 			tt = "";

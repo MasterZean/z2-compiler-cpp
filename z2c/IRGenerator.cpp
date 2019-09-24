@@ -316,9 +316,9 @@ Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) 
 		return opShl(left, right, p);
 	else if (op <= OpNode::opShr)
 		return opShr(left, right, p);
-	/*else if (op <= OpNode::opNeq)
+	else if (op <= OpNode::opNeq)
 		return opRel(left, right, op, p);
-	else if (op <= OpNode::opBitAnd)
+	/*else if (op <= OpNode::opBitAnd)
 		return op_bitand(left, right);
 	else if (op <= OpNode::opBitXor)
 		return op_bitxor(left, right);
@@ -798,5 +798,180 @@ Node* IRGenerator::opShr(Node* left, Node* right, const Point& p) {
 	
 	return node;
 }
+
+Node* IRGenerator::opRel(Node* left, Node* right, OpNode::Type op, const Point& p) {
+	/*Node* l = (left->IsIndirect) ? deref(left) : left;
+	Node* r = (right->IsIndirect) ? deref(right) : right;
+
+	if (l->Tt.Class->Scan.IsEnum && r->Tt.Class->Scan.IsEnum && l->Tt.Class == r->Tt.Class) {
+		l = cast(l, &ass.CInt->Tt);
+		r = cast(r, &ass.CInt->Tt);
+	}
+
+	bool valid = false;
+	
+	if (op == OpNode::opEq) {
+		String s;
+		s == "gg";
+	}
+	
+	if ((op == OpNode::opEq || op == OpNode::opNeq) && left->Tt.Class == ass.CCls && right->Tt.Class == ass.CCls)
+		return const_bool(left->IntVal == right->IntVal);
+	else if (testOpRel(ass, l, r, op) == false) {
+		Node* over = GetOp(Over, strops[op], l, r, ass, this, *Comp, p);
+		if (over == nullptr) {
+			if (op == OpNode::opLess)
+				return GetOp(Over, strops[OpNode::opMore], r, l, ass, this, *Comp, p);
+			else if (op == OpNode::opLessEq)
+				return GetOp(Over, strops[OpNode::opMoreEq], r, l, ass, this, *Comp, p);
+			else if (op == OpNode::opMore)
+				return GetOp(Over, strops[OpNode::opLess], r, l, ass, this, *Comp, p);
+			else if (op == OpNode::opMoreEq)
+				return GetOp(Over, strops[OpNode::opLessEq], r, l, ass, this, *Comp, p);
+			else
+				return nullptr;
+		}
+		else
+			return over;
+	}
+	
+	valid = left->Tt.Class == ass.CPtr && right->Tt.Class == ass.CPtr;
+	valid = valid || (left->Tt.Class == ass.CPtr && right->Tt.Class == ass.CNull);
+	valid = valid || (left->Tt.Class == ass.CNull && right->Tt.Class == ass.CPtr);
+
+	left = l;
+	right = r;
+
+	
+	bool b;
+
+	if (valid) {
+		OpNode* node = opNodes.Get();
+
+		node->OpA = left;
+		node->OpB = right;
+		node->Op = op;
+
+		node->IsConst = cst;
+		node->IsCT = cst;
+		node->SetType(ass.CBool->Tt);
+
+		return node;
+	}*/
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabRel[t1][t2];
+
+	if (t == -1)
+		return NULL;
+
+	ZClass* e = &ass.Classes[t];
+	bool b;
+	bool cst = left->IsCT && right->IsCT;
+	
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = op;
+
+	node->IsConst = cst;
+	node->IsCT = cst;
+	node->SetType(ass.CBool);
+	node->IntVal = b;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+Node* IRGenerator::opRelCT(Node* left, Node* right, OpNode::Type op, ZClass* e) {
+	bool b;
+	
+	if (e == ass.CByte || e == ass.CWord || e == ass.CDWord) {
+		if (op == OpNode::opLess)
+			b = (uint64)left->IntVal < (uint64)right->IntVal;
+		else if (op == OpNode::opLessEq)
+			b = (uint64)left->IntVal <= (uint64)right->IntVal;
+		else if (op == OpNode::opMore)
+			b = (uint64)left->IntVal > (uint64)right->IntVal;
+		else if (op == OpNode::opMoreEq)
+			b = (uint64)left->IntVal >= (uint64)right->IntVal;
+		else if (op == OpNode::opEq)
+			b = (uint64)left->IntVal == (uint64)right->IntVal;
+		else if (op == OpNode::opNeq)
+			b = (uint64)left->IntVal != (uint64)right->IntVal;
+		else
+			ASSERT(0);
+		
+		return constBool(b);
+	}
+	else if (e == ass.CSmall || e == ass.CShort || e == ass.CInt) {
+		if (op == OpNode::opLess)
+			b = left->IntVal < right->IntVal;
+		else if (op == OpNode::opLessEq)
+			b = left->IntVal <= right->IntVal;
+		else if (op == OpNode::opMore)
+			b = left->IntVal > right->IntVal;
+		else if (op == OpNode::opMoreEq)
+			b = left->IntVal >= right->IntVal;
+		else if (op == OpNode::opEq)
+			b = left->IntVal == right->IntVal;
+		else if (op == OpNode::opNeq)
+			b = left->IntVal != right->IntVal;
+		else
+			ASSERT(0);
+		
+		return constBool(b);
+	}
+	else if (e == ass.CFloat) {
+		left->PromoteToFloatValue(ass);
+		right->PromoteToFloatValue(ass);
+		if (op == OpNode::opLess)
+			b = left->DblVal < right->DblVal;
+		else if (op == OpNode::opLessEq)
+			b = left->DblVal <= right->DblVal;
+		else if (op == OpNode::opMore)
+			b = left->DblVal > right->DblVal;
+		else if (op == OpNode::opMoreEq)
+			b = left->DblVal >= right->DblVal;
+		else if (op == OpNode::opEq)
+			b = left->DblVal == right->DblVal;
+		else if (op == OpNode::opNeq)
+			b = left->DblVal != right->DblVal;
+		else
+			ASSERT(0);
+		
+		return constBool(b);
+	}
+	else if (e == ass.CDouble) {
+		left->PromoteToFloatValue(ass);
+		right->PromoteToFloatValue(ass);
+		if (op == OpNode::opLess)
+			b = left->DblVal < right->DblVal;
+		else if (op == OpNode::opLessEq)
+			b = left->DblVal <= right->DblVal;
+		else if (op == OpNode::opMore)
+			b = left->DblVal > right->DblVal;
+		else if (op == OpNode::opMoreEq)
+			b = left->DblVal >= right->DblVal;
+		else if (op == OpNode::opEq)
+			b = left->DblVal == right->DblVal;
+		else if (op == OpNode::opNeq)
+			b = left->DblVal != right->DblVal;
+		else
+			ASSERT(0);
+		
+		return constBool(b);
+	}
+	else
+		ASSERT_(0, ops[op]);
+	
+	return nullptr;
+}
+
 
 }

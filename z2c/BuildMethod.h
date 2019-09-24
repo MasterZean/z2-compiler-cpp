@@ -3,9 +3,9 @@
 
 #include <Core/Core.h>
 
-using namespace Upp;
-
 namespace Z2 {
+	
+using namespace Upp;
  
 struct BuildMethod: public Moveable<BuildMethod> {
 	enum Type {

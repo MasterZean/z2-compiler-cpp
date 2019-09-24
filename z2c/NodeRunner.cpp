@@ -1,4 +1,5 @@
 #include "NodeRunner.h"
+#include "tables.h"
 
 namespace Z2 {
 	
@@ -140,6 +141,12 @@ void NodeRunner::WriteValue(Node* node) {
 			else
 				stream << (uint64)node->IntVal;
 		}
+		else if (node->Class == ass.CBool) {
+			if (node->IntVal == 0)
+				stream << "false";
+			else
+				stream << "true";
+		}
 		else
 			stream << node->IntVal;
 	}
@@ -192,6 +199,11 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 		}
 		else
 			ASSERT_(0, "shl");
+	}
+	else if (node.Op <= OpNode::opNeq) {
+		int t = TabRel[left->Class->MIndex][right->Class->MIndex];
+		
+		return irg.opRelCT(left, right, node.Op, &ass.Classes[t]);
 	}
 	else
 		ASSERT(0);
