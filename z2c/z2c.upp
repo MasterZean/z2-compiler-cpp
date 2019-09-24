@@ -19,6 +19,7 @@ file
 	Node.cpp,
 	IRGenerator.h,
 	IRGenerator.cpp,
+	IRGenerator_CT.cpp,
 	StopWatch.h,
 	tables.h,
 	tables.cpp,

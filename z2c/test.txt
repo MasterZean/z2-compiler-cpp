@@ -7,8 +7,8 @@ val c = 1
 def f() {
 	val a = f1() < 5
 	+1
-	val b = f2()
-	val c = f3()
+	val b = f2() | 0b10000
+	val c = f3() > 10 && true
 
 	g()
 

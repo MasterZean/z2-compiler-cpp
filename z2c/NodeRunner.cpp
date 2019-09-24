@@ -205,6 +205,14 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 		
 		return irg.opRelCT(left, right, node.Op, &ass.Classes[t]);
 	}
+	else if (node.Op <= OpNode::opBitAnd)
+		return irg.opBitAndCT(left, right, node.Class);
+	else if (node.Op <= OpNode::opBitXor)
+		return irg.opBitOrCT(left, right, node.Class);
+	else if (node.Op <= OpNode::opBitOr)
+		return irg.opBitXorCT(left, right, node.Class);
+	else if (node.Op <= OpNode::opLogOr)
+		return irg.opLogCT(left, right, node.Op);
 	else
 		ASSERT(0);
 	

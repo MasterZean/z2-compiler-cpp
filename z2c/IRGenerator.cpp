@@ -318,14 +318,14 @@ Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) 
 		return opShr(left, right, p);
 	else if (op <= OpNode::opNeq)
 		return opRel(left, right, op, p);
-	/*else if (op <= OpNode::opBitAnd)
-		return op_bitand(left, right);
+	else if (op <= OpNode::opBitAnd)
+		return opBitAnd(left, right);
 	else if (op <= OpNode::opBitXor)
-		return op_bitxor(left, right);
+		return opBitOr(left, right);
 	else if (op <= OpNode::opBitOr)
-		return op_bitor(left, right);
+		return opBitXor(left, right);
 	else if (op <= OpNode::opLogOr)
-		return opLog(left, right, op);*/
+		return opLog(left, right, op);
 	else {
 		ASSERT(0);
 		return nullptr;
@@ -390,353 +390,6 @@ Node* IRGenerator::opArit(Node* left, Node* right, OpNode::Type op, const Point&
 	ASSERT(node->Class);
 	
 	return node;
-}
-
-Node* IRGenerator::opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble) {
-	if (op == OpNode::opAdd) {
-		if (e == ass.CByte) {
-			dInt = (byte)((uint32)left->IntVal + (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CWord) {
-			dInt = (word)((uint32)left->IntVal + (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CDWord) {
-			dInt = (dword)((uint32)left->IntVal + (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CQWord) {
-			dInt = (qword)((uint64)left->IntVal + (uint64)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CSmall) {
-			dInt = (int8)((int32)left->IntVal + (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CShort) {
-			dInt = (int16)((int32)left->IntVal + (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CInt) {
-			dInt = (int32)((int32)left->IntVal + (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CLong) {
-			dInt = (int64)((int64)left->IntVal + (int64)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CPtrSize) {
-			dInt = (uint64)left->IntVal + (uint64)right->IntVal;
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CFloat) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal + right->DblVal;
-			if (FoldConstants)
-				return constFloatSingle(dDouble);
-		}
-		else if (e == ass.CDouble) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal + right->DblVal;
-			if (FoldConstants)
-				return constFloatDouble(dDouble);
-		}
-		else if (e == ass.CChar) {
-			dInt = (int32)((int32)left->IntVal + (int32)right->IntVal);
-			if (FoldConstants)
-				return constChar(dInt);
-		}
-		else
-			ASSERT(0);
-	}
-	else if (op == OpNode::opSub) {
-		if (e == ass.CByte) {
-			dInt = (byte)((uint32)left->IntVal - (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CWord) {
-			dInt = (word)((uint32)left->IntVal - (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CDWord) {
-			dInt = (dword)((uint32)left->IntVal - (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CQWord) {
-			dInt = (qword)((uint64)left->IntVal - (uint64)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CSmall) {
-			dInt = (int8)((int32)left->IntVal - (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CShort) {
-			dInt = (int16)((int32)left->IntVal - (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CInt) {
-			dInt = (int32)((int32)left->IntVal - (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CLong) {
-			dInt = (int64)((int64)left->IntVal - (int64)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CPtrSize) {
-			dInt = (uint64)left->IntVal - (uint64)right->IntVal;
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CFloat) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal - right->DblVal;
-			if (FoldConstants)
-				return constFloatSingle(dDouble);
-		}
-		else if (e == ass.CDouble) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal - right->DblVal;
-			if (FoldConstants)
-				return constFloatDouble(dDouble);
-		}
-		else if (e == ass.CChar) {
-			dInt = (int32)((int32)left->IntVal - (int32)right->IntVal);
-			if (FoldConstants)
-				return constChar(dInt);
-		}
-		else
-			ASSERT(0);
-	}
-	else if (op == OpNode::opMul) {
-		if (e == ass.CByte) {
-			dInt = (byte)((uint32)left->IntVal * (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CWord) {
-			dInt = (word)((uint32)left->IntVal * (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CDWord) {
-			dInt = (dword)((uint32)left->IntVal * (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CQWord) {
-			dInt = (qword)((uint64)left->IntVal * (uint64)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CSmall) {
-			dInt = (int8)((int32)left->IntVal * (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CShort) {
-			dInt = (int16)((int32)left->IntVal * (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CInt) {
-			dInt = (int32)((int32)left->IntVal * (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CLong) {
-			dInt = (int64)((int64)left->IntVal * (int64)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CPtrSize) {
-			dInt = (uint64)left->IntVal * (uint64)right->IntVal;
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CFloat) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal * right->DblVal;
-			if (FoldConstants)
-				return constFloatSingle(dDouble);
-		}
-		else if (e == ass.CDouble) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal * right->DblVal;
-			if (FoldConstants)
-				return constFloatDouble(dDouble);
-		}
-		else if (e == ass.CChar) {
-			dInt = (int32)((int32)left->IntVal * (int32)right->IntVal);
-			if (FoldConstants)
-				return constChar(dInt);
-		}
-		else
-			ASSERT(0);
-	}
-	else if (op == OpNode::opDiv) {
-		if (e == ass.CByte) {
-			dInt = (byte)((uint32)left->IntVal / (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CWord) {
-			dInt = (word)((uint32)left->IntVal / (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CDWord) {
-			dInt = (dword)((uint32)left->IntVal / (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CQWord) {
-			dInt = (qword)((uint64)left->IntVal / (uint64)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CSmall) {
-			dInt = (int8)((int32)left->IntVal / (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CShort) {
-			dInt = (int16)((int32)left->IntVal / (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CInt) {
-			dInt = (int32)((int32)left->IntVal / (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CLong) {
-			dInt = (int64)((int64)left->IntVal / (int64)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CPtrSize) {
-			dInt = (uint64)left->IntVal / (uint64)right->IntVal;
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CFloat) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal / right->DblVal;
-			if (FoldConstants)
-				return constFloatSingle(dDouble);
-		}
-		else if (e == ass.CDouble) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = left->DblVal / right->DblVal;
-			if (FoldConstants)
-				return constFloatDouble(dDouble);
-		}
-		else if (e == ass.CChar) {
-			dInt = (int32)((int32)left->IntVal / (int32)right->IntVal);
-			if (FoldConstants)
-				return constChar(dInt);
-		}
-		else
-			ASSERT(0);
-	}
-	else if (op == OpNode::opMod) {
-		if (e == ass.CByte) {
-			dInt = (byte)((uint32)left->IntVal % (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CWord) {
-			dInt = (word)((uint32)left->IntVal % (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CDWord) {
-			dInt = (dword)((uint32)left->IntVal % (uint32)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CQWord) {
-			dInt = (qword)((uint64)left->IntVal % (uint64)right->IntVal);
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CSmall) {
-			dInt = (int8)((int32)left->IntVal % (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CShort) {
-			dInt = (int16)((int32)left->IntVal % (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CInt) {
-			dInt = (int32)((int32)left->IntVal % (int32)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CLong) {
-			dInt = (int64)((int64)left->IntVal % (int64)right->IntVal);
-			if (FoldConstants)
-				return constIntSigned(dInt, cls);
-		}
-		else if (e == ass.CPtrSize) {
-			dInt = (uint64)left->IntVal % (uint64)right->IntVal;
-			if (FoldConstants)
-				return constIntUnsigned(dInt, cls);
-		}
-		else if (e == ass.CFloat) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = fmod(left->DblVal, right->DblVal);
-			if (FoldConstants)
-				return constFloatSingle(dDouble);
-		}
-		else if (e == ass.CDouble) {
-			left->PromoteToFloatValue(ass);
-			right->PromoteToFloatValue(ass);
-			dDouble = fmod(left->DblVal, right->DblVal);
-			if (FoldConstants)
-				return constFloatDouble(dDouble);
-		}
-		else if (e == ass.CChar) {
-			dInt = (int32)((int32)left->IntVal % (int32)right->IntVal);
-			if (FoldConstants)
-				return constChar(dInt);
-		}
-		else
-			ASSERT(0);
-	}
-	else
-		ASSERT(0);
-	
-	return nullptr;
 }
 
 Node* IRGenerator::opShl(Node* left, Node* right, const Point& p) {
@@ -888,90 +541,118 @@ Node* IRGenerator::opRel(Node* left, Node* right, OpNode::Type op, const Point& 
 	return node;
 }
 
-Node* IRGenerator::opRelCT(Node* left, Node* right, OpNode::Type op, ZClass* e) {
-	bool b;
+Node* IRGenerator::opBitAnd(Node* left, Node* right) {
+	bool n = left->Class->MIsNumeric && right->Class->MIsNumeric;
+	if (!n || left->Class == ass.CFloat || left->Class == ass.CDouble
+			|| right->Class == ass.CFloat || right->Class == ass.CDouble)
+		return NULL;
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabArithmetic[t1][t2];
+
+	bool cst = left->IsCT && right->IsCT;
+	ZClass* e = &ass.Classes[t];
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = OpNode::opBitAnd;
+
+	node->IsCT = cst;
+	node->SetType(e);
+	node->DblVal = 0;
 	
-	if (e == ass.CByte || e == ass.CWord || e == ass.CDWord) {
-		if (op == OpNode::opLess)
-			b = (uint64)left->IntVal < (uint64)right->IntVal;
-		else if (op == OpNode::opLessEq)
-			b = (uint64)left->IntVal <= (uint64)right->IntVal;
-		else if (op == OpNode::opMore)
-			b = (uint64)left->IntVal > (uint64)right->IntVal;
-		else if (op == OpNode::opMoreEq)
-			b = (uint64)left->IntVal >= (uint64)right->IntVal;
-		else if (op == OpNode::opEq)
-			b = (uint64)left->IntVal == (uint64)right->IntVal;
-		else if (op == OpNode::opNeq)
-			b = (uint64)left->IntVal != (uint64)right->IntVal;
-		else
-			ASSERT(0);
-		
-		return constBool(b);
-	}
-	else if (e == ass.CSmall || e == ass.CShort || e == ass.CInt) {
-		if (op == OpNode::opLess)
-			b = left->IntVal < right->IntVal;
-		else if (op == OpNode::opLessEq)
-			b = left->IntVal <= right->IntVal;
-		else if (op == OpNode::opMore)
-			b = left->IntVal > right->IntVal;
-		else if (op == OpNode::opMoreEq)
-			b = left->IntVal >= right->IntVal;
-		else if (op == OpNode::opEq)
-			b = left->IntVal == right->IntVal;
-		else if (op == OpNode::opNeq)
-			b = left->IntVal != right->IntVal;
-		else
-			ASSERT(0);
-		
-		return constBool(b);
-	}
-	else if (e == ass.CFloat) {
-		left->PromoteToFloatValue(ass);
-		right->PromoteToFloatValue(ass);
-		if (op == OpNode::opLess)
-			b = left->DblVal < right->DblVal;
-		else if (op == OpNode::opLessEq)
-			b = left->DblVal <= right->DblVal;
-		else if (op == OpNode::opMore)
-			b = left->DblVal > right->DblVal;
-		else if (op == OpNode::opMoreEq)
-			b = left->DblVal >= right->DblVal;
-		else if (op == OpNode::opEq)
-			b = left->DblVal == right->DblVal;
-		else if (op == OpNode::opNeq)
-			b = left->DblVal != right->DblVal;
-		else
-			ASSERT(0);
-		
-		return constBool(b);
-	}
-	else if (e == ass.CDouble) {
-		left->PromoteToFloatValue(ass);
-		right->PromoteToFloatValue(ass);
-		if (op == OpNode::opLess)
-			b = left->DblVal < right->DblVal;
-		else if (op == OpNode::opLessEq)
-			b = left->DblVal <= right->DblVal;
-		else if (op == OpNode::opMore)
-			b = left->DblVal > right->DblVal;
-		else if (op == OpNode::opMoreEq)
-			b = left->DblVal >= right->DblVal;
-		else if (op == OpNode::opEq)
-			b = left->DblVal == right->DblVal;
-		else if (op == OpNode::opNeq)
-			b = left->DblVal != right->DblVal;
-		else
-			ASSERT(0);
-		
-		return constBool(b);
-	}
-	else
-		ASSERT_(0, ops[op]);
+	ASSERT(node->Class);
 	
-	return nullptr;
+	return node;
 }
 
+Node* IRGenerator::opBitOr(Node* left, Node* right) {
+	bool n = left->Class->MIsNumeric && right->Class->MIsNumeric;
+	if (!n || left->Class == ass.CFloat || left->Class == ass.CDouble
+			|| right->Class == ass.CFloat || right->Class == ass.CDouble)
+		return NULL;
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabArithmetic[t1][t2];
+
+	bool cst = left->IsCT && right->IsCT;
+	ZClass* e = &ass.Classes[t];
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = OpNode::opBitOr;
+
+	node->IsCT = cst;
+	node->SetType(e);
+	node->DblVal = 0;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+Node* IRGenerator::opBitXor(Node* left, Node* right) {
+	bool n = left->Class->MIsNumeric && right->Class->MIsNumeric;
+	if (!n || left->Class == ass.CFloat || left->Class == ass.CDouble
+			|| right->Class == ass.CFloat || right->Class == ass.CDouble)
+		return NULL;
+
+	int t1 = left->Class->MIndex;
+	int t2 = right->Class->MIndex;
+	ASSERT(t1 >= 0 && t1 <= 13);
+	ASSERT(t2 >= 0 && t2 <= 13);
+	int t = TabArithmetic[t1][t2];
+
+	bool cst = left->IsCT && right->IsCT;
+	ZClass* e = &ass.Classes[t];
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = OpNode::opBitXor;
+
+	node->IsCT = cst;
+	node->SetType(e);
+	node->DblVal = 0;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
+
+Node* IRGenerator::opLog(Node* left, Node* right, OpNode::Type op) {
+	bool valid = left->Class == ass.CBool && right->Class == ass.CBool;
+	if (valid == false)
+		return NULL;
+
+	bool cst = left->IsCT && right->IsCT;
+	bool b;
+
+	OpNode* node = opNodes.Get();
+
+	node->OpA = left;
+	node->OpB = right;
+	node->Op = op;
+
+	node->IsConst = cst;
+	node->IsCT = cst;
+	node->SetType(ass.CBool);
+	node->IntVal = b;
+	
+	ASSERT(node->Class);
+	
+	return node;
+}
 
 }

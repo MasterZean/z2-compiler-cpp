@@ -56,7 +56,7 @@ public:
 	void fillSignedTypeInfo(int64 l, Node* node, ZClass* cls = nullptr);
 	void fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls = nullptr);
 
-	ConstNode* constIntSigned(int64 l, int base = 10, ZClass* cls = nullptr);
+	ConstNode* constIntSigned(int64 l, int base, ZClass* cls = nullptr);
 	
 	ConstNode* constIntSigned(int64 l, ZClass* cls = nullptr) {
 		return constIntSigned(l, 10, cls);
@@ -93,6 +93,17 @@ public:
 	
 	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble);
 	Node* opRelCT(Node* left, Node* right, OpNode::Type op, ZClass* e);
+	
+	Node* opBitAnd(Node* left, Node* right);
+	Node* opBitOr(Node* left, Node* right);
+	Node* opBitXor(Node* left, Node* right);
+	
+	Node* opBitAndCT(Node* left, Node* right, ZClass* e);
+	Node* opBitOrCT(Node* left, Node* right, ZClass* e);
+	Node* opBitXorCT(Node* left, Node* right, ZClass* e);
+	
+	Node* opLog(Node* left, Node* right, OpNode::Type op);
+	Node* opLogCT(Node* left, Node* right, OpNode::Type op);
 	
 	CallNode* call(Overload& over);
 	RetNode* ret(Node* value = nullptr);
