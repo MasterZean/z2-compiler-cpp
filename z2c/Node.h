@@ -199,7 +199,6 @@ public:
 	Node* RS = nullptr;
 	
 	OpNode::Type Op = OpNode::opNotSet;
-	char Op1 = 0;
 	
 	AssignNode() {
 		NT = NodeType::Assign;

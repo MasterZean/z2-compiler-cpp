@@ -1,8 +1,7 @@
 #include "CppNodeWalker.h"
+#include "tables.h"
 
 namespace Z2 {
-	
-extern String opss[];
 
 void CppNodeWalker::Walk(Node* node) {
 	ASSERT_(node, "Null node");
@@ -304,7 +303,7 @@ void CppNodeWalker::WalkNode(BlockNode& node) {
 void CppNodeWalker::WalkNode(OpNode& node) {
 	Walk(node.OpA);
 	
-	stream << ' ' << opss[node.Op] << ' ';
+	stream << ' ' << TabOpString[node.Op] << ' ';
 
 	Walk(node.OpB);
 }
@@ -332,9 +331,8 @@ void CppNodeWalker::WalkNode(AssignNode& node) {
 	Walk(node.LS);
 	
 	stream << " ";
-	
-	if (node.Op1)
-		stream << node.Op1;
+	if (node.Op != OpNode::opNotSet)
+		stream << TabOpString[node.Op];
 	stream << "= ";
 	
 	Walk(node.RS);

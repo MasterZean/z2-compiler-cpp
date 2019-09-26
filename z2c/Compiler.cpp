@@ -255,10 +255,53 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			}
 			else if (parser.Char2('+', '=')) {
 				parser.WSCurrentLine();
-				
 				Node* rs = CompileExpression(conCls, &conOver, parser);
-				
-				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opAdd, '+');
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opAdd);
+			}
+			else if (parser.Char2('-', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opSub);
+			}
+			else if (parser.Char2('*', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opMul);
+			}
+			else if (parser.Char2('/', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opDiv);
+			}
+			else if (parser.Char2('%', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opMod);
+			}
+			else if (parser.Char3('<', '<', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opShl);
+			}
+			else if (parser.Char3('>', '>', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opShr);
+			}
+			else if (parser.Char2('&', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opBitAnd);
+			}
+			else if (parser.Char2('^', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opBitXor);
+			}
+			else if (parser.Char2('|', '=')) {
+				parser.WSCurrentLine();
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opBitOr);
 			}
 		}
 			
@@ -314,22 +357,10 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	return valid;
 }
 
-Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, Node* rs, OpNode::Type op, char op1, char op2) {
-	/*if (node->LValue == false) {
-		if (node->NT == NodeType::Property) {
-			PropertyNode* prop = (PropertyNode*)(node);
-			
-			return ResolveAssignment(conCls, conDef, node, rs, p, op);
-		}
-		else
-			parser.Error(p, "left side of assignment is not a L-value");
-	}*/
+Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, Node* rs, OpNode::Type op) {
 	Node* test = irg.op(exp, rs, op, p);
-	if (!test) {
-		String ss;
-		ss << op1 << op2;
-		ErrorReporter::IncompatOperands(conCls.Name, p, ss, exp->Class->Name, rs->Class->Name);
-	}
+	if (!test)
+		ErrorReporter::IncompatOperands(conCls.Name, p, TabOpString[op], exp->Class->Name, rs->Class->Name);
 	
 	if (!CanAssign(exp->Class, rs))
 		ErrorReporter::CantAssign(conCls.Name, p, exp->Class->Name, rs->Class->Name);
@@ -340,15 +371,6 @@ Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, N
 	
 	AssignNode* node = irg.assign(exp, rs);
 	node->Op = op;
-	node->Op1 = op1;
-	
-	//oper->Assign = true;
-	/*if (op2) {
-		oper->op2 = op2;
-		oper->op3 = '=';
-	}
-	else
-		oper->op2 = '=';*/
 	
 	return node;
 }

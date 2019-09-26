@@ -2,8 +2,6 @@ uses
 	Core;
 
 file
-	Assembly.h,
-	Assembly.cpp,
 	Compiler.h,
 	Compiler.cpp,
 	Compiler_Expression.cpp,
@@ -16,18 +14,20 @@ file
 	NodeRunner.cpp,
 	CppNodeWalker.h,
 	CppNodeWalker.cpp,
+	Assembly.h,
+	Assembly.cpp,
 	ZParser.h,
 	ZParser.cpp,
 	ErrorReporter.h,
 	ErrorReporter.cpp,
-	StopWatch.h,
-	tables.h,
-	tables.cpp,
 	CommandLine.h,
 	CommandLine.cpp,
 	BuildMethod.h,
 	BuildMethod.cpp,
-	z2c.cpp;
+	z2c.cpp,
+	StopWatch.h,
+	tables.h,
+	tables.cpp;
 
 mainconfig
 	"" = "";

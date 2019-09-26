@@ -156,7 +156,6 @@ void NodeRunner::WriteValue(Node* node) {
 }
 
 Node* NodeRunner::ExecuteNode(ConstNode& node) {
-	DUMP(node.IntVal);
 	return &node;
 }
 
@@ -165,7 +164,6 @@ Node* NodeRunner::ExecuteNode(BlockNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(VarNode& node) {
-	DUMP(node.Var->Name);
 	node.Var->Value = Execute(node.Var->Value);
 	return node.Var->Value;
 }
@@ -260,16 +258,15 @@ Node* NodeRunner::ExecuteNode(RetNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(AssignNode& node) {
-	//Execute(node.LS);
 	if (node.LS->NT == NodeType::Memory) {
-		MemNode& var = (MemNode&)node;
-		
+		Variable& var = *((MemNode&)*node.LS).Var;
+		Node* l = Execute(node.LS);
 		if (node.Op == OpNode::opNotSet)
-			var.Var->Value = Execute(node.RS);
+			var.Value = Execute(node.RS);
 		else
-			var.Var->Value = Execute(irg.op(Execute(node.LS), Execute(node.RS), node.Op, Point(0, 0)));
+			var.Value = Execute(irg.op(Execute(node.LS), Execute(node.RS), node.Op, Point(0, 0)));
 		
-		return var.Var->Value;
+		return var.Value;
 	}
 	
 	return nullptr;

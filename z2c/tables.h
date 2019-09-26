@@ -17,6 +17,8 @@ extern char tab2[];
 extern char tab3[];
 extern String ops[];
 
+extern String TabOpString[];
+
 }
 
 #endif

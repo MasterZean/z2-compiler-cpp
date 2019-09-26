@@ -1,11 +1,11 @@
 #include "Compiler.h"
 #include "ErrorReporter.h"
+#include "tables.h"
 
 namespace Z2 {
 
 String strops[] = { "@add", "@sub", "@mul", "@div", "@mod", "@shl", "@shr", "@less", "@lesseq", "@more", "@moreeq", "@eq", "@neq", "@minus", "@plus", "@not", "@bitnot" };
 String ops[]    = { "add",  "sub",  "mul",  "div",  "mod",  "shl",  "shr",  "less",  "lseq",    "more",  "mreq",    "eq",  "neq", "band", "bxor", "bor",  "land", "lor"  };
-String opss[]   = { "+",    "-",    "*",    "/",    "%",    "<<",   ">>",   "<",     "<=",      ">",     ">=",      "==",  "!=",  "&",    "^",    "|",    "&&",   "|| "  , "=",  "+",   "-",  "!",   "~",   "++", "--", "?"  };
 
 Node* Compiler::ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* left = ParseAtom(conCls, conOver, parser);
@@ -70,7 +70,7 @@ Node* Compiler::ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int
 		
 		Node* r = irg.op(left, right, OpNode::Type(op), opp);
 		if (r == nullptr)
-			ErrorReporter::IncompatOperands(conCls.Name, opp, opss[op], left->Class->Name, right->Class->Name);
+			ErrorReporter::IncompatOperands(conCls.Name, opp, TabOpString[op], left->Class->Name, right->Class->Name);
 		
 		ASSERT(r->Class);
 		left = r;
