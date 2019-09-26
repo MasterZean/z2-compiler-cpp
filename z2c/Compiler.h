@@ -73,6 +73,10 @@ public:
 	
 	bool PrintErrors = true;
 	
+	static String GetName() {
+		return "";
+	}
+	
 private:
 	Assembly& ass;
 	IRGenerator irg;
