@@ -16,10 +16,10 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	main.BackendName = "_main";
 	
 	Overload& tempOver = main.AddOverload();
-	tempOver.EntryPoint = tempParser.GetPos();
+	tempOver.EntryPos = tempParser.GetPos();
 	tempOver.Return = ass.CVoid;
 	
-	tempParser.SetPos(tempOver.EntryPoint);
+	tempParser.SetPos(tempOver.EntryPos);
 	
 	CompileOverload(tempOver, tempParser);
 	
@@ -36,16 +36,12 @@ ZClass* Compiler::CompileSource(const String& snip) {
 	ZParser tempParser(snip);
 	tempParser.Path = tempClass.Name;
 	
-	CompileSource(tempClass, tempParser);
+	CompileSourceLoop(tempClass, tempParser);
 	
 	return &tempClass;
 }
 
-bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
-	return CompileBlock(overload.OwnerClass, overload, parser, 1);
-}
-
-bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
+bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 	bool valid = true;
 	
 	while (!parser.IsChar('}')) {
@@ -55,35 +51,37 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 			
 			if (parser.Id("val"))
 				CompileVar(conCls, nullptr, parser);
-			else if (parser.Id("def")) {
+			else if (parser.Id("def") || parser.Id("func")) {
 				parser.WSCurrentLine();
+				
+				Point p = parser.GetPoint();
 				String name = parser.ExpectZId();
-				parser.WSCurrentLine();
-				parser.Expect('(');
-				parser.WSCurrentLine();
-				parser.Expect(')');
-				parser.WSCurrentLine();
-				
-				ZClass* ret = ass.CVoid;
-				if (parser.Char(':')) {
-					parser.WSCurrentLine();
-					ret = GetClass(conCls, parser.GetPoint(), parser.ExpectZId());
-					parser.WSCurrentLine();
-				}
-				
-				parser.Expect('{');
-				parser.WS();
 				
 				int i = conCls.Methods.Find(name);
 				ASSERT(i != -1);
 				
-				Overload& tempOver = conCls.Methods[i].Overloads[0];
-				tempOver.EntryPoint = parser.GetPos();
-				tempOver.Return = ret;
+				Method& m = conCls.Methods[i];
 				
-				postOverloads.Add(&tempOver);
+				i = -1;
+				for (int j = 0; j < m.Overloads.GetCount(); j++)  {
+					if (m.Overloads[j].NamePoint == p) {
+						i = j;
+						break;
+					}
+				}
+				ASSERT(i != -1);
 				
-				CompileOverload(tempOver, parser);
+				Overload& over = m.Overloads[i];
+				
+				BuildSignature(conCls, over, parser);
+				parser.Expect('{');
+				parser.WS();
+								
+				over.EntryPos = parser.GetPos();
+
+				postOverloads.Add(&over);
+				
+				CompileOverload(over, parser);
 				
 				checkEnd = false;
 			}
@@ -147,27 +145,8 @@ bool Compiler::CompileSource(ZClass& conCls, ZParser& parser) {
 	return valid;
 }
 
-void Compiler::BuildSignature(ZClass& conCls, Overload& over) {
-	ZParser parser;
-	parser.SetPos(over.ParamPoint);
-	
-	parser.WSCurrentLine();
-	parser.Expect('(');
-	parser.WSCurrentLine();
-	parser.Expect(')');
-	parser.WSCurrentLine();
-	
-	ZClass* ret = ass.CVoid;
-	if (parser.Char(':')) {
-		parser.WSCurrentLine();
-		ret = GetClass(conCls, parser.GetPoint(), parser.ExpectZId());
-		parser.WSCurrentLine();
-	}
-	
-	over.Return = ret;
-	over.IsScanned = true;
-	
-	ASSERT(over.Return);
+bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
+	return CompileBlock(overload.OwnerClass, overload, parser, 1);
 }
 
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
@@ -440,7 +419,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	
 	Variable& v = conOver ? conOver->AddVariable() : conCls.AddVariable(varName);
 	v.Name = varName;
-	v.SourcePos = ptName;
+	v.SourcePoint = ptName;
 	v.Value = value;
 	v.Class = varClass;
 	v.MIsMember = conOver == nullptr;
@@ -513,7 +492,7 @@ bool Compiler::CanAssign(ZClass* cls, Node* n) {
 
 void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p) {
 	if (conCls.Name == varName)
-		ErrorReporter::Dup(conCls.Name, p, conOver->SourcePos, varName);
+		ErrorReporter::Dup(conCls.Name, p, conOver->SourcePoint, varName);
 		
 	for (int i = 0; i < conCls.Variables.GetCount(); i++)
 		if (conCls.Variables[i].Name == varName)
@@ -521,18 +500,45 @@ void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& va
 		
 	if (conOver) {
 		if (conOver->OwnerMethod.Name == varName)
-			ErrorReporter::Dup(conCls.Name, p, conOver->SourcePos, varName);
+			ErrorReporter::Dup(conCls.Name, p, conOver->SourcePoint, varName);
 		
 		for (int i = 0; i < conOver->Params.GetCount(); i++)
 			if (conOver->Params[i].Name == varName)
-				ErrorReporter::Dup(conCls.Name, p, conOver->Params[i].SourcePos, varName);
+				ErrorReporter::Dup(conCls.Name, p, conOver->Params[i].SourcePoint, varName);
 	
 		for (int j = 0; j < conOver->Blocks.GetCount(); j++)
 			for (int k = 0; k < conOver->Blocks[j].Variables.GetCount(); k++) {
 				if (conOver->Blocks[j].Variables[k]->Name == varName)
-					ErrorReporter::Dup(conCls.Name, p, conOver->Blocks[j].Variables[k]->SourcePos, varName);
+					ErrorReporter::Dup(conCls.Name, p, conOver->Blocks[j].Variables[k]->SourcePoint, varName);
 			}
 	}
+}
+
+void Compiler::BuildSignature(ZClass& conCls, Overload& over) {
+	ZParser parser;
+	parser.SetPos(over.ParamPos);
+	
+	BuildSignature(conCls, over, parser);
+}
+
+void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
+	parser.WSCurrentLine();
+	parser.Expect('(');
+	parser.WSCurrentLine();
+	parser.Expect(')');
+	parser.WSCurrentLine();
+	
+	ZClass* ret = ass.CVoid;
+	if (parser.Char(':')) {
+		parser.WSCurrentLine();
+		ret = GetClass(conCls, parser.GetPoint(), parser.ExpectZId());
+		parser.WSCurrentLine();
+	}
+	
+	over.Return = ret;
+	over.IsScanned = true;
+	
+	ASSERT(over.Return);
 }
 
 ZClass* Compiler::GetClass(ZClass& conCls, const Point& p, const String& name) {
@@ -578,7 +584,7 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 	// TODO: rewrite for performance
 	
 	while (!parser.IsEof()) {
-		if (parser.Id("def")) {
+		if (parser.Id("def") || parser.Id("func")) {
 			parser.Spaces();
 			
 			Point p = parser.GetPoint();
@@ -595,7 +601,8 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 					main.BackendName = name;
 				
 				main.AddOverload();
-				main.Overloads.Top().ParamPoint = parser.GetPos();
+				main.Overloads.Top().ParamPos = parser.GetPos();
+				main.Overloads.Top().NamePoint = p;
 			}
 			else
 				ScanToken(parser);

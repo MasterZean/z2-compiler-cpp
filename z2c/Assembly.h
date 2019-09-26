@@ -17,7 +17,7 @@ class Method;
 class Variable: Moveable<Variable> {
 public:
 	String Name;
-	Point SourcePos = Point(-1, -1);
+	Point SourcePoint = Point(-1, -1);
 	
 	bool MIsMember = false;
 	
@@ -81,9 +81,11 @@ public:
 	ZClass& OwnerClass;
 	Method& OwnerMethod;
 	
-	ZParser::Pos EntryPoint;
-	ZParser::Pos ParamPoint;
-	Point SourcePos = Point(-1, -1);
+	ZParser::Pos EntryPos;
+	ZParser::Pos ParamPos;
+	
+	Point NamePoint = Point(-1, -1);
+	Point SourcePoint = Point(-1, -1);
 	
 	bool IsDestructor = false;
 	bool IsVirtual = false;

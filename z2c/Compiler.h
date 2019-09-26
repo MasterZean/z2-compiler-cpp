@@ -28,9 +28,10 @@ public:
 	Overload* CompileSnip(const String& snip);
 	
 	ZClass* CompileSource(const String& snip);
-	bool CompileSource(ZClass& conCls, ZParser& parser);
+	bool CompileSourceLoop(ZClass& conCls, ZParser& parser);
 	
 	void BuildSignature(ZClass& conCls, Overload& over);
+	void BuildSignature(ZClass& conCls, Overload& over, ZParser& parser);
 	
 	bool CompileOverload(Overload& overload, ZParser& parser);
 	
@@ -87,6 +88,7 @@ private:
 	Vector<Overload*> postOverloads;
 		
 	int GetPriority(CParser& parser, int& op, bool& opc);
+	void getParams(Vector<Node*>& params, ZClass& cls, Overload* def, ZParser& parser, char end = ')');
 	
 	static Point OPS[256];
 	static bool OPCONT[256];

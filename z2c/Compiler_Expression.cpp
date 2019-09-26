@@ -143,8 +143,8 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 	int i = conCls.Methods.Find(s);
 	if (i != -1) {
 		parser.Expect('(');
-		parser.Expect(')');
-		parser.WSCurrentLine();
+		Vector<Node*> params;
+		getParams(params, conCls, conOver, parser);
 			
 		Method& m = conCls.Methods[i];
 		
@@ -219,6 +219,23 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		
 		return irg.cast(exp, &cls);
 	}
+}
+
+void Compiler::getParams(Vector<Node*>& params, ZClass& conCls, Overload* conOver, ZParser& parser, char end) {
+	while (!parser.IsChar(end)) {
+		params.Add(CompileExpression(conCls, conOver, parser));
+		
+		if (parser.IsChar(end))
+		    break;
+		
+		if (parser.IsChar(',')) {
+			parser.Char(',');
+			parser.WS();
+		}
+	}
+	
+	parser.Expect(end);
+	parser.WSCurrentLine();
 }
 
 int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {
