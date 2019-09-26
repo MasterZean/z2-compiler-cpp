@@ -1,0 +1,13 @@
+false == true
+false == 1s8
+false == 1u8
+false == 1s16
+false == 1u16
+false == 1
+false == 1u
+false == 1l
+false == 1ul
+false == 1.0f
+false == 1.0
+false == '\u000001'
+false == 1p

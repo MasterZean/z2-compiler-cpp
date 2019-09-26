@@ -235,8 +235,6 @@ VarNode* IRGenerator::defineLocalVar(Variable& v) {
 	var->SetType(v.Class);
 	var->HasSe = true;
 	
-	var->IsAddressable = true;
-	
 	ASSERT(var->Class);
 	
 	return var;
@@ -254,6 +252,19 @@ MemNode* IRGenerator::mem(Variable& v) {
 	ASSERT(var->Class);
 	
 	return var;
+}
+
+AssignNode* IRGenerator::assign(Node* ls, Node* rs) {
+	AssignNode* node = assNodes.Get();
+	
+	node->LS = ls;
+	node->RS = rs;
+	node->SetType(ass.CVoid);
+	node->HasSe = true;
+	
+	ASSERT(node->Class);
+	
+	return node;
 }
 
 BlockNode* IRGenerator::openBlock() {

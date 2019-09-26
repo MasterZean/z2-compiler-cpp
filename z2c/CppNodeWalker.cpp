@@ -17,6 +17,8 @@ void CppNodeWalker::Walk(Node* node) {
 		WalkNode(*(MemNode*)node);
 	else if (node->NT == NodeType::Cast)
 		WalkNode(*(CastNode*)node);
+	else if (node->NT == NodeType::Assign)
+		WalkNode(*(AssignNode*)node);
 	/*else if (node->NT == NodeType::Temporary)
 		Walk((TempNode*)node);*/
 	else if (node->NT == NodeType::Call)
@@ -324,6 +326,18 @@ void CppNodeWalker::WalkNode(RetNode& node) {
 		stream << " ";
 		Walk(node.Value);
 	}
+}
+
+void CppNodeWalker::WalkNode(AssignNode& node) {
+	Walk(node.LS);
+	
+	stream << " ";
+	
+	if (node.Op1)
+		stream << node.Op1;
+	stream << "= ";
+	
+	Walk(node.RS);
 }
 
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {

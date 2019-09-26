@@ -144,6 +144,14 @@ void ErrorReporter::CantAssign(const String& path, const Point& p, const String&
 	Error(path, p, "can't assign '\f" + c2 + "\f' instance to '\f" + c1 + "\f' instance");
 }
 
+void ErrorReporter::AssignNotLValue(const String& path, const Point& p) {
+	Error(path, p, "left hand side of the assignment is not a L-value");
+}
+
+void ErrorReporter::AssignConst(const String& path, const Point& p, const String& c) {
+	Error(path, p, "can't assign to const '\f" + c + "\f' instance");
+}
+
 void ErrorReporter::CantCreateClassVar(const String& path, const Point& p, const String& c) {
 	Error(path, p, "can't create variable of type '\f" + c + "\f'");
 }
@@ -157,9 +165,3 @@ void ErrorReporter::IncompatOperands(const String& path, const Point& p, const S
 }
 
 }
-
-
-
-
-
-

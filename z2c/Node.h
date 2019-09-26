@@ -20,12 +20,13 @@ public:
 		Invalid,
 		Const,
 		BinaryOp,
-		UnaryOp,
+		//UnaryOp,
 		Memory,
+		Assign,
 		Cast,
-		Temporary,
+		//Temporary,
 		Call,
-		List,
+		/*List,
 		Construct,
 		Ptr,
 		Index,
@@ -33,11 +34,11 @@ public:
 		Destruct,
 		Property,
 		Deref,
-		Intrinsic,
+		Intrinsic,*/
 		Return,
 		Var,
-		Alloc,
-		Array,
+		/*Alloc,
+		Array,*/
 		Using,
 		Block,
 	};
@@ -189,6 +190,19 @@ public:
 	
 	RetNode() {
 		NT = NodeType::Return;
+	}
+};
+
+class AssignNode: public Node {
+public:
+	Node* LS = nullptr;
+	Node* RS = nullptr;
+	
+	OpNode::Type Op = OpNode::opNotSet;
+	char Op1 = 0;
+	
+	AssignNode() {
+		NT = NodeType::Assign;
 	}
 };
 

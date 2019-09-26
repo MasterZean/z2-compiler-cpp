@@ -13,6 +13,8 @@ Node* NodeRunner::Execute(Node* node) {
 		Walk((UnaryOpNode*)node);*/
 	else if (node->NT == NodeType::Memory)
 		return ExecuteNode(*(MemNode*)node);
+	else if (node->NT == NodeType::Assign)
+		return ExecuteNode(*(AssignNode*)node);
 	else if (node->NT == NodeType::Cast)
 		return ExecuteNode(*(CastNode*)node);
 	/*else if (node->NT == NodeType::Temporary)
@@ -147,6 +149,7 @@ void NodeRunner::WriteValue(Node* node) {
 }
 
 Node* NodeRunner::ExecuteNode(ConstNode& node) {
+	DUMP(node.IntVal);
 	return &node;
 }
 
@@ -155,6 +158,7 @@ Node* NodeRunner::ExecuteNode(BlockNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(VarNode& node) {
+	DUMP(node.Var->Name);
 	node.Var->Value = Execute(node.Var->Value);
 	return node.Var->Value;
 }
@@ -200,6 +204,7 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(MemNode& node) {
+	DUMP(node.Var->Value);
 	return Execute(node.Var->Value);
 }
 
@@ -230,6 +235,22 @@ Node* NodeRunner::ExecuteNode(CallNode& node) {
 Node* NodeRunner::ExecuteNode(RetNode& node) {
 	if (node.Value)
 		return Execute(node.Value);
+	
+	return nullptr;
+}
+
+Node* NodeRunner::ExecuteNode(AssignNode& node) {
+	//Execute(node.LS);
+	if (node.LS->NT == NodeType::Memory) {
+		MemNode& var = (MemNode&)node;
+		
+		if (node.Op == OpNode::opNotSet)
+			var.Var->Value = Execute(node.RS);
+		else
+			var.Var->Value = Execute(irg.op(Execute(node.LS), Execute(node.RS), node.Op, Point(0, 0)));
+		
+		return var.Var->Value;
+	}
 	
 	return nullptr;
 }

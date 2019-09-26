@@ -5,10 +5,15 @@ val b = 0
 val c = 1
 
 def f() {
-	val a = f1()
+	val tt = 0
+	tt = 40
+	tt = 60
+	tt += 50
+	7 + 20 = 67
+	val a = f1() < 5
 	+1
-	val b = f2()
-	val c = f3()
+	val b = f2() | 0b10000
+	val c = f3() > 10 && true
 
 	g()
 
@@ -22,6 +27,8 @@ def g() {
 	val a = ::a
 	val b = ::b
 	val h = 10
+	a = -20
+	a = -40
 	h
 	::h()
 
@@ -58,3 +65,5 @@ def f3(): Long {
 
 val d = 2
 val e = 3
+
+

@@ -85,6 +85,8 @@ public:
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
 	
+	AssignNode* assign(Node* ls, Node* rs);
+	
 	Node* op(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opArit(Node* left, Node* right, OpNode::Type op, const Point& p);
 	Node* opShl(Node* left, Node* right, const Point& p);
@@ -108,6 +110,7 @@ private:
 	NodePool<CastNode> castNodes;
 	NodePool<CallNode> callNodes;
 	NodePool<RetNode> retNodes;
+	NodePool<AssignNode> assNodes;
 };
 
 }

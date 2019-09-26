@@ -139,6 +139,8 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/12-shr/08-long"));
 	RunSuite(GetDataFile("tests/12-shr/09-qword"));
 	
+	RunSuite(GetDataFile("tests/13-eq/01-bool"));
+	
 	DUMP(ext);
 		
 	if (attemptedTests > 0 && failledTests != 0)

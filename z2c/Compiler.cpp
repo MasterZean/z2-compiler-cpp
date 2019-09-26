@@ -223,13 +223,44 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 				exp = irg.ret();
 			else {
 				parser.WSCurrentLine();
-				exp = irg.ret(CompileExpression(conCls, &conOver, parser));
+				Point ptRet = parser.GetPoint();
+				Node* retVal = CompileExpression(conCls, &conOver, parser);
+				exp = irg.ret(retVal);
+				
+				if (!CanAssign(conOver.Return, retVal))
+					ErrorReporter::CantAssign(conCls.Name, ptRet, conOver.Return->Name, retVal->Class->Name);
 			}
 			
 			returned = true;
 		}
-		else
+		else {
 			exp = CompileExpression(conCls, &conOver, parser);
+			parser.WSCurrentLine();
+			
+			Point ptEq = parser.GetPoint();
+			
+			if (parser.Char('=')) {
+				parser.WSCurrentLine();
+				
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				
+				if (!CanAssign(exp->Class, rs))
+					ErrorReporter::CantAssign(conCls.Name, ptEq, exp->Class->Name, rs->Class->Name);
+				if (!exp->IsAddressable)
+					ErrorReporter::AssignNotLValue(conCls.Name, ptEq);
+				if (exp->IsConst)
+					ErrorReporter::AssignConst(conCls.Name, ptEq, exp->Class->Name);
+				
+				exp = irg.assign(exp, rs);
+			}
+			else if (parser.Char2('+', '=')) {
+				parser.WSCurrentLine();
+				
+				Node* rs = CompileExpression(conCls, &conOver, parser);
+				
+				exp = AssignOp(conCls, conOver, ptEq, exp, rs, OpNode::opAdd, '+');
+			}
+		}
 			
 		// end statement
 		if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
@@ -281,6 +312,45 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	}
 	
 	return valid;
+}
+
+Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, Node* rs, OpNode::Type op, char op1, char op2) {
+	/*if (node->LValue == false) {
+		if (node->NT == NodeType::Property) {
+			PropertyNode* prop = (PropertyNode*)(node);
+			
+			return ResolveAssignment(conCls, conDef, node, rs, p, op);
+		}
+		else
+			parser.Error(p, "left side of assignment is not a L-value");
+	}*/
+	Node* test = irg.op(exp, rs, op, p);
+	if (!test) {
+		String ss;
+		ss << op1 << op2;
+		ErrorReporter::IncompatOperands(conCls.Name, p, ss, exp->Class->Name, rs->Class->Name);
+	}
+	
+	if (!CanAssign(exp->Class, rs))
+		ErrorReporter::CantAssign(conCls.Name, p, exp->Class->Name, rs->Class->Name);
+	if (!exp->IsAddressable)
+		ErrorReporter::AssignNotLValue(conCls.Name, p);
+	if (exp->IsConst)
+		ErrorReporter::AssignConst(conCls.Name, p, exp->Class->Name);
+	
+	AssignNode* node = irg.assign(exp, rs);
+	node->Op = op;
+	node->Op1 = op1;
+	
+	//oper->Assign = true;
+	/*if (op2) {
+		oper->op2 = op2;
+		oper->op3 = '=';
+	}
+	else
+		oper->op2 = '=';*/
+	
+	return node;
 }
 
 Node* Compiler::CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {

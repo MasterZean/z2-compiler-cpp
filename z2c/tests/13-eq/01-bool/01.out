@@ -1,0 +1,13 @@
+true == true;
+true == 1;
+true == 1u;
+true == 1;
+true == 1u;
+true == 1;
+true == 1u;
+true == 1ll;
+true == 1ull;
+true == 1.0f;
+true == 1.0;
+true == '\x001';
+true == 1u;

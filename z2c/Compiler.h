@@ -59,6 +59,8 @@ public:
 		return ss.GetResult();
 	}
 	
+	Node* AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* node, Node* rs, OpNode::Type op, char op1, char op2 = 0);
+	
 	ZClass* GetClass(ZClass& conCls, const Point& p, const String& name);
 	ZClass* GetClass(const String& name);
 	

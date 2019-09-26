@@ -86,7 +86,7 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		exp = irg.constBool(true);
 	else if (parser.Id("false"))
 		exp = irg.constBool(false);
-	else if (parser.IsZId() || parser.IsChar('@'))
+	else if (parser.IsZId())
 		exp = ParseId(conCls, conOver, conOver, parser);
 	else if (parser.IsCharConst()) {
 		Point p = parser.GetPoint();
@@ -122,15 +122,10 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 }
 
 Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser) {
-	String s;
-	
 	Point p = parser.GetPoint();
+	String s = parser.ReadZId();
 	
-	if (parser.Char('@'))
-		s = "@" + parser.ExpectZId();
-	else
-		s = parser.ExpectZId();
-
+	// local variables and parameters
 	if (searchOver != nullptr) {
 		for (int j = 0; j < searchOver->Params.GetCount(); j++) {
 			if (searchOver->Params[j].Name == s)
@@ -251,7 +246,8 @@ int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {
 		return -1;
 	if (parser.IsChar2('|', '='))
 		return -1;
-	else if (parser.IsChar2('<', '<'))
+	
+	if (parser.IsChar2('<', '<'))
 		p = Point( 5, 210 - 20);
 	else if (parser.IsChar2('>', '>'))
 		p = Point( 6, 210 - 20);

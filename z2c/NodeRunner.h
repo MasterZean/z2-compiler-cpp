@@ -29,6 +29,7 @@ public:
 	Node* ExecuteNode(CastNode& node);
 	Node* ExecuteNode(CallNode& node);
 	Node* ExecuteNode(RetNode& node);
+	Node* ExecuteNode(AssignNode& node);
 	
 	void WriteValue(Node* node);
 	
