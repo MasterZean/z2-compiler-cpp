@@ -18,6 +18,8 @@ file
 	Assembly.cpp,
 	ZParser.h,
 	ZParser.cpp,
+	OverloadResolver.h,
+	OverloadResolver.cpp,
 	ErrorReporter.h,
 	ErrorReporter.cpp,
 	CommandLine.h,

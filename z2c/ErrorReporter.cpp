@@ -1,4 +1,6 @@
 #include "ErrorReporter.h"
+#include "Assembly.h"
+#include "Node.h"
 
 namespace Z2 {
 	
@@ -163,5 +165,70 @@ void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 void ErrorReporter::IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2) {
 	Error(path, p, "can't apply operator '" + op + "' on types: " << NL << "\t\t'\f" + text + "\f' and " << NL << "\t\t'\f" + text2 + "\f'");
 }
+
+void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons) {
+	String s;
+	
+	if (cons) {
+		s << "Class '\f" << ci->Name << "\f' does not have a constructor" << NL << "\t\t";
+	}
+	else {
+		String z = ci->Name;
+		s << "Class '\f" << z << "\f' does not have an overload" << NL << "\t\t";
+		if (limit == 2)
+			s << "func ";
+		else if (limit == 1)
+			s << "def  ";
+		
+		if (def)
+			s << def->Name;
+		else
+			s << z;
+	}
+	
+	if (cons)
+		s << "{";
+	else
+		s << "(";
+	
+	for (int k = 0; k < params.GetCount(); k++) {
+		s << params[k]->Class->Name;
+		if (k < params.GetCount() - 1)
+			s << ", ";
+	}
+	
+	if (cons)
+		s << "}\n";
+	else
+		s << ")\n";
+	
+	//if (def && def->IsTemplate)
+	//	s << "Class \f" << ass.ClassToString(&i) <<"\f has an incompatible template '" << def->Name << "'";
+	//else if (def) {
+		s << "\texisting overloads" << NL;
+		for (int i = 0; i < def->Overloads.GetCount(); i++) {
+			Overload& ol = def->Overloads[i];
+			
+			//if (ol.IsDeleted)
+			//	continue;
+			
+			if (ol.IsCons == 1)
+				s << "\t\t" << "{" << ol.Signature << "}\n";
+			else if (ol.IsCons == 2)
+				s << "\t\t" << ol.Name() << "{" << ol.Signature << "}\n";
+			else {
+				s << "\t\t";
+				if (ol.IsConst)
+					s << "func ";
+				else
+					s << "def  ";
+				s << ol.Name() << "(" << ol.Signature << ")\n";
+			}
+		}
+	//}
+	
+	Error(path, p, s);
+}
+
 
 }

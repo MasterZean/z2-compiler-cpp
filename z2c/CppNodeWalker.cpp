@@ -373,7 +373,17 @@ bool CppNodeWalker::WriteReturnType(Overload &over) {
 
 void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
 	stream << over.OwnerMethod.BackendName;
-	stream << "()";
+	WriteParams(over);
+}
+
+void CppNodeWalker::WriteParams(Overload &over) {
+	stream << "(";
+	for (int i = 0; i < over.Params.GetCount(); i++) {
+		stream << over.Params[i].Class->BackendName  << " " << over.Params[i].Name;
+		if (i < over.Params.GetCount() - 1)
+			stream << ", ";
+	}
+	stream << ")";
 }
 
 void CppNodeWalker::WriteClassVars(ZClass& cls) {

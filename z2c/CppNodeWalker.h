@@ -83,6 +83,7 @@ public:
 	
 	bool WriteReturnType(Overload &over);
 	void WriteOverloadNameParams(Overload &over);
+	void WriteParams(Overload &over);
 	
 private:
 	Assembly& ass;

@@ -33,3 +33,8 @@ func f(a: Char) {
 func f(a: DWord, b: Char) {
 	
 }
+
+func f(a: Int, b: Int) {
+	
+}
+

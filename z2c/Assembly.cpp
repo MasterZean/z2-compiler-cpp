@@ -1,4 +1,6 @@
 #include "Assembly.h"
+#include "Node.h"
+#include "tables.h"
 
 namespace Z2 {
 	
@@ -41,6 +43,43 @@ ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, 
 	cls.MIndex = index;
 	
 	return &cls;
+}
+
+bool Assembly::CanAssign(ZClass* cls, Node* n) {
+	if (cls == CVoid || n->Class == CVoid)
+		return false;
+
+	//if (ass.IsPtr(Tt))
+	//	return y.Tt.Class == ass.CNull ||
+	//		(ass.IsPtr(y.Tt) && (y.Tt.Next->Class == Tt.Next->Class || Tt.Next->Class == ass.CVoid));
+
+	//if (isCt && Tt.Class == ass.CPtrSize && (y.Tt.Class == ass.CInt))
+	//	return true;
+
+	if (cls == n->Class)
+		return true;
+	
+	if (cls->MIsNumeric && n->Class->MIsNumeric) {
+		ASSERT(n->C1);
+		int t1 = cls->MIndex;
+		int t2 = n->C1->MIndex;
+		ASSERT(t1 >= 0 && t1 <= 13);
+		ASSERT(t2 >= 0 && t2 <= 13);
+		
+		if (TabCanAssign[t1][t2])
+			return true;
+		else {
+			if (n->C2 != NULL) {
+				t2 = n->C2->MIndex;
+				return TabCanAssign[t1][t2];
+			}
+			else
+				return false;
+		}
+	}
+
+	return false;
+	//return BaseExprParser::TypesEqualDeep(ass, &this->Tt, &y.Tt);
 }
 
 Method& ZClass::GetAddMethod(const String& name) {

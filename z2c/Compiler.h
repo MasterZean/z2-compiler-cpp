@@ -65,8 +65,6 @@ public:
 	ZClass* GetClass(ZClass& conCls, const Point& p, const String& name);
 	ZClass* GetClass(const String& name);
 	
-	bool CanAssign(ZClass* cls, Node* n);
-	
 	String GetErrors();
 	
 	void Scan(ZClass& conCls, ZParser& parser);

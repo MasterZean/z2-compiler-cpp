@@ -7,6 +7,11 @@ namespace Z2 {
 	
 using namespace Upp;
 
+class Assembly;
+class ZClass;
+class Method;
+class Node;
+
 class ZSyntaxError: Moveable<ZSyntaxError> {
 public:
 	String Path;
@@ -44,6 +49,8 @@ public:
 	static void AssignNotLValue(const String& path, const Point& p);
 	static void AssignConst(const String& path, const Point& p, const String& c);
 	static void CantCreateClassVar(const String& path, const Point& p, const String& c);
+	
+	static void CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons = false);
 	
 	static void DivisionByZero(const String& path, const Point& p);
 	static void IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2);

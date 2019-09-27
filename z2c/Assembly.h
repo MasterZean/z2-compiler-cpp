@@ -43,6 +43,7 @@ public:
 	String Name;
 	String Namespace;
 	String BackendName;
+	String ParamName;
 	
 	Point SourcePos = Point(-1, -1);
 	
@@ -89,9 +90,11 @@ public:
 	bool IsVirtual = false;
 	bool IsInline = false;
 	bool IsConst = false;
+	int  IsCons = 0;
 	
 	int MDecWritten = 0;
 	bool IsScanned = false;
+	int Score = 0;
 	
 	ZClass* Return;
 	
@@ -100,6 +103,7 @@ public:
 	
 	Array<Variable> Variables;
 	ArrayMap<String, Variable> Params;
+	VectorMap<String, ZClass*> TParam;
 	
 	WithDeepCopy<Array<Block>> Blocks;
 	
@@ -111,6 +115,14 @@ public:
 	
 	Variable& AddVariable() {
 		return Variables.Add();
+	}
+	
+	const String& Name() const {
+		return OwnerMethod.Name;
+	}
+	
+	const String& BackendName() const {
+		return OwnerMethod.BackendName;
 	}
 };
 
@@ -157,6 +169,8 @@ public:
 		return cls;
 	}
 
+	bool CanAssign(ZClass* cls, Node* n);
+		
 	ArrayMap<String, ZClass> Classes;
 };
 

@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "ErrorReporter.h"
+#include "OverloadResolver.h"
 #include "tables.h"
 
 namespace Z2 {
@@ -151,10 +152,16 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 			if (m.Overloads[i].IsScanned == false)
 				BuildSignature(conCls, m.Overloads[i]);
 		
-		if (conOver)
-			conOver->DepOver.Add(&m.Overloads[0]);
+		OverloadResolver res(ass);
+		Overload* found = res.Resolve(m, params, 0);
 		
-		return irg.call(m.Overloads[0]);
+		if (!found)
+			ErrorReporter::CantCall(conCls.Name, p, ass, &m.OwnerClass, &m, params, 2);
+		
+		if (conOver)
+			conOver->DepOver.Add(found);
+		
+		return irg.call(*found);
 	}
 	
 	i = conCls.Variables.Find(s);

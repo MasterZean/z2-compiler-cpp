@@ -206,7 +206,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 				Node* retVal = CompileExpression(conCls, &conOver, parser);
 				exp = irg.ret(retVal);
 				
-				if (!CanAssign(conOver.Return, retVal))
+				if (!ass.CanAssign(conOver.Return, retVal))
 					ErrorReporter::CantAssign(conCls.Name, ptRet, conOver.Return->Name, retVal->Class->Name);
 			}
 			
@@ -223,7 +223,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 				
 				Node* rs = CompileExpression(conCls, &conOver, parser);
 				
-				if (!CanAssign(exp->Class, rs))
+				if (!ass.CanAssign(exp->Class, rs))
 					ErrorReporter::CantAssign(conCls.Name, ptEq, exp->Class->Name, rs->Class->Name);
 				if (!exp->IsAddressable)
 					ErrorReporter::AssignNotLValue(conCls.Name, ptEq);
@@ -341,7 +341,7 @@ Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, N
 	if (!test)
 		ErrorReporter::IncompatOperands(conCls.Name, p, TabOpString[op], exp->Class->Name, rs->Class->Name);
 	
-	if (!CanAssign(exp->Class, rs))
+	if (!ass.CanAssign(exp->Class, rs))
 		ErrorReporter::CantAssign(conCls.Name, p, exp->Class->Name, rs->Class->Name);
 	if (!exp->IsAddressable)
 		ErrorReporter::AssignNotLValue(conCls.Name, p);
@@ -405,7 +405,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		ErrorReporter::CantCreateClassVar(conCls.Name, ptName, varClass->Name);
 	
 	if (varClass && value) {
-		if (!CanAssign(varClass, value))
+		if (!ass.CanAssign(varClass, value))
 			ErrorReporter::CantAssign(conCls.Name, ptEqual, varClass->Name, value->Class->Name);
 	}
 	else if (!value) {
@@ -453,43 +453,6 @@ Node* Compiler::GetVarDefault(ZClass* cls) {
 	}*/
 	
 	return nullptr;
-}
-
-bool Compiler::CanAssign(ZClass* cls, Node* n) {
-	if (cls == ass.CVoid || n->Class == ass.CVoid)
-		return false;
-
-	//if (ass.IsPtr(Tt))
-	//	return y.Tt.Class == ass.CNull ||
-	//		(ass.IsPtr(y.Tt) && (y.Tt.Next->Class == Tt.Next->Class || Tt.Next->Class == ass.CVoid));
-
-	//if (isCt && Tt.Class == ass.CPtrSize && (y.Tt.Class == ass.CInt))
-	//	return true;
-
-	if (cls == n->Class)
-		return true;
-	
-	if (cls->MIsNumeric && n->Class->MIsNumeric) {
-		ASSERT(n->C1);
-		int t1 = cls->MIndex;
-		int t2 = n->C1->MIndex;
-		ASSERT(t1 >= 0 && t1 <= 13);
-		ASSERT(t2 >= 0 && t2 <= 13);
-		
-		if (TabCanAssign[t1][t2])
-			return true;
-		else {
-			if (n->C2 != NULL) {
-				t2 = n->C2->MIndex;
-				return TabCanAssign[t1][t2];
-			}
-			else
-				return false;
-		}
-	}
-
-	return false;
-	//return BaseExprParser::TypesEqualDeep(ass, &this->Tt, &y.Tt);
 }
 
 void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p) {
