@@ -423,6 +423,8 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	v.Value = value;
 	v.Class = varClass;
 	v.MIsMember = conOver == nullptr;
+	if (conOver == nullptr)
+		v.OwnerClass = &conCls;
 	
 	if (conOver) {
 		conOver->Blocks.Top().AddVaribleRef(v);
@@ -522,11 +524,50 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over) {
 }
 
 void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
+	if (over.IsScanned) {
+		parser.SetPos(over.PostParamPos);
+		return;
+	}
+	
 	parser.WSCurrentLine();
 	parser.Expect('(');
 	parser.WSCurrentLine();
+	
+	while (!parser.IsChar(')')) {
+		String pname = parser.ExpectZId();
+		parser.WSCurrentLine();
+		parser.Expect(':');
+		parser.WSCurrentLine();
+		
+		Point tp = parser.GetPoint();
+		ZClass* pcls = GetClass(conCls, tp, parser.ExpectZId());
+		
+		Variable& var = over.Params.Add(pname);
+		var.Name = pname;
+		var.Class = pcls;
+		
+		if (over.Signature.GetCount())
+			over.Signature << ", ";
+		over.Signature << pcls->Name;
+		
+		if (over.BackSig.GetCount())
+			over.BackSig << ", ";
+		over.BackSig << pcls->BackendName;
+		
+		if (parser.IsChar(')'))
+		    break;
+		
+		if (parser.IsChar(',')) {
+			parser.Char(',');
+			parser.WS();
+		}
+	}
+	
 	parser.Expect(')');
 	parser.WSCurrentLine();
+	
+	LOG((over.IsConst ? "def " : "func ") + over.OwnerMethod.Name + "(" + over.Signature + ")" + " | " +
+	    (over.IsConst ? "def " : "func ") + over.OwnerMethod.BackendName + "(" + over.BackSig + ")");
 	
 	ZClass* ret = ass.CVoid;
 	if (parser.Char(':')) {
@@ -535,6 +576,7 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		parser.WSCurrentLine();
 	}
 	
+	over.PostParamPos = parser.GetPos();
 	over.Return = ret;
 	over.IsScanned = true;
 	
@@ -584,34 +626,40 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 	// TODO: rewrite for performance
 	
 	while (!parser.IsEof()) {
-		if (parser.Id("def") || parser.Id("func")) {
-			parser.Spaces();
-			
-			Point p = parser.GetPoint();
-			
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				
-				Method& main = conCls.GetAddMethod(name);
-				if (name[0] == '@') {
-					main.BackendName = "_";
-					main.BackendName << name.Mid(1);
-				}
-				else
-					main.BackendName = name;
-				
-				main.AddOverload();
-				main.Overloads.Top().ParamPos = parser.GetPos();
-				main.Overloads.Top().NamePoint = p;
-			}
-			else
-				ScanToken(parser);
-		}
+		if (parser.Id("def"))
+			ScanDef(conCls, parser, false);
+		else if (parser.Id("func"))
+			ScanDef(conCls, parser, true);
 		else
 			ScanToken(parser);
 	}
 }
 
+void Compiler::ScanDef(ZClass& conCls, ZParser& parser, bool ct) {
+	parser.Spaces();
+			
+	Point p = parser.GetPoint();
+	
+	if (parser.IsZId()) {
+		String name = parser.ReadZId();
+		
+		Method& main = conCls.GetAddMethod(name);
+		if (name[0] == '@') {
+			main.BackendName = "_";
+			main.BackendName << name.Mid(1);
+		}
+		else
+			main.BackendName = name;
+		
+		Overload& over = main.AddOverload();
+		over.ParamPos = parser.GetPos();
+		over.NamePoint = p;
+		over.IsConst = ct;
+	}
+	else
+		ScanToken(parser);
+}
+	
 // TODO: fix
 void Compiler::ScanToken(ZParser& parser) {
 	parser.WS();

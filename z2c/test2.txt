@@ -1,0 +1,35 @@
+def @main() {
+	val a = 60
+	a += 1
+	a += 2
+	a -= 10
+	a -= 20
+	6 *= 56
+	a /= 4
+	a *= 4
+	a %= 7
+	a <<= 3
+	a >>= 2
+
+	f(56, 67)
+}
+
+func f() {
+	a = 6
+}
+
+func f() {
+	7 = 7
+}
+
+func f(a: DWord) {
+	
+}
+
+func f(a: Char) {
+
+}
+
+func f(a: DWord, b: Char) {
+	
+}

@@ -203,6 +203,18 @@ CONSOLE_APP_MAIN {
 				cpp.NL();
 			
 			compiler.WriteOverload(cpp, o);
+			
+			for (int k = 0; k < i; k++) {
+				Overload& o2 = m.Overloads[k];
+				
+				try {
+					if (o.Signature == o2.Signature)
+						ErrorReporter::Dup(cls->Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name);
+				}
+				catch (ZSyntaxError& err) {
+					err.PrettyPrint(Cout());
+				}
+			}
 		}
 	}
 	

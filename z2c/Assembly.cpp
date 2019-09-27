@@ -56,7 +56,7 @@ Variable& ZClass::AddVariable(const String& name) {
 	int i = Variables.Find(name);
 	
 	if (i == -1)
-		return Variables.Add(name, Variable(*this));
+		return Variables.Add(name);
 	else
 		return Variables[i];
 }

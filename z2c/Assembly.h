@@ -21,12 +21,9 @@ public:
 	
 	bool MIsMember = false;
 	
-	ZClass& OwnerClass;
+	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
 	ZClass* Class = nullptr;
-	
-	Variable(ZClass& aClass): OwnerClass(aClass) {
-	}
 };
 
 class Block: Moveable<Block> {
@@ -83,6 +80,7 @@ public:
 	
 	ZParser::Pos EntryPos;
 	ZParser::Pos ParamPos;
+	ZParser::Pos PostParamPos;
 	
 	Point NamePoint = Point(-1, -1);
 	Point SourcePoint = Point(-1, -1);
@@ -90,14 +88,18 @@ public:
 	bool IsDestructor = false;
 	bool IsVirtual = false;
 	bool IsInline = false;
+	bool IsConst = false;
 	
 	int MDecWritten = 0;
 	bool IsScanned = false;
 	
 	ZClass* Return;
 	
+	String Signature;
+	String BackSig;
+	
 	Array<Variable> Variables;
-	Array<Variable> Params;
+	ArrayMap<String, Variable> Params;
 	
 	WithDeepCopy<Array<Block>> Blocks;
 	
@@ -108,7 +110,7 @@ public:
 	}
 	
 	Variable& AddVariable() {
-		return Variables.Add(Variable(OwnerClass));
+		return Variables.Add();
 	}
 };
 

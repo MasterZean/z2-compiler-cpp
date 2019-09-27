@@ -144,15 +144,15 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 	if (i != -1) {
 		parser.Expect('(');
 		Vector<Node*> params;
-		getParams(params, conCls, conOver, parser);
+		GetParams(params, conCls, conOver, parser);
 			
 		Method& m = conCls.Methods[i];
+		for (int i = 0; i < m.Overloads.GetCount(); i++)
+			if (m.Overloads[i].IsScanned == false)
+				BuildSignature(conCls, m.Overloads[i]);
 		
 		if (conOver)
 			conOver->DepOver.Add(&m.Overloads[0]);
-		
-		if (m.Overloads[0].IsScanned == false)
-			BuildSignature(conCls, m.Overloads[0]);
 		
 		return irg.call(m.Overloads[0]);
 	}
@@ -221,7 +221,7 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 	}
 }
 
-void Compiler::getParams(Vector<Node*>& params, ZClass& conCls, Overload* conOver, ZParser& parser, char end) {
+void Compiler::GetParams(Vector<Node*>& params, ZClass& conCls, Overload* conOver, ZParser& parser, char end) {
 	while (!parser.IsChar(end)) {
 		params.Add(CompileExpression(conCls, conOver, parser));
 		

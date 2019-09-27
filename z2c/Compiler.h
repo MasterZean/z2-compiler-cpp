@@ -70,6 +70,7 @@ public:
 	String GetErrors();
 	
 	void Scan(ZClass& conCls, ZParser& parser);
+	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
 	void ScanToken(ZParser& parser);
 	
 	bool PrintErrors = true;
@@ -88,7 +89,7 @@ private:
 	Vector<Overload*> postOverloads;
 		
 	int GetPriority(CParser& parser, int& op, bool& opc);
-	void getParams(Vector<Node*>& params, ZClass& cls, Overload* def, ZParser& parser, char end = ')');
+	void GetParams(Vector<Node*>& params, ZClass& cls, Overload* def, ZParser& parser, char end = ')');
 	
 	static Point OPS[256];
 	static bool OPCONT[256];

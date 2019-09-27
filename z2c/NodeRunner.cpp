@@ -222,7 +222,6 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(MemNode& node) {
-	DUMP(node.Var->Value);
 	return Execute(node.Var->Value);
 }
 
