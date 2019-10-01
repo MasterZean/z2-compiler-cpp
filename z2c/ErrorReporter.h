@@ -11,13 +11,16 @@ class Assembly;
 class ZClass;
 class Method;
 class Node;
+class Overload;
 
 class ZSyntaxError: Moveable<ZSyntaxError> {
 public:
 	String Path;
 	String Error;
+	Point  ErrorPoint;
+	Overload* Context;
 	
-	ZSyntaxError(const String& path, const String& error): Path(path), Error(error) {
+	ZSyntaxError(const String& path, const Point& p, const String& error): Path(path), ErrorPoint(p), Error(error) {
 	}
 	
 	void PrettyPrint(Stream& stream);

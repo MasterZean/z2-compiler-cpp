@@ -41,9 +41,33 @@ void ZSyntaxError::PrettyPrint(Stream& stream) {
 	
 #endif
 
+	if (Context) {
+		SetConsoleTextAttribute(hConsole, cWhite);
+		stream << Path;
+		stream << "(" << Context->NamePoint.x << ", " << Context->NamePoint.y << ")";
+		stream << ": ";
+				
+		stream << "context: ";
+		
+		SetConsoleTextAttribute(hConsole, m_currentConsoleAttr);
+		stream << "compiling method: ";
+		
+		SetConsoleTextAttribute(hConsole, cWhite);
+		if (Context->IsCons)
+			stream << "func ";
+		else
+			stream << "def ";
+		
+		SetConsoleTextAttribute(hConsole, cCyan);
+		stream << Context->Name();
+		SetConsoleTextAttribute(hConsole, cWhite);
+		stream <<"(" << Context->Signature << ")\n";
+	}
+	
 	SetConsoleTextAttribute(hConsole, cWhite);
 
 	stream << Path;
+	stream << "(" << ErrorPoint.x << ", " << ErrorPoint.y << ")";
 	stream << ": ";
 	SetConsoleTextAttribute(hConsole, cRed);
 	stream << "error:\n\t";
@@ -66,7 +90,7 @@ void ZSyntaxError::PrettyPrint(Stream& stream) {
 
 void ErrorReporter::Error(const String& path, const Point& p, const String& text) {
 	//ASSERT(0);
-	throw ZSyntaxError(String().Cat() << path << "(" << p.x << ", " << p.y << ")", text);
+	throw ZSyntaxError(path, p, text);
 }
 
 void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2) {

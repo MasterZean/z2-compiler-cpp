@@ -16,5 +16,6 @@ def test(b: Float),
 def test(b: Double),
 def test(b: Char),
 def test(b: PtrSize) {
-	b
+	val a = 0
+	a = b
 }

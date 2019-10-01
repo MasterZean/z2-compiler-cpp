@@ -128,6 +128,9 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 			}
 		}
 		catch (ZSyntaxError& err) {
+			if (compileStack.GetCount())
+				err.Context = compileStack.Top();
+			
 			errors.Add(err);
 			if (PrintErrors)
 				err.PrettyPrint(Cout());
@@ -168,14 +171,26 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 }
 
 bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
-	return CompileBlock(overload.OwnerClass, overload, parser, 1);
+	compileStack << &overload;
+	
+	auto res = CompileBlock(overload.OwnerClass, overload, parser, 1);
+	
+	compileStack.Pop();
+	
+	return res;
 }
 
 bool Compiler::CompileOverloadJump(Overload& overload) {
+	compileStack << &overload;
+	
 	ZParser parser;
 	parser.SetPos(overload.EntryPos);
 	
-	return CompileBlock(overload.OwnerClass, overload, parser, 1);
+	auto res = CompileBlock(overload.OwnerClass, overload, parser, 1);
+	
+	compileStack.Pop();
+	
+	return res;
 }
 
 bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
@@ -327,6 +342,9 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		conOver.Blocks.Top().Returned = returned;
 	}
 	catch (ZSyntaxError& err) {
+		if (compileStack.GetCount())
+			err.Context = compileStack.Top();
+			
 		errors.Add(err);
 		if (PrintErrors)
 			err.PrettyPrint(Cout());
@@ -603,6 +621,7 @@ String Compiler::GetErrors() {
 	
 	for (int i = 0; i < errors.GetCount(); i++) {
 		result << errors[i].Path;
+		result << "(" << errors[i].ErrorPoint.x << ", " << errors[i].ErrorPoint.y << ")";
 		result << ": ";
 		result << "error:\r\n\t";
 		

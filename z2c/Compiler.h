@@ -86,6 +86,7 @@ private:
 	
 	Vector<ZSyntaxError> errors;
 	Vector<Overload*> postOverloads;
+	Vector<Overload*> compileStack;
 		
 	int GetPriority(CParser& parser, int& op, bool& opc);
 	void GetParams(Vector<Node*>& params, ZClass& cls, Overload* def, ZParser& parser, char end = ')');
