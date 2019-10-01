@@ -129,8 +129,11 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 	// local variables and parameters
 	if (searchOver != nullptr) {
 		for (int j = 0; j < searchOver->Params.GetCount(); j++) {
-			if (searchOver->Params[j].Name == s)
-				return irg.mem(searchOver->Params[j]);
+			if (searchOver->Params[j].Name == s) {
+				Node* param = irg.mem(searchOver->Params[j]);
+				param->IsConst = true;
+				return param;
+			}
 		}
 
 		for (int j = 0; j < searchOver->Blocks.GetCount(); j++) {
@@ -161,7 +164,10 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 		if (conOver)
 			conOver->DepOver.Add(found);
 		
-		return irg.call(*found);
+		CallNode* call = irg.call(*found);
+		call->Params = pick(params);
+		
+		return call;
 	}
 	
 	i = conCls.Variables.Find(s);

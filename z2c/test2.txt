@@ -11,7 +11,7 @@ def @main() {
 	a <<= 3
 	a >>= 2
 
-	f(56, 67)
+	val b = f(56, 67)
 }
 
 func f() {
@@ -34,7 +34,10 @@ func f(a: DWord, b: Char) {
 	
 }
 
-func f(a: Int, b: Int) {
-	
+func f(a: Int, b: Int): Int {
+	a = 3
+	val c = 0
+	c = 2
+	return a + b + c
 }
 

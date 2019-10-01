@@ -278,7 +278,7 @@ void CppNodeWalker::WriteVar(Variable& var) {
 
 void CppNodeWalker::WalkNode(MemNode& node) {
 	Variable& var = *node.Var;
-	ASSERT(var.Value);
+	//ASSERT(var.Value);
 	
 	if (var.MIsMember)
 		stream << "::";

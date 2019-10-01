@@ -178,6 +178,7 @@ public:
 class CallNode: public Node {
 public:
 	Overload* Over = nullptr;
+	Vector<Node*> Params;
 
 	CallNode() {
 		NT = NodeType::Call;

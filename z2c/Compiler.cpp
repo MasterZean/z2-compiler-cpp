@@ -496,6 +496,8 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 	parser.Expect('(');
 	parser.WSCurrentLine();
 	
+	int count = 0;
+	
 	while (!parser.IsChar(')')) {
 		String pname = parser.ExpectZId();
 		parser.WSCurrentLine();
@@ -506,6 +508,7 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		ZClass* pcls = GetClass(conCls, tp, parser.ExpectZId());
 		
 		Variable& var = over.Params.Add(pname);
+		var.MIsParam = count++;
 		var.Name = pname;
 		var.Class = pcls;
 		

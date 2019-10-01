@@ -222,7 +222,12 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(MemNode& node) {
-	return Execute(node.Var->Value);
+	if (node.Var->MIsParam >= 0) {
+		ASSERT(paramList);
+		return Execute((*paramList)[node.Var->MIsParam]);
+	}
+	else
+		return Execute(node.Var->Value);
 }
 
 Node* NodeRunner::ExecuteNode(CastNode& node) {
@@ -246,7 +251,14 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(CallNode& node) {
-	return ExecuteOverload(*node.Over);
+	auto temp = paramList;
+	paramList = &node.Params;
+	
+	Node* ret = ExecuteOverload(*node.Over);
+	
+	paramList = temp;
+	
+	return ret;
 }
 
 Node* NodeRunner::ExecuteNode(RetNode& node) {

@@ -51,6 +51,8 @@ private:
 	Stream& stream;
 	IRGenerator irg;
 	
+	Vector<Node*>* paramList = nullptr;
+	
 	int indent = 0;
 	int line = 0;
 };

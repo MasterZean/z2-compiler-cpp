@@ -152,6 +152,8 @@ void RunMicroTests() {
 	}
 }
 
+bool IgnoreDupes = true;
+
 CONSOLE_APP_MAIN {
 	RunMicroTests();
 	
@@ -191,29 +193,35 @@ CONSOLE_APP_MAIN {
 		for (int i = 0; i < m.Overloads.GetCount(); i++) {
 			Overload& o = m.Overloads[i];
 			
-			int written = 0;
-			for (int k = 0; k < o.DepOver.GetCount(); k++)
-				if (o.DepOver[k]->MDecWritten != TempCU) {
-					cpp.WriteOverloadDeclaration(*o.DepOver[k]);
-					o.DepOver[k]->MDecWritten = TempCU;
-					written++;
-				}
-				
-			if (written)
-				cpp.NL();
-			
-			compiler.WriteOverload(cpp, o);
-			
+			bool dupe = false;
 			for (int k = 0; k < i; k++) {
 				Overload& o2 = m.Overloads[k];
 				
 				try {
-					if (o.Signature == o2.Signature)
+					if (o.Signature == o2.Signature) {
+						dupe = true;
 						ErrorReporter::Dup(cls->Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name);
+					}
 				}
 				catch (ZSyntaxError& err) {
 					err.PrettyPrint(Cout());
 				}
+			}
+			
+			if ((IgnoreDupes && !dupe) || !IgnoreDupes) {
+				int written = 0;
+				
+				for (int k = 0; k < o.DepOver.GetCount(); k++)
+					if (o.DepOver[k]->MDecWritten != TempCU) {
+						cpp.WriteOverloadDeclaration(*o.DepOver[k]);
+						o.DepOver[k]->MDecWritten = TempCU;
+						written++;
+					}
+					
+				if (written)
+					cpp.NL();
+				
+				compiler.WriteOverload(cpp, o);
 			}
 		}
 	}

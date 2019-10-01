@@ -20,6 +20,7 @@ public:
 	Point SourcePoint = Point(-1, -1);
 	
 	bool MIsMember = false;
+	int  MIsParam = -1;
 	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
