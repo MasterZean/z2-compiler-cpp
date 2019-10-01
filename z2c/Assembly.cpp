@@ -104,4 +104,18 @@ Overload& Method::AddOverload() {
 	return Overloads.Add(Overload(*this));
 }
 
+Overload& Method::GetOverloadByPoint(const Point& p) {
+	int i = -1;
+	
+	for (int j = 0; j < Overloads.GetCount(); j++)  {
+		if (Overloads[j].NamePoint == p) {
+			i = j;
+			break;
+		}
+	}
+	ASSERT(i != -1);
+	
+	return Overloads[i];
+}
+
 }

@@ -71,6 +71,7 @@ public:
 	}
 	
 	Overload& AddOverload();
+	Overload& GetOverloadByPoint(const Point& p);
 	
 	Array<Overload> Overloads;
 };

@@ -315,7 +315,12 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 }
 
 void CppNodeWalker::WalkNode(CallNode& node) {
-	stream << "::" << node.Over->OwnerMethod.Name << "()";
+	stream << "::" << node.Over->OwnerMethod.Name << "(";
+	
+	for (int i = 0; i < node.Params.GetCount(); i++)
+		Walk(node.Params[i]);
+		
+	stream << ")";
 }
 
 void CppNodeWalker::WalkNode(RetNode& node) {

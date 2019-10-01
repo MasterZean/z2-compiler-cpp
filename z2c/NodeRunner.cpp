@@ -60,7 +60,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 	CallDepth++;
 	
 	if (CallDepth >= StartCallDepth) {
-		stream << "// call " << over.OwnerMethod.Name;
+		stream << "// call " << over.OwnerMethod.Name << "(" << over.Signature << ")";
 		NL();
 	}
 	
@@ -105,7 +105,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 	}
 	
 	if (CallDepth >= StartCallDepth) {
-		stream << "// return " << over.OwnerMethod.Name;
+		stream << "// return " << over.OwnerMethod.Name << "(" << over.Signature << ")";
 		NL();
 	}
 	

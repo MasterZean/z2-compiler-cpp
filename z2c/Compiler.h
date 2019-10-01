@@ -34,6 +34,7 @@ public:
 	void BuildSignature(ZClass& conCls, Overload& over, ZParser& parser);
 	
 	bool CompileOverload(Overload& overload, ZParser& parser);
+	bool CompileOverloadJump(Overload& overload);
 	
 	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
 	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);

@@ -61,19 +61,26 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 				ASSERT(i != -1);
 				
 				Method& m = conCls.Methods[i];
+				Overload& over = m.GetOverloadByPoint(p);
+				BuildSignature(conCls, over, parser);
 				
-				i = -1;
-				for (int j = 0; j < m.Overloads.GetCount(); j++)  {
-					if (m.Overloads[j].NamePoint == p) {
-						i = j;
-						break;
+				Vector<Overload*> jumps;
+				
+				while (parser.Char(',')) {
+					parser.WS();
+					
+					if (parser.Id("def") || parser.Id("func")) {
+						parser.WSCurrentLine();
+						
+						Point p = parser.GetPoint();
+						String name = parser.ExpectZId();
+						
+						Overload& subover = m.GetOverloadByPoint(p);
+						jumps << &subover;
+						BuildSignature(conCls, subover, parser);
 					}
 				}
-				ASSERT(i != -1);
 				
-				Overload& over = m.Overloads[i];
-				
-				BuildSignature(conCls, over, parser);
 				parser.Expect('{');
 				parser.WS();
 								
@@ -84,10 +91,25 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 				CompileOverload(over, parser);
 				
 				checkEnd = false;
+				
+				for (int i = 0; i < jumps.GetCount(); i++) {
+					jumps[i]->EntryPos = over.EntryPos;
+					CompileOverloadJump(*jumps[i]);
+				}
 			}
 			else if (parser.Id("namespace")) {
 				parser.WSCurrentLine();
-				parser.ReadId();
+				
+				String total = parser.ExpectZId();
+				total << ".";
+	
+				while (parser.Char('.')) {
+					parser.WSCurrentLine();
+					total << parser.ExpectZId() << ".";
+					parser.WSCurrentLine();
+				}
+	
+				parser.ExpectEndStat();
 			}
 			else if (parser.IsEof()) {
 				return valid;
@@ -146,6 +168,13 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 }
 
 bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
+	return CompileBlock(overload.OwnerClass, overload, parser, 1);
+}
+
+bool Compiler::CompileOverloadJump(Overload& overload) {
+	ZParser parser;
+	parser.SetPos(overload.EntryPos);
+	
 	return CompileBlock(overload.OwnerClass, overload, parser, 1);
 }
 
