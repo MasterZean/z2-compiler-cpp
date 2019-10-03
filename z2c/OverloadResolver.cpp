@@ -147,11 +147,11 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 	}
-	/*else if (cls == ass.CByte) {
+	else if (cls == ass.CByte) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -159,29 +159,29 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CByte->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1 && ambig) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CByte->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CByte);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CWord->Tt, &ass.CDWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CWord, ass.CDWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CQWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt, &ass.CInt->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CShort, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
 	else if (cls == ass.CWord) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -189,26 +189,26 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CWord->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CQWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
 	else if (cls == ass.CDWord) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -216,27 +216,27 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CQWord->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CQWord);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		
-		if (n.IsCT && n.IsLiteral && (int)n.IntVal >= 0) {
+		/*if (n.IsCT && n.IsLiteral && (int)n.IntVal >= 0) {
 			gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CPtrSize->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 	}
 	else if (cls == ass.CSmall) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -244,24 +244,24 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CSmall);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt, &ass.CInt->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CShort, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
 	else if (cls == ass.CShort) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -269,22 +269,22 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CShort->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CShort->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CShort);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CInt->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CLong->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
 	else if (cls == ass.CFloat) {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
+		/*if (n.IsTemporary) {
 			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
@@ -292,14 +292,31 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CFloat->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}
+		}*/
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CFloat->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, a, &ass.CDouble->Tt);
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
-	else {
+	else if (cls == ass.CDouble) {
+		GatherInfo gi;
+		gi.Rez = nullptr;
+		
+		/*if (n.IsTemporary) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}
+		
+		if (n.IsAddressable) {
+			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CFloat->Tt);
+			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		}*/
+		
+		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CDouble);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+	}
+	/*else {
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
@@ -313,9 +330,9 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		gi.Count = 0; GatherD(oo, params, pi, gi, n, a);
+		gi.Count = 0; GatherD(oo, params, pi, gi, n);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; GatherS(oo, params, pi, gi, n, a);
+		gi.Count = 0; GatherS(oo, params, pi, gi, n);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}*/
 	

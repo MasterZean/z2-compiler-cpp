@@ -248,6 +248,7 @@ MemNode* IRGenerator::mem(Variable& v) {
 	var->HasSe = true;
 	
 	var->IsAddressable = true;
+	var->IsConst = v.IsConst;
 	
 	ASSERT(var->Class);
 	

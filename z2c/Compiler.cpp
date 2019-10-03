@@ -51,6 +51,14 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 			
 			if (parser.Id("val"))
 				CompileVar(conCls, nullptr, parser);
+			else if (parser.Id("const")) {
+				Node* n = CompileVar(conCls, nullptr, parser);
+				
+				if (n && n->NT == NodeType::Var) {
+					VarNode* v = (VarNode*)n;
+					v->Var->IsConst = true;
+				}
+			}
 			else if (parser.Id("def") || parser.Id("func")) {
 				parser.WSCurrentLine();
 				
@@ -241,6 +249,14 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, &conOver, parser);
+		else if (parser.Id("const")) {
+			exp = CompileVar(conCls, &conOver, parser);
+			
+			if (exp && exp->NT == NodeType::Var) {
+				VarNode* v = (VarNode*)exp;
+				v->Var->IsConst = true;
+			}
+		}
 		else if (parser.Id("return")) {
 			if (conOver.Return == ass.CVoid)
 				exp = irg.ret();
@@ -334,6 +350,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		parser.ExpectEndStat();
 		parser.WS();
 		
+		ASSERT(exp);
 		exp->OriginalLine = line;
 		
 		if (conOver.Blocks.Top().Returned == false)

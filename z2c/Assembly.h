@@ -22,6 +22,8 @@ public:
 	bool MIsMember = false;
 	int  MIsParam = -1;
 	
+	bool IsConst = false;
+	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
 	ZClass* Class = nullptr;
