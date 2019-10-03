@@ -29,7 +29,7 @@ void RunTest(const String& path) {
 	Compiler compiler(ass);
 	compiler.PrintErrors = false;
 	
-	Overload* over = compiler.CompileSnip(file);
+	Overload* over = compiler.CompileSnipFunc(file);
 	
 	StringStream ss;
 	CppNodeWalker cpp(ass, ss);
@@ -178,7 +178,7 @@ CONSOLE_APP_MAIN {
 	Assembly ass;
 	Compiler compiler(ass);
 	
-	ZClass* cls = compiler.CompileSource(LoadFile(K.Path));
+	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
 	
 	FileOut ss(K.OutPath);
 	CppNodeWalker cpp(ass, ss);

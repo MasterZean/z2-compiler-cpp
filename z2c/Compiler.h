@@ -25,9 +25,9 @@ public:
 		}
 	}
 	
-	Overload* CompileSnip(const String& snip);
+	Overload* CompileSnipFunc(const String& snip);
 	
-	ZClass* CompileSource(const String& snip);
+	ZClass* CompileAnonClass(const String& snip);
 	bool CompileSourceLoop(ZClass& conCls, ZParser& parser);
 	
 	void BuildSignature(ZClass& conCls, Overload& over);

@@ -84,6 +84,8 @@ public:
 	bool WriteReturnType(Overload &over);
 	void WriteOverloadNameParams(Overload &over);
 	void WriteParams(Overload &over);
+	void WriteAssemblyParams(Stream& s, Overload &over);
+	void WriteMangledParams(Overload &over);
 	
 private:
 	Assembly& ass;

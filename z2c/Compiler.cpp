@@ -4,7 +4,7 @@
 
 namespace Z2 {
 
-Overload* Compiler::CompileSnip(const String& snip) {
+Overload* Compiler::CompileSnipFunc(const String& snip) {
 	ZClass& tempClass = ass.AddClass("DummyClass");
 	tempClass.BackendName = "DummyClass";
 	
@@ -26,7 +26,7 @@ Overload* Compiler::CompileSnip(const String& snip) {
 	return &tempOver;
 }
 
-ZClass* Compiler::CompileSource(const String& snip) {
+ZClass* Compiler::CompileAnonClass(const String& snip) {
 	ZClass& tempClass = ass.AddClass("DummyClass");
 	tempClass.BackendName = "DummyClass";
 	
@@ -118,6 +118,8 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 				}
 	
 				parser.ExpectEndStat();
+				
+				conCls.Namespace = total;
 			}
 			else if (parser.IsEof()) {
 				return valid;

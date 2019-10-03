@@ -5,23 +5,23 @@
 namespace Z2 {
 	
 Assembly::Assembly() {
-	CBool = AddCoreNumeric("Bool", "bool", 0);
+	CBool = AddCoreNumeric("Bool", "bool", "B", 0);
 	
-	CSmall = AddCoreInteger("Small", "int8", 1);
-	CByte = AddCoreInteger("Byte", "uint8", 2);
-	CShort = AddCoreInteger("Short", "int16", 3);
-	CWord = AddCoreInteger("Word", "uint16", 4);
-	CInt = AddCoreInteger("Int", "int32", 5);
-	CDWord = AddCoreInteger("DWord", "uint32", 6);
-	CLong = AddCoreInteger("Long", "int64", 7);
-	CQWord = AddCoreInteger("QWord", "uint64", 8);
+	CSmall = AddCoreInteger("Small", "int8", "o", 1);
+	CByte = AddCoreInteger("Byte", "uint8", "b", 2);
+	CShort = AddCoreInteger("Short", "int16", "s", 3);
+	CWord = AddCoreInteger("Word", "uint16", "w", 4);
+	CInt = AddCoreInteger("Int", "int32", "i",  5);
+	CDWord = AddCoreInteger("DWord", "uint32", "u", 6);
+	CLong = AddCoreInteger("Long", "int64", "l", 7);
+	CQWord = AddCoreInteger("QWord", "uint64", "q", 8);
 	
-	CFloat = AddCoreNumeric("Float", "float", 9);
-	CDouble = AddCoreNumeric("Double", "double", 10);
-	Classes.Add("");     // 11 is Extended
+	CFloat = AddCoreNumeric("Float", "float", "f", 9);
+	CDouble = AddCoreNumeric("Double", "double", "d",  10);
+	Classes.Add("");     // 11 is Extended   "e"
 	
-	CChar = AddCoreNumeric("Char", "uint32", 12);
-	CPtrSize = AddCoreNumeric("PtrSize", "size_t", 13);
+	CChar = AddCoreNumeric("Char", "uint32", "c", 12);
+	CPtrSize = AddCoreNumeric("PtrSize", "size_t", "z", 13);
 	
 	CCls = &AddClass("Class");
 	CCls->BackendName = "Class";
@@ -34,11 +34,13 @@ Assembly::Assembly() {
 	CNull = &AddClass("Null");
 }
 
-ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, int index) {
+ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, const String& mangledName, int index) {
 	ASSERT(Classes.GetCount() == index);
 	
 	ZClass& cls = AddClass(name);
 	cls.BackendName = backendName;
+	cls.GlobalName = backendName;
+	cls.MangledName = mangledName;
 	cls.MIsNumeric = true;
 	cls.MIndex = index;
 	

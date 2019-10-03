@@ -1,4 +1,4 @@
-namespace org.z2legacy.ut.overloading
+namespace org.foo.bar.beagle
 
 def @main() {
 	const C = 7
@@ -33,3 +33,15 @@ func add(a: Int, b: Int): Int,
 func add(a: Int, b: Double): Double {
 	return a + b
 }
+
+// org_z2legacy_ut_overloading____test____sys_core_lang_Int
+// ns1_ns2_ns3__class__method__s11_s12_s13__s21_s22_s23__s31_s32_s33____p11_p12_p13__p21_p22_p23__p31_p32_p33
+// org_z2legacy_ut_overloading____test_____i
+// org_z2legacy_ut_overloading____f_test__i
+
+// sys.core.lang::Int
+// app.foo.bar.Beagle.Labrador::val size
+// app.foo.bar.Beagle.Labrador::f(i32,f64)f64
+
+// app.foo.bar::Beagle::size
+// app.foo.bar.Beagle.Labrador::f(this,i32,f64)f64_const

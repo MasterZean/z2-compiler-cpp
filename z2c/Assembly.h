@@ -46,6 +46,8 @@ public:
 	String Name;
 	String Namespace;
 	String BackendName;
+	String GlobalName;
+	String MangledName;
 	String ParamName;
 	
 	Point SourcePos = Point(-1, -1);
@@ -159,10 +161,10 @@ public:
 	
 	Assembly();
 	
-	ZClass* AddCoreNumeric(const String& name, const String& backendName, int index);
+	ZClass* AddCoreNumeric(const String& name, const String& backendName, const String& mangledName, int index);
 	
-	ZClass* AddCoreInteger(const String& name, const String& backendName, int index) {
-		ZClass* cls = AddCoreNumeric(name, backendName, index);
+	ZClass* AddCoreInteger(const String& name, const String& backendName, const String& mangledName, int index) {
+		ZClass* cls = AddCoreNumeric(name, backendName, mangledName, index);
 		cls->MIsInteger = true;
 		return cls;
 	}

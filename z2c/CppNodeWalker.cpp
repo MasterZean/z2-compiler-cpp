@@ -317,8 +317,11 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 void CppNodeWalker::WalkNode(CallNode& node) {
 	stream << "::" << node.Over->OwnerMethod.Name << "(";
 	
-	for (int i = 0; i < node.Params.GetCount(); i++)
+	for (int i = 0; i < node.Params.GetCount(); i++) {
+		if (i)
+			stream << ", ";
 		Walk(node.Params[i]);
+	}
 		
 	stream << ")";
 }
@@ -343,11 +346,74 @@ void CppNodeWalker::WalkNode(AssignNode& node) {
 	Walk(node.RS);
 }
 
+String MangleNamespace(const String& ns) {
+	String s;
+	
+	Vector<String> v = Split(ns, ".");
+	for (int i = 0; i < v.GetCount(); i++) {
+		if (i)
+			s << "_";
+		s << v[i];
+	}
+	
+	return s;
+}
+
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
+	// global name
+	stream << "// ";
+	stream << over.OwnerClass.Namespace << over.OwnerClass.Name << "::" << over.Name();
+	WriteAssemblyParams(stream, over);
+	if (over.Return != ass.CVoid)
+		stream << over.Return->GlobalName;
+	if (over.IsConst)
+		stream << "_" << "const";
+	NL();
+	
+	// mangled C
+	stream << "// ";
+	stream << "_N";
+	stream << MangleNamespace(over.OwnerClass.Namespace) << "_";
+	stream << over.OwnerClass.Name;
+	stream << "S_";
+	stream << "F";
+	if (over.IsConst)
+		stream << "C";
+	stream << "_";
+	stream << over.BackendName();
+	stream << "_";
+	WriteMangledParams(over);
+	if (over.Return != ass.CVoid) {
+		stream << "_";
+		stream << over.Return->MangledName;
+	}
+	NL();
+	
+	// param hash C
+	//stream << "// ";
+	StringStream ss;
+	WriteAssemblyParams(ss, over);
+	if (over.Return != ass.CVoid)
+		ss << over.Return->GlobalName;
+	if (over.IsConst)
+		ss << "_" << "const";
+	String s = ss;
+	//stream << s;
+	//NL();
+	
+	// hash C
+	stream << "// ";
+	stream << "_" << MangleNamespace(over.OwnerClass.Namespace) << "_";
+	stream << over.OwnerClass.Name << "_";
+	stream << over.BackendName() << over.Params.GetCount() << "_";
+	stream << ToUpper(FormatIntHex(xxHash(s)));
+	NL();
+	
 	if (over.IsVirtual)
 		stream << "virtual ";
 	else if (over.IsInline)
 		stream << "inline ";
+	
 	// TODO: fix
 	//else if (over.IsClassCopyCon() || over.IsClassMoveCon() || over.IsClassCopyOperator() || over.IsClassMoveOperator() || over.IsClassEqOperator() || over.IsClassNeqOperator())
 	//	cs << "inline ";
@@ -384,16 +450,41 @@ void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
 void CppNodeWalker::WriteParams(Overload &over) {
 	stream << "(";
 	for (int i = 0; i < over.Params.GetCount(); i++) {
-		stream << over.Params[i].Class->BackendName  << " " << over.Params[i].Name;
-		if (i < over.Params.GetCount() - 1)
+		if (i)
 			stream << ", ";
+		stream << over.Params[i].Class->BackendName  << " " << over.Params[i].Name;
 	}
 	stream << ")";
 }
 
+void CppNodeWalker::WriteAssemblyParams(Stream& s, Overload &over) {
+	s << "(";
+	for (int i = 0; i < over.Params.GetCount(); i++) {
+		if (i)
+			s << ",";
+		s << over.Params[i].Class->GlobalName;
+	}
+	s << ")";
+}
+
+void CppNodeWalker::WriteMangledParams(Overload &over) {
+	for (int i = 0; i < over.Params.GetCount(); i++) {
+		//if (i)
+		//	stream << "_B";
+		stream << over.Params[i].Class->MangledName;
+	}
+}
+
+
 void CppNodeWalker::WriteClassVars(ZClass& cls) {
 	for (int i = 0; i < cls.Variables.GetCount(); i++) {
-		WriteVar(cls.Variables[i]);
+		Variable& var = cls.Variables[i];
+		
+		stream << "// ";
+		stream << cls.Namespace << cls.Name << "::" << var.Name;
+		NL();
+		
+		WriteVar(var);
 		stream << ";";
 		NL();
 	}
