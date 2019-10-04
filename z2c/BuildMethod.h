@@ -7,7 +7,8 @@ namespace Z2 {
 	
 using namespace Upp;
  
-struct BuildMethod: public Moveable<BuildMethod> {
+class BuildMethod: public Moveable<BuildMethod> {
+public:
 	enum Type {
 		btMSC,
 		btGCC,

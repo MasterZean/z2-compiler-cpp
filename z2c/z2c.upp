@@ -2,6 +2,7 @@ uses
 	Core;
 
 file
+	lib readonly separator,
 	Compiler.h,
 	Compiler.cpp,
 	Compiler_Expression.cpp,
@@ -22,11 +23,15 @@ file
 	OverloadResolver.cpp,
 	ErrorReporter.h,
 	ErrorReporter.cpp,
+	compiler readonly separator,
 	CommandLine.h,
 	CommandLine.cpp,
 	BuildMethod.h,
 	BuildMethod.cpp,
+	Builder.h,
+	Builder.cpp,
 	z2c.cpp,
+	misc readonly separator,
 	StopWatch.h,
 	tables.h,
 	tables.cpp;

@@ -6,6 +6,8 @@ using namespace Upp;
 #include "StopWatch.h"
 #include "NodeRunner.h"
 #include "CommandLine.h"
+#include "BuildMethod.h"
+#include "Builder.h"
 
 using namespace Z2;
 
@@ -173,6 +175,30 @@ CONSOLE_APP_MAIN {
 		Cout() << "No output filled specified.\n";
 		SetExitCode(-1);
 		return;
+	}
+	
+	Vector<BuildMethod> methods;
+	
+	// temporary hack pointing to a random GCC from disk
+	SetCurrentDirectory("c:\\z2c\\");
+	
+	String bmPath = GetDataFile("buildMethods.xml");
+	
+	// load existing BMs
+	LoadFromXMLFile(methods, bmPath);
+	
+	if (methods.GetCount() == 0) {
+		methods.Clear();
+		
+		Cout() << "No cached build method found! Trying to auto-detect...\n";
+		BuildMethod::Get(methods);
+		
+		if (methods.GetCount() == 0) {
+			Cout() << Compiler::GetName() << " couldn't find a backend compiler. Skiping compilation step..." << '\n';
+			K.SCU = false;
+		}
+		
+		StoreAsXMLFile(methods, "methods", bmPath);
 	}
 	
 	Assembly ass;
