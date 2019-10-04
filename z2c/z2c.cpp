@@ -270,7 +270,7 @@ CONSOLE_APP_MAIN {
 	
 	FileOut ss(K.OutPath);
 	
-	ss << LoadFile(AppendFileName(exeDir, "codegen\\cppcode.h"));
+	ss << LoadFile(AppendFileName(exeDir, "codegen\\cppcode2.h"));
 	
 	CppNodeWalker cpp(ass, ss);
 	

@@ -87,6 +87,9 @@ public:
 	void WriteAssemblyParams(Stream& s, Overload &over);
 	void WriteMangledParams(Overload &over);
 	
+	bool CommentZMethod = false;
+	bool CommentCMangled = false;
+	
 private:
 	Assembly& ass;
 	Stream& stream;

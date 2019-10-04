@@ -371,33 +371,37 @@ String MangleNamespace(const String& ns) {
 
 void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	// global name
-	stream << "// ";
-	stream << over.OwnerClass.Namespace << over.OwnerClass.Name << "::" << over.Name();
-	WriteAssemblyParams(stream, over);
-	if (over.Return != ass.CVoid)
-		stream << over.Return->GlobalName;
-	if (over.IsConst)
-		stream << "_" << "const";
-	NL();
+	if (CommentZMethod) {
+		stream << "// ";
+		stream << over.OwnerClass.Namespace << over.OwnerClass.Name << "::" << over.Name();
+		WriteAssemblyParams(stream, over);
+		if (over.Return != ass.CVoid)
+			stream << over.Return->GlobalName;
+		if (over.IsConst)
+			stream << "_" << "const";
+		NL();
+	}
 	
 	// mangled C
-	stream << "// ";
-	stream << "_N";
-	stream << MangleNamespace(over.OwnerClass.Namespace) << "_";
-	stream << over.OwnerClass.Name;
-	stream << "S_";
-	stream << "F";
-	if (over.IsConst)
-		stream << "C";
-	stream << "_";
-	stream << over.BackendName;
-	stream << "_";
-	WriteMangledParams(over);
-	if (over.Return != ass.CVoid) {
+	if (CommentCMangled) {
+		stream << "// ";
+		stream << "_N";
+		stream << MangleNamespace(over.OwnerClass.Namespace) << "_";
+		stream << over.OwnerClass.Name;
+		stream << "S_";
+		stream << "F";
+		if (over.IsConst)
+			stream << "C";
 		stream << "_";
-		stream << over.Return->MangledName;
+		stream << over.BackendName;
+		stream << "_";
+		WriteMangledParams(over);
+		if (over.Return != ass.CVoid) {
+			stream << "_";
+			stream << over.Return->MangledName;
+		}
+		NL();
 	}
-	NL();
 	
 	/*
 	// param hash C

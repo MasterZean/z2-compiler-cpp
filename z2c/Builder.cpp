@@ -356,8 +356,8 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 		}
 	}
 
-	DeleteFile(inPath + inTitle + ".o");
-	DeleteFile(inPath + inTitle + ".cpp");
+	//DeleteFile(inPath + inTitle + ".o");
+	//DeleteFile(inPath + inTitle + ".cpp");
 	
 	return result;
 }
@@ -469,8 +469,8 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 		}
 	}
 
-	DeleteFile(inPath + inTitle + ".o");
-	DeleteFile(inPath + inTitle + ".cpp");
+	//DeleteFile(inPath + inTitle + ".o");
+	//DeleteFile(inPath + inTitle + ".cpp");
 	
 	return result;
 }

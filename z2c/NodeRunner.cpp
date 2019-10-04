@@ -61,6 +61,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 	
 	if (CallDepth >= StartCallDepth) {
 		stream << "// call " << over.OwnerMethod.Name << "(" << over.Signature << ")";
+		LOG(String().Cat() << "call " << over.OwnerMethod.Name << "(" << over.Signature << ")");
 		NL();
 	}
 	
@@ -224,6 +225,7 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 Node* NodeRunner::ExecuteNode(MemNode& node) {
 	if (node.Var->MIsParam >= 0) {
 		ASSERT(paramList);
+		DUMP(node.Var->Name);
 		return Execute((*paramList)[node.Var->MIsParam]);
 	}
 	else
