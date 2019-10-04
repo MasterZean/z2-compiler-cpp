@@ -74,6 +74,9 @@ public:
 	
 	bool PrintErrors = true;
 	
+	void Sanitize(ZClass& cls);
+	void Sanitize(Method& m);
+	
 	static String GetName() {
 		return "";
 	}

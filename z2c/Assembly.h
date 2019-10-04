@@ -78,6 +78,7 @@ public:
 	Overload& GetOverloadByPoint(const Point& p);
 	
 	Array<Overload> Overloads;
+	Vector<int> OverloadCounts;
 };
 
 class Overload: Moveable<Overload> {
@@ -88,6 +89,8 @@ public:
 	ZParser::Pos EntryPos;
 	ZParser::Pos ParamPos;
 	ZParser::Pos PostParamPos;
+	
+	String BackendName;
 	
 	Point NamePoint = Point(-1, -1);
 	Point SourcePoint = Point(-1, -1);
@@ -106,6 +109,7 @@ public:
 	
 	String Signature;
 	String BackSig;
+	String ParamSig;
 	
 	Array<Variable> Variables;
 	ArrayMap<String, Variable> Params;
@@ -116,7 +120,7 @@ public:
 	Vector<Node*> Nodes;
 	Vector<Overload*> DepOver;
 	
-	Overload(Method& aMethod): OwnerClass(aMethod.OwnerClass), OwnerMethod(aMethod) {
+	Overload(Method& aMethod): OwnerClass(aMethod.OwnerClass), OwnerMethod(aMethod), BackendName(aMethod.BackendName) {
 	}
 	
 	Variable& AddVariable() {
@@ -125,10 +129,6 @@ public:
 	
 	const String& Name() const {
 		return OwnerMethod.Name;
-	}
-	
-	const String& BackendName() const {
-		return OwnerMethod.BackendName;
 	}
 };
 

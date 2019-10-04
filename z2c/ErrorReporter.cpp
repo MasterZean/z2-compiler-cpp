@@ -98,6 +98,11 @@ void ErrorReporter::Dup(const String& path, const Point& p, const Point& p2, con
 			text2 + "(" + IntStr(p2.x) + ", " + IntStr(p2.y) + ")");
 }
 
+ZSyntaxError ErrorReporter::DupObject(const String& path, const Point& p, const Point& p2, const String& text, const String& text2) {
+	return ZSyntaxError(path, p, "duplicate definition '" + text + "', previous definition was at " +
+			text2 + "(" + IntStr(p2.x) + ", " + IntStr(p2.y) + ")");
+}
+
 void ErrorReporter::Warning(const String& path, const Point& p, const String& text) {
 	Cout() << path << "(" << p.x << ", " << p.y << "): warning:" << NL << "\t" << text << NL;
 }

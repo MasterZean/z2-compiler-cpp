@@ -179,6 +179,7 @@ CONSOLE_APP_MAIN {
 	Compiler compiler(ass);
 	
 	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
+	compiler.Sanitize(*cls);
 	
 	FileOut ss(K.OutPath);
 	CppNodeWalker cpp(ass, ss);
@@ -197,14 +198,9 @@ CONSOLE_APP_MAIN {
 			for (int k = 0; k < i; k++) {
 				Overload& o2 = m.Overloads[k];
 				
-				try {
-					if (o.Signature == o2.Signature) {
-						dupe = true;
-						ErrorReporter::Dup(cls->Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name);
-					}
-				}
-				catch (ZSyntaxError& err) {
-					err.PrettyPrint(Cout());
+				if (o.Signature == o2.Signature) {
+					dupe = true;
+					ErrorReporter::DupObject(cls->Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name).PrettyPrint(Cout());
 				}
 			}
 			
@@ -243,4 +239,7 @@ CONSOLE_APP_MAIN {
 		Cout() << ss.GetResult();
 	}
 }
+
+
+
 

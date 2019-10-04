@@ -586,6 +586,10 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 			over.BackSig << ", ";
 		over.BackSig << pcls->BackendName;
 		
+		if (over.ParamSig.GetCount())
+			over.ParamSig << ", ";
+		over.ParamSig << pcls->ParamName;
+		
 		if (parser.IsChar(')'))
 		    break;
 		
@@ -754,6 +758,32 @@ void Compiler::WriteOverload(CppNodeWalker& cpp, Overload& overload) {
 	cpp.OpenOverload();
 	WriteOverloadBody(cpp, overload, 1);
 	cpp.CloseOverload();
+}
+
+void Compiler::Sanitize(ZClass& cls) {
+	for (int i = 0; i < cls.Methods.GetCount(); i++) {
+		Method& m = cls.Methods[i];
+		Sanitize(m);
+	}
+}
+
+void Compiler::Sanitize(Method& m) {
+	int index = 1;
+		
+	for (int i = 0; i < m.Overloads.GetCount(); i++) {
+		Overload& o = m.Overloads[i];
+		
+		m.OverloadCounts.At(o.Params.GetCount())++;
+		
+		for (int j = 0; j < i; j++) {
+			Overload& o2 = m.Overloads[j];
+			
+			if (o.BackSig == o2.BackSig || o.ParamSig == o2.ParamSig) {
+				o.BackendName << index;
+				index++;
+			}
+		}
+	}
 }
 
 }

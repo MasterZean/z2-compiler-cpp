@@ -61,6 +61,7 @@ public:
 	static void Error(const String& path, const Point& p, const String& text);
 	
 	static void Dup(const String& path, const Point& p, const Point& p2, const String& text, const String& text2 = "");
+	static ZSyntaxError DupObject(const String& path, const Point& p, const Point& p2, const String& text, const String& text2 = "");
 	static void Warning(const String& path, const Point& p, const String& text);
 };
 

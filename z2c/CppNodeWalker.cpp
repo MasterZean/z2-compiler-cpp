@@ -315,12 +315,22 @@ void CppNodeWalker::WalkNode(CastNode& node) {
 }
 
 void CppNodeWalker::WalkNode(CallNode& node) {
-	stream << "::" << node.Over->OwnerMethod.Name << "(";
+	Method& m = node.Over->OwnerMethod;
+	
+	stream << "::" << node.Over->BackendName << "(";
+	
+	int count = m.OverloadCounts[node.Over->Params.GetCount()];
 	
 	for (int i = 0; i < node.Params.GetCount(); i++) {
 		if (i)
 			stream << ", ";
-		Walk(node.Params[i]);
+		if (count == 0)
+			Walk(node.Params[i]);
+		else {
+			stream << "(" << node.Params[i]->Class->BackendName << ")(";
+			Walk(node.Params[i]);
+			stream << ")";
+		}
 	}
 		
 	stream << ")";
@@ -380,7 +390,7 @@ void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	if (over.IsConst)
 		stream << "C";
 	stream << "_";
-	stream << over.BackendName();
+	stream << over.BackendName;
 	stream << "_";
 	WriteMangledParams(over);
 	if (over.Return != ass.CVoid) {
@@ -389,6 +399,7 @@ void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	}
 	NL();
 	
+	/*
 	// param hash C
 	//stream << "// ";
 	StringStream ss;
@@ -405,9 +416,9 @@ void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 	stream << "// ";
 	stream << "_" << MangleNamespace(over.OwnerClass.Namespace) << "_";
 	stream << over.OwnerClass.Name << "_";
-	stream << over.BackendName() << over.Params.GetCount() << "_";
+	stream << over.BackendName << over.Params.GetCount() << "_";
 	stream << ToUpper(FormatIntHex(xxHash(s)));
-	NL();
+	NL();*/
 	
 	if (over.IsVirtual)
 		stream << "virtual ";
@@ -443,7 +454,7 @@ bool CppNodeWalker::WriteReturnType(Overload &over) {
 }
 
 void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
-	stream << over.OwnerMethod.BackendName;
+	stream << over.BackendName;
 	WriteParams(over);
 }
 
@@ -474,7 +485,6 @@ void CppNodeWalker::WriteMangledParams(Overload &over) {
 		stream << over.Params[i].Class->MangledName;
 	}
 }
-
 
 void CppNodeWalker::WriteClassVars(ZClass& cls) {
 	for (int i = 0; i < cls.Variables.GetCount(); i++) {

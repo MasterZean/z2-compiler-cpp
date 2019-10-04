@@ -22,6 +22,7 @@ Assembly::Assembly() {
 	
 	CChar = AddCoreNumeric("Char", "uint32", "c", 12);
 	CPtrSize = AddCoreNumeric("PtrSize", "size_t", "z", 13);
+	CPtrSize->ParamName = CQWord->BackendName;
 	
 	CCls = &AddClass("Class");
 	CCls->BackendName = "Class";
@@ -39,7 +40,8 @@ ZClass* Assembly::AddCoreNumeric(const String& name, const String& backendName, 
 	
 	ZClass& cls = AddClass(name);
 	cls.BackendName = backendName;
-	cls.GlobalName = backendName;
+	cls.ParamName = backendName;
+	cls.GlobalName = name;
 	cls.MangledName = mangledName;
 	cls.MIsNumeric = true;
 	cls.MIndex = index;
