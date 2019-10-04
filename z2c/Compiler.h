@@ -81,6 +81,11 @@ public:
 		return "";
 	}
 	
+	String BuildProfile;
+	String BuildPath;
+	String OutPath;
+	String OrigOutPath;
+	
 private:
 	Assembly& ass;
 	IRGenerator irg;

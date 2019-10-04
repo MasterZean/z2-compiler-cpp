@@ -179,8 +179,11 @@ CONSOLE_APP_MAIN {
 	
 	Vector<BuildMethod> methods;
 	
+	String curDir = GetCurrentDirectory() + "/";
+
 	// temporary hack pointing to a random GCC from disk
-	SetCurrentDirectory("c:\\z2c\\");
+	String exeDir = "c:\\z2c\\";
+	SetCurrentDirectory(exeDir);
 	
 	String bmPath = GetDataFile("buildMethods.xml");
 	
@@ -201,17 +204,78 @@ CONSOLE_APP_MAIN {
 		StoreAsXMLFile(methods, "methods", bmPath);
 	}
 	
+	if (!K.BM) {
+		Cout() << Compiler::GetName() << " requires a build method specified (-bm). Exiting!" << '\n';
+		SetExitCode(-1);
+		return;
+	}
+	
+	int bmi = -1;
+	
+	// find input BM
+	for (int i = 0; i < methods.GetCount(); i++)
+		if (ToUpper(K.BMName) == ToUpper(methods[i].Name)) {
+			bmi = i;
+			break;
+		}
+	
+	if (bmi == -1) {
+		Cout() << "Build method '" << ToUpper(K.BMName) << "' can't be found. Exiting!" << '\n';
+		SetExitCode(-1);
+		return;
+	}
+	
+	bmi = -1;
+	// find input BM with given arch
+	for (int i = 0; i < methods.GetCount(); i++)
+		if (ToUpper(K.BMName) == ToUpper(methods[i].Name) && ToUpper(K.ARCH) == ToUpper(methods[i].Arch)) {
+			bmi = i;
+			break;
+		}
+	
+	if (bmi == -1) {
+		Cout() << "Build method '" << ToUpper(K.BMName) << "' doesn't support architecture 'x86'. Exiting!" << '\n';
+		SetExitCode(-1);
+		return;
+	}
+	
+	// compile
+	BuildMethod& bm = methods[bmi];
+
 	Assembly ass;
 	Compiler compiler(ass);
+	
+#ifdef PLATFORM_WIN32
+	String platform = "WIN32";
+	String platformLib = "microsoft.windows";
+#endif
+	
+#ifdef PLATFORM_POSIX
+	String platform = "POSIX";
+	String platformLib = "ieee.posix";
+#endif
+
+	if (IsFullPath(K.OutPath))
+		compiler.OutPath = K.OutPath;
+	else
+		compiler.OutPath = curDir + K.OutPath;
+	compiler.OrigOutPath = compiler.OutPath;
+
+	compiler.BuildProfile = platform + ToUpper(K.ARCH) + "." + ToUpper(bm.Name) + K.O;
+	compiler.BuildPath = exeDir + NativePath("build\\") + platform + "." + ToUpper(K.ARCH) + "." + ToUpper(bm.Name);
+	RealizeDirectory(compiler.BuildPath);
 	
 	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
 	compiler.Sanitize(*cls);
 	
 	FileOut ss(K.OutPath);
+	
+	ss << LoadFile(AppendFileName(exeDir, "codegen\\cppcode.h"));
+	
 	CppNodeWalker cpp(ass, ss);
 	
 	cpp.WriteClassVars(*cls);
-			
+	
 	const int TempCU = 1;
 	
 	for (int j = 0; j < cls->Methods.GetCount(); j++) {
@@ -248,6 +312,8 @@ CONSOLE_APP_MAIN {
 		}
 	}
 	
+	ss << "int main(int argc, char* argv[]) {\n  _main();\n  return 0;\n}\n";
+	ss.Close();
 	//Cout() << ss.GetResult();
 	
 	Cout() << "==========================================================================\r\n";
@@ -264,6 +330,18 @@ CONSOLE_APP_MAIN {
 				
 		Cout() << ss.GetResult();
 	}
+	
+	StopWatch sw;
+
+	Builder builder(bm);
+	builder.ZCompilerPath(exeDir);
+	builder.TargetRoot(compiler.BuildPath);
+	builder.Arch(K.ARCH);
+	builder.Optimize(K.O);
+	
+	if (!builder.Build(compiler.OutPath, compiler.OrigOutPath))
+		SetExitCode(-1);
+	Cout() << bm.Name << " code generation finished in " << sw.ToString() << " seconds.\n";
 }
 
 

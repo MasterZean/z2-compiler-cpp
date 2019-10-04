@@ -177,9 +177,9 @@ void Builder::DoEnvGCC() {
 	StringStream ss;
 	
 	ss << "PATH=";
-	ss << GetEnv("PATH") << ";";
 	//ss << bm.Tools << "\\" << ";";
 	ss << bm.Compiler << "\\bin\\" << ";";
+	ss << GetEnv("PATH") << ";";
 	ss.Put(0);
 
 	/*ss << "LIB=";
@@ -282,6 +282,7 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	linkPath = cppPath;
 	
 	DoEnvGCC();
+	DUMP(env);
 	
 	if (optimize == " -Od")
 		optimize = " -Og";
@@ -330,7 +331,7 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	
 	Cout() << "\tlinking... ";
 	
-	d << QT + linkPath + QT + " " + inPath + inTitle + ".o \"" + leakObj + "\" -luser32 --static -o \"" + outPath + outTitle + ".exe\" -m";
+	d << QT + linkPath + QT + " " + QT + inPath + inTitle + ".o" + QT + " \"" + leakObj + "\" -luser32 --static -o \"" + outPath + outTitle + ".exe\" -m";
 	if (arch == "x64")
 		d << "64";
 	else
@@ -338,7 +339,7 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	//d << " -Wl,--subsystem,windows";
 	//if (arch == "x64")
 	//	d << " /MACHINE:x64 ";
-	//DUMP(d);
+	DUMP(d);
 	{
 		LocalProcess lp(d, env);
 		while (lp.Read(t)) {
@@ -393,7 +394,6 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 	cmd << "-o " << QT << out << QT << " ";
 	
 	DUMP(cmd);
-	
 	//String pp = "cmd.exe /C \"" + cmd + "\"";
 	
 	LocalProcess lp(cmd);
