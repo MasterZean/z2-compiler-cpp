@@ -80,6 +80,7 @@ Node* Compiler::ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int
 
 Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* exp = nullptr;
+	Point p = parser.GetPoint();
 	
 	if (parser.IsInt())
 		exp = ParseNumeric(conCls, parser);
@@ -87,6 +88,30 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		exp = irg.constBool(true);
 	else if (parser.Id("false"))
 		exp = irg.constBool(false);
+	else if (parser.Char('-')) {
+		Node* node = ParseAtom(conCls, conOver, parser);
+		exp = irg.opMinus(node);
+		if (exp == nullptr)
+			ErrorReporter::IncompatUnary(conCls.Name, p, "'-' ('@minus')",  node->Class->Name);
+	}
+	else if (parser.Char('+')) {
+		Node* node = ParseAtom(conCls, conOver, parser);
+		exp = irg.opPlus(node);
+		if (exp == nullptr)
+			ErrorReporter::IncompatUnary(conCls.Name, p, "'+' ('@plus')",  node->Class->Name);
+	}
+	else if (parser.Char('!')) {
+		Node* node = ParseAtom(conCls, conOver, parser);
+		exp = irg.opNot(node);
+		if (exp == nullptr)
+			ErrorReporter::IncompatUnary(conCls.Name, p, "'!' ('@not')",  node->Class->Name);
+	}
+	else if (parser.Char('~')) {
+		Node* node = ParseAtom(conCls, conOver, parser);
+		exp = irg.opBitNot(node);
+		if (exp == nullptr)
+			ErrorReporter::IncompatUnary(conCls.Name, p, "'~' ('@bitnot')",  node->Class->Name);
+	}
 	else if (parser.IsZId())
 		exp = ParseId(conCls, conOver, conOver, parser);
 	else if (parser.IsCharConst()) {

@@ -195,6 +195,10 @@ void ErrorReporter::IncompatOperands(const String& path, const Point& p, const S
 	Error(path, p, "can't apply operator '" + op + "' on types: " << NL << "\t\t'\f" + text + "\f' and " << NL << "\t\t'\f" + text2 + "\f'");
 }
 
+void ErrorReporter::IncompatUnary(const String& path, const Point& p, const String& text, const String& text2) {
+	Error(path, p, "can't apply unary " + text + " on type '\f" + text2 + "\f'");
+}
+
 void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons) {
 	String s;
 	

@@ -107,6 +107,14 @@ public:
 	Node* opLog(Node* left, Node* right, OpNode::Type op);
 	Node* opLogCT(Node* left, Node* right, OpNode::Type op);
 	
+	Node* opMinus(Node* node);
+	Node* opPlus(Node* node);
+	Node* opNot(Node* node);
+	Node* opBitNot(Node* node);
+	
+	Node* opInc(Node* node, bool prefix);
+	Node* opDec(Node* node, bool prefix);
+	
 	CallNode* call(Overload& over);
 	RetNode* ret(Node* value = nullptr);
 	
@@ -124,6 +132,7 @@ private:
 	NodePool<CallNode> callNodes;
 	NodePool<RetNode> retNodes;
 	NodePool<AssignNode> assNodes;
+	NodePool<UnaryOpNode> unaryNodes;
 };
 
 }

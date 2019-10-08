@@ -20,7 +20,7 @@ public:
 		Invalid,
 		Const,
 		BinaryOp,
-		//UnaryOp,
+		UnaryOp,
 		Memory,
 		Assign,
 		Cast,
@@ -162,6 +162,15 @@ public:
 
 	OpNode() {
 		NT = NodeType::BinaryOp;
+	}
+};
+
+class UnaryOpNode: public OpNode {
+public:
+	bool Prefix = false;
+	
+	UnaryOpNode() {
+		NT = NodeType::UnaryOp;
 	}
 };
 

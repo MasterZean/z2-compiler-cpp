@@ -53,6 +53,7 @@ public:
 	Point SourcePos = Point(-1, -1);
 	
 	bool MIsInteger = false;
+	bool MIsFloat = false;
 	bool MIsNumeric = false;
 	int  MIndex = -1;
 	

@@ -57,6 +57,7 @@ public:
 	
 	static void DivisionByZero(const String& path, const Point& p);
 	static void IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2);
+	static void IncompatUnary(const String& path, const Point& p, const String& text, const String& text2);
 	
 	static void Error(const String& path, const Point& p, const String& text);
 	

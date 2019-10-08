@@ -667,4 +667,125 @@ Node* IRGenerator::opLog(Node* left, Node* right, OpNode::Type op) {
 	return node;
 }
 
+Node* IRGenerator::opMinus(Node* node) {
+	if (node->Class->MIsInteger || node->Class->MIsFloat) {
+		if (node->NT == NodeType::UnaryOp && ((UnaryOpNode*)node)->Op == OpNode::opMinus)
+			return ((UnaryOpNode*)node)->OpA;
+		/*if (node->IsCT && node->NT != NodeType::List) {
+			if (ass.IsSignedInt(node->Tt))
+				node->IntVal = -node->IntVal;
+			else
+				node->DblVal = -node->DblVal;
+			return node;
+		}*/
+		
+		UnaryOpNode* minus = unaryNodes.Get();
+		minus->OpA = node;
+		minus->Op = OpNode::opMinus;
+
+		minus->IsConst = node->IsConst;
+		minus->IsCT = node->IsCT;
+		minus->SetType(node->Class);
+		
+		ASSERT(minus->Class);
+		
+		return minus;
+	}
+	//else
+	//	return GetOp(Over, strops[13], node, ass, this, *Comp, Point(1, 1));
+	
+	return nullptr;
+}
+
+
+Node* IRGenerator::opPlus(Node* node) {
+	if (node->Class->MIsNumeric)
+		return node;
+	//else
+	//	return GetOp(Over, strops[14], node, ass, this, *Comp, Point(1, 1));
+
+	return node;
+}
+
+Node* IRGenerator::opNot(Node* node) {
+	if (node->Class == ass.CBool) {
+		if (node->NT == NodeType::UnaryOp && ((UnaryOpNode*)node)->Op == OpNode::opNot)
+			return ((UnaryOpNode*)node)->OpA;
+		
+		if (node->IsCT) {
+			node->IntVal = !((bool)node->IntVal);
+			return node;
+		}
+		
+		UnaryOpNode* minus = unaryNodes.Get();
+		minus->OpA = node;
+		minus->Op = OpNode::opNot;
+
+		minus->IsConst = node->IsConst;
+		minus->IsCT = node->IsCT;
+		minus->SetType(node->Class);
+		
+		ASSERT(minus->Class);
+		
+		return minus;
+	}
+	//else
+	//	return GetOp(Over, strops[15], node, ass, this, *Comp, Point(1, 1));
+	
+	return nullptr;
+}
+
+Node* IRGenerator::opBitNot(Node* node) {
+	if (node->Class->MIsNumeric) {
+		if (node->NT == NodeType::UnaryOp && ((UnaryOpNode*)node)->Op == OpNode::opComp)
+			return ((UnaryOpNode*)node)->OpA;
+		
+		UnaryOpNode* minus = unaryNodes.Get();
+		minus->OpA = node;
+		minus->Op = OpNode::opComp;
+
+		minus->IsConst = node->IsConst;
+		minus->IsCT = node->IsCT;
+		minus->SetType(node->Class);
+		
+		ASSERT(minus->Class);
+		
+		return minus;
+	}
+	//else
+	//	return GetOp(Over, strops[16], node, ass, this, *Comp, Point(1, 1));
+	
+	return nullptr;
+}
+
+Node* IRGenerator::opInc(Node* node, bool prefix) {
+	UnaryOpNode* n = unaryNodes.Get();
+	
+	n->OpA = node;
+	n->Op = OpNode::opInc;
+	n->Prefix = prefix;
+
+	n->SetType(ass.CVoid);
+	n->HasSe = true;
+	
+	ASSERT(n->Class);
+	
+	return n;
+}
+
+Node* IRGenerator::opDec(Node* node, bool prefix) {
+	UnaryOpNode* n = unaryNodes.Get();
+	
+	n->OpA = node;
+	n->Op = OpNode::opDec;
+	n->Prefix = prefix;
+
+	n->SetType(ass.CVoid);
+	n->HasSe = true;
+	
+	ASSERT(n->Class);
+	
+	return n;
+}
+
 }

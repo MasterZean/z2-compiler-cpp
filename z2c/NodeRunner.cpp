@@ -60,8 +60,23 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 	CallDepth++;
 	
 	if (CallDepth >= StartCallDepth) {
-		stream << "// call " << over.OwnerMethod.Name << "(" << over.Signature << ")";
-		LOG(String().Cat() << "call " << over.OwnerMethod.Name << "(" << over.Signature << ")");
+		StringStream p;
+		for (int i = 0; i < over.Params.GetCount(); i++) {
+			if (i)
+				p << ", ";
+			
+			p << over.Params[i].Class->Name << " = ";
+			
+			if ((*paramList)[i]->NT == NodeType::Const)
+				WriteValue(p, (*paramList)[i]);
+			else
+				p << "*";
+		}
+		
+		String ps = p;
+		
+		stream << "// call " << over.OwnerMethod.Name << "(" << ps << ")";
+		LOG(String().Cat() << "call " << over.OwnerMethod.Name << "(" << ps << ")");
 		NL();
 	}
 	
@@ -96,10 +111,10 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 					VarNode* var = (VarNode*)in;
 					stream << "var " << var->Var->Name << ": ";
 					stream << var->Var->Class->Name << " = ";
-					WriteValue(var->Var->Value);
+					WriteValue(stream, var->Var->Value);
 				}
 				else if (node->Class != ass.CVoid)
-					WriteValue(node);
+					WriteValue(stream, node);
 				NL();
 			}
 		}
@@ -115,7 +130,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 	return ret;
 }
 
-void NodeRunner::WriteValue(Node* node) {
+void NodeRunner::WriteValue(Stream& stream, Node* node) {
 	stream << node->Class->Name << "{";
 	if (node->Class->MIsNumeric) {
 		if (node->Class == ass.CFloat || node->Class == ass.CDouble)
@@ -225,8 +240,7 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 Node* NodeRunner::ExecuteNode(MemNode& node) {
 	if (node.Var->MIsParam >= 0) {
 		ASSERT(paramList);
-		DUMP(node.Var->Name);
-		return Execute((*paramList)[node.Var->MIsParam]);
+		return (*paramList)[node.Var->MIsParam];
 	}
 	else
 		return Execute(node.Var->Value);
@@ -253,8 +267,14 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(CallNode& node) {
+	Vector<Node*> newParams;
+	newParams.Reserve(node.Params.GetCount());
+	
+	for (int i = 0; i < node.Params.GetCount(); i++)
+		newParams << Execute(node.Params[i]);
+	
 	auto temp = paramList;
-	paramList = &node.Params;
+	paramList = &newParams;
 	
 	Node* ret = ExecuteOverload(*node.Over);
 	

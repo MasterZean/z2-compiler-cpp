@@ -17,7 +17,9 @@ Assembly::Assembly() {
 	CQWord = AddCoreInteger("QWord", "uint64", "q", 8);
 	
 	CFloat = AddCoreNumeric("Float", "float", "f", 9);
+	CFloat->MIsFloat = true;
 	CDouble = AddCoreNumeric("Double", "double", "d",  10);
+	CDouble->MIsFloat = true;
 	Classes.Add("");     // 11 is Extended   "e"
 	
 	CChar = AddCoreNumeric("Char", "uint32", "c", 12);

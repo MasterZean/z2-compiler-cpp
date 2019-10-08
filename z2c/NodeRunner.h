@@ -31,7 +31,7 @@ public:
 	Node* ExecuteNode(RetNode& node);
 	Node* ExecuteNode(AssignNode& node);
 	
-	void WriteValue(Node* node);
+	void WriteValue(Stream& stream, Node* node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)
