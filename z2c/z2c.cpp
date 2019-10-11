@@ -354,7 +354,6 @@ CONSOLE_APP_MAIN {
 	
 	ss << "int main(int argc, char* argv[]) {\n  _main();\n  return 0;\n}\n";
 	ss.Close();
-	//Cout() << ss.GetResult();
 	
 	Cout() << "==========================================================================\r\n";
 	

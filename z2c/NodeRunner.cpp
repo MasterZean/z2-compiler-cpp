@@ -10,8 +10,8 @@ Node* NodeRunner::Execute(Node* node) {
 		return ExecuteNode(*(ConstNode*)node);
 	else if (node->NT == NodeType::BinaryOp)
 		return ExecuteNode(*(OpNode*)node);
-	/*else if (node->NT == NodeType::UnaryOp)
-		Walk((UnaryOpNode*)node);*/
+	else if (node->NT == NodeType::UnaryOp)
+		return ExecuteNode(*(UnaryOpNode*)node);
 	else if (node->NT == NodeType::Memory)
 		return ExecuteNode(*(MemNode*)node);
 	else if (node->NT == NodeType::Assign)
@@ -22,9 +22,9 @@ Node* NodeRunner::Execute(Node* node) {
 		Walk((TempNode*)node);*/
 	else if (node->NT == NodeType::Call)
 		return ExecuteNode(*(CallNode*)node);
-	/*else if (node->NT == NodeType::List)
-		Walk((ListNode*)node);
-	else if (node->NT == NodeType::Construct)
+	else if (node->NT == NodeType::List)
+		return ExecuteNode(*(ListNode*)node);
+	/*else if (node->NT == NodeType::Construct)
 		Walk((ConstructNode*)node);
 	else if (node->NT == NodeType::Ptr)
 		Walk((PtrNode*)node);
@@ -261,6 +261,188 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 	return nullptr;
 }
 
+union CpuValue {
+	int8 i8;
+	uint8 u8;
+	int16 i16;
+	uint16 u16;
+	int32 i32;
+	uint32 u32;
+	int64 i64;
+	uint64 u64;
+	double f64;
+	//long double f80;
+	void* ptr;
+	
+	void negate(int t);
+	void bitnot(int t);
+};
+
+CpuValue NodeToVal(const Node& n) {
+	CpuValue v;
+	
+	if (n.Class->MIsFloat)
+		v.f64 = n.DblVal;
+	else
+		v.i64 = n.IntVal;
+
+	return v;
+}
+
+void CpuValue::negate(int t) {
+#ifdef _DEBUG
+	int64 temp = i64;
+#endif
+
+	i64 = -i64;
+	
+#ifdef _DEBUG
+	if (t == 1) {
+		int8 v = temp;
+		v = -v;
+		
+		ASSERT(((int8)i64) == v);
+		ASSERT(i8 == v);
+	}
+	else if (t == 2) {
+		uint8 v = temp;
+		v = -v;
+		
+		ASSERT(((uint8)i64) == v);
+		ASSERT(u8 == v);
+	}
+	else if (t == 3) {
+		int16 v = temp;
+		v = -v;
+		
+		ASSERT(((int16)i64) == v);
+		ASSERT(i16 == v);
+	}
+	else if (t == 4) {
+		uint16 v = temp;
+		v = -v;
+		
+		ASSERT(((uint16)i64) == v);
+		ASSERT(u16 == v);
+	}
+	else if (t == 5) {
+		int32 v = temp;
+		v = -v;
+		
+		ASSERT(((int32)i64) == v);
+		ASSERT(i32 == v);
+	}
+	else if (t == 6) {
+		uint32 v = temp;
+		v = -v;
+
+		ASSERT(((uint32)i64) == v);
+		ASSERT(u32 == v);
+	}
+	else if (t == 7) {
+		int64 v = temp;
+		v = -v;
+		
+		ASSERT(i64 == v);
+	}
+	else if (t == 8) {
+		uint64 v = temp;
+		v = -v;
+
+		ASSERT(u64 == v);
+	}
+#endif
+}
+
+void CpuValue::bitnot(int t) {
+#ifdef _DEBUG
+	int64 temp = i64;
+#endif
+
+	i64 = ~i64;
+	
+#ifdef _DEBUG
+	if (t == 1) {
+		int8 v = temp;
+		v = ~v;
+		
+		ASSERT(((int8)i64) == v);
+		ASSERT(i8 == v);
+	}
+	else if (t == 2) {
+		uint8 v = temp;
+		v = ~v;
+		
+		ASSERT(((uint8)i64) == v);
+		ASSERT(u8 == v);
+	}
+	else if (t == 3) {
+		int16 v = temp;
+		v = ~v;
+		
+		ASSERT(((int16)i64) == v);
+		ASSERT(i16 == v);
+	}
+	else if (t == 4) {
+		uint16 v = temp;
+		v = ~v;
+		
+		ASSERT(((uint16)i64) == v);
+		ASSERT(u16 == v);
+	}
+	else if (t == 5) {
+		int32 v = temp;
+		v = ~v;
+		
+		ASSERT(((int32)i64) == v);
+		ASSERT(i32 == v);
+	}
+	else if (t == 6) {
+		uint32 v = temp;
+		v = ~v;
+
+		ASSERT(((uint32)i64) == v);
+		ASSERT(u32 == v);
+	}
+	else if (t == 7) {
+		int64 v = temp;
+		v = ~v;
+		
+		ASSERT(i64 == v);
+	}
+	else if (t == 8) {
+		uint64 v = temp;
+		v = ~v;
+
+		ASSERT(u64 == v);
+	}
+#endif
+}
+
+Node* NodeRunner::ExecuteNode(UnaryOpNode& node) {
+	if (node.Op == OpNode::opMinus) {
+		CpuValue v = NodeToVal(*Execute(node.OpA));
+		v.negate(node.OpA->Class->MIndex);
+		
+		return irg.constIntSigned(v.i64, node.OpA->Class);
+	}
+	else if (node.Op == OpNode::opBitNot) {
+		CpuValue v = NodeToVal(*Execute(node.OpA));
+		v.bitnot(node.OpA->Class->MIndex);
+		
+		return irg.constIntSigned(v.i64, node.OpA->Class);
+	}
+	else if (node.Op == OpNode::opNot) {
+		CpuValue v = NodeToVal(*Execute(node.OpA));
+		
+		return irg.constBool(v.i64 == 0);
+	}
+	else
+		ASSERT(0);
+	
+	return nullptr;
+}
+
 Node* NodeRunner::ExecuteNode(MemNode& node) {
 	if (node.Var->MIsParam >= 0) {
 		ASSERT(paramList);
@@ -271,10 +453,10 @@ Node* NodeRunner::ExecuteNode(MemNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(CastNode& node) {
-	Execute(node.Object);
+	Node* res = Execute(node.Object);
 	
-	node.IntVal = node.Object->IntVal;
-	node.DblVal = node.Object->DblVal;
+	node.IntVal = res->IntVal;
+	node.DblVal = res->DblVal;
 	
 	if (node.Class == ass.CFloat) {
 		if (node.Object->Class != ass.CFloat && node.Object->Class != ass.CDouble) {
@@ -371,6 +553,11 @@ Node* NodeRunner::ExecuteNode(AssignNode& node) {
 	}
 	
 	return nullptr;
+}
+
+Node* NodeRunner::ExecuteNode(ListNode& node) {
+	Node* n = Execute(node.Object);
+	return n;
 }
 
 }

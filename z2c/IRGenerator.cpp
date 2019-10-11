@@ -255,6 +255,30 @@ MemNode* IRGenerator::mem(Variable& v) {
 	return var;
 }
 
+ListNode* IRGenerator::list(Node* node) {
+	if (node->NT == NodeType::List)
+		return (ListNode*)node;
+	
+	ListNode* l = listNodes.Get();
+	
+	l->Object = node;
+	
+	l->Class = node->Class;
+	l->C1 = node->C1;
+	l->C2 = node->C2;
+	l->IsConst = node->IsConst;
+	l->IsCT = node->IsCT;
+	l->IsLiteral = node->IsLiteral;
+	l->HasSe = node->HasSe;
+	l->IntVal = node->IntVal;
+	l->DblVal = node->DblVal;
+	l->IsAddressable = node->IsAddressable;
+	
+	ASSERT(l->Class);
+	
+	return l;
+}
+
 AssignNode* IRGenerator::assign(Node* ls, Node* rs) {
 	AssignNode* node = assNodes.Get();
 	
@@ -739,12 +763,12 @@ Node* IRGenerator::opNot(Node* node) {
 
 Node* IRGenerator::opBitNot(Node* node) {
 	if (node->Class->MIsNumeric) {
-		if (node->NT == NodeType::UnaryOp && ((UnaryOpNode*)node)->Op == OpNode::opComp)
+		if (node->NT == NodeType::UnaryOp && ((UnaryOpNode*)node)->Op == OpNode::opBitNot)
 			return ((UnaryOpNode*)node)->OpA;
 		
 		UnaryOpNode* minus = unaryNodes.Get();
 		minus->OpA = node;
-		minus->Op = OpNode::opComp;
+		minus->Op = OpNode::opBitNot;
 		minus->Prefix = true;
 
 		minus->IsConst = node->IsConst;

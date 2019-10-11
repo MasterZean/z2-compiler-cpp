@@ -10,8 +10,8 @@ void CppNodeWalker::Walk(Node* node) {
 		WalkNode(*(ConstNode*)node);
 	else if (node->NT == NodeType::BinaryOp)
 		WalkNode(*(OpNode*)node);
-	/*else if (node->NT == NodeType::UnaryOp)
-		Walk((UnaryOpNode*)node);*/
+	else if (node->NT == NodeType::UnaryOp)
+		WalkNode(*(UnaryOpNode*)node);
 	else if (node->NT == NodeType::Memory)
 		WalkNode(*(MemNode*)node);
 	else if (node->NT == NodeType::Cast)
@@ -22,9 +22,9 @@ void CppNodeWalker::Walk(Node* node) {
 		Walk((TempNode*)node);*/
 	else if (node->NT == NodeType::Call)
 		WalkNode(*(CallNode*)node);
-	/*else if (node->NT == NodeType::List)
-		Walk((ListNode*)node);
-	else if (node->NT == NodeType::Construct)
+	else if (node->NT == NodeType::List)
+		WalkNode(*(ListNode*)node);
+	/*else if (node->NT == NodeType::Construct)
 		Walk((ConstructNode*)node);
 	else if (node->NT == NodeType::Ptr)
 		Walk((PtrNode*)node);
@@ -369,6 +369,13 @@ void CppNodeWalker::WalkNode(AssignNode& node) {
 	
 	Walk(node.RS);
 }
+
+void CppNodeWalker::WalkNode(ListNode& node) {
+	stream << "(";
+	Walk(node.Object);
+	stream << ")";
+}
+
 
 String MangleNamespace(const String& ns) {
 	String s;

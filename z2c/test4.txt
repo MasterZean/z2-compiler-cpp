@@ -1,0 +1,9 @@
+def @main() {
+    val a = Byte{-0b00000100} >> 1
+	val b = Small{ 0b10000000} >> 2
+	0b10000000u >> 2
+	a = -a
+	b = -b
+	a = Byte{!(a == 7000)}
+	b = Small{!(b == 32)}
+}

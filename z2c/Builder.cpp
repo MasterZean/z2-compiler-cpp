@@ -93,7 +93,7 @@ bool Builder::CompileMSC(const String& src, const String& out) {
 	cmd << optimize << " ";
 	cmd << "/c /nologo /MT /EHsc ";
 	
-	DUMP(cmd);
+	//DUMP(cmd);
 	
 	LocalProcess lp(cmd, env);
 	while (lp.Read(t)) {
@@ -124,7 +124,7 @@ bool Builder::BuildMSC(const String& path, const String& origPath) {
 	String outTitle = GetFileTitle(origPath);
 		
 	DoEnvMSC();
-	DUMP(env);
+	//DUMP(env);
 	
 	StopWatch sw;
 	
@@ -229,7 +229,7 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 	cmd << QT << src << QT << " ";
 	cmd << "-o " << QT << out << QT << " ";
 	
-	DUMP(cmd);
+	//DUMP(cmd);
 	
 	//String pp = "cmd.exe /C \"" + cmd + "\"";
 	
@@ -252,7 +252,7 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 }
 
 bool Builder::BuildGCC(const String& path, const String& origPath) {
-	DUMP(path);
+	//DUMP(path);
 	String inPath = GetFileDirectory(path);
 	String inTitle = GetFileTitle(path);
 	String outPath = GetFileDirectory(origPath);
@@ -282,7 +282,7 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	linkPath = cppPath;
 	
 	DoEnvGCC();
-	DUMP(env);
+	//DUMP(env);
 	
 	if (optimize == " -Od")
 		optimize = " -Og";
@@ -339,7 +339,7 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	//d << " -Wl,--subsystem,windows";
 	//if (arch == "x64")
 	//	d << " /MACHINE:x64 ";
-	DUMP(d);
+	//DUMP(d);
 	{
 		LocalProcess lp(d, env);
 		while (lp.Read(t)) {
@@ -393,7 +393,7 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 	cmd << QT << src << QT << " ";
 	cmd << "-o " << QT << out << QT << " ";
 	
-	DUMP(cmd);
+	//DUMP(cmd);
 	//String pp = "cmd.exe /C \"" + cmd + "\"";
 	
 	LocalProcess lp(cmd);
@@ -474,54 +474,6 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	
 	return result;
 }
-
-/*bool Builder::BuildGCC(const String& path, const String& origPath) {
-	bool result = true;
-	String O = ol;
-	
-	String s = GetFileDirectory(path);
-	String n = GetFileTitle(path);
-	String s2 = GetFileDirectory(origPath);
-	String n2 = GetFileTitle(origPath);
-	String c;
-
-	//c << "SET PATH=%PATH%;";
-	//c << bm.Compiler << "\\bin" << ";";
-	//c << " & ";
-
-	//c << "cd \"" + s + "\" & ";
-	String leak = curDir + NativePath("codegen\\posix\\gcc\\leakdetect." + arch + ".o");
-	if (O == " -Od")
-		O = " -Og";
-	O << " ";
-	c << bm.Compiler +  " -w " + s + n + ".cpp " + leak + O + " -o " + s2 + n2 + " -fpermissive -fexceptions -msse2 -m";
-	if (arch == "x64")
-		c << "64";
-	else
-		c << "32";
-	c << " -x c++ -std=c++11";
-	//c << " -g2 -static -x c++ -std=c++11";
-	//c << " -lraylib -lopengl32 -lgdi32";
-	DUMP(c);
-	String t, tt;
-	String pp = c;//"cmd.exe /C \"" + c + "\"";
-
-	SetCurrentDirectory(s);
-
-	LocalProcess lp(pp);
-	while (lp.Read(t)) {
-		if (t.GetCount())
-			tt << t;
-	}
-	if (!tt.IsEmpty()) {
-		Cout() << "Binary generation output: " << tt << "\n";
-		result = false;
-	}
-
-	//DeleteFile(s + n + ".cpp");
-	
-	return result;
-}*/
 
 #endif
 

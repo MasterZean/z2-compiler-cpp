@@ -26,10 +26,12 @@ public:
 	Node* ExecuteNode(MemNode& node);
 	Node* ExecuteNode(BlockNode& node);
 	Node* ExecuteNode(OpNode& node);
+	Node* ExecuteNode(UnaryOpNode& node);
 	Node* ExecuteNode(CastNode& node);
 	Node* ExecuteNode(CallNode& node);
 	Node* ExecuteNode(RetNode& node);
 	Node* ExecuteNode(AssignNode& node);
+	Node* ExecuteNode(ListNode& node);
 	
 	void WriteValue(Stream& stream, Node* node);
 	

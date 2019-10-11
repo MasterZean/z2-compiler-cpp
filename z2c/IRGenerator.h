@@ -84,6 +84,7 @@ public:
 	
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
+	ListNode* list(Node* n);
 	
 	AssignNode* assign(Node* ls, Node* rs);
 	
@@ -133,6 +134,7 @@ private:
 	NodePool<RetNode> retNodes;
 	NodePool<AssignNode> assNodes;
 	NodePool<UnaryOpNode> unaryNodes;
+	NodePool<ListNode> listNodes;
 };
 
 }

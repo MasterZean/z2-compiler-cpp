@@ -26,8 +26,8 @@ public:
 		Cast,
 		//Temporary,
 		Call,
-		/*List,
-		Construct,
+		List,
+		/*Construct,
 		Ptr,
 		Index,
 		SizeOf,
@@ -148,7 +148,7 @@ public:
 		opPlus = 19,
 		opMinus = 20,
 		opNot = 21,
-		opComp = 22,
+		opBitNot = 22,
 		opInc = 23,
 		opDec = 24,
 		opTernary = 25,
@@ -212,6 +212,15 @@ public:
 	
 	AssignNode() {
 		NT = NodeType::Assign;
+	}
+};
+
+class ListNode: public Node {
+public:
+	Node* Object = nullptr;
+
+	ListNode() {
+		NT = NodeType::List;
 	}
 };
 

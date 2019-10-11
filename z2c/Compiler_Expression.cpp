@@ -126,6 +126,11 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	else if (parser.Char2(':', ':')) {
 		exp = ParseId(conCls, conOver, nullptr, parser);
 	}
+	else if (parser.Char('(')) {
+		Node* node = ParseExpression(conCls, conOver, parser);
+		parser.Expect(')');
+		exp = irg.list(node);
+	}
 	else {
 		Point p = parser.GetPoint();
 		ErrorReporter::SyntaxError(conCls.Name, p, parser.Identify());
