@@ -308,6 +308,20 @@ void CppNodeWalker::WalkNode(OpNode& node) {
 	Walk(node.OpB);
 }
 
+void CppNodeWalker::WalkNode(UnaryOpNode& node) {
+	if (node.Prefix) {
+		stream << TabOpString[node.Op] << "(";
+		Walk(node.OpA);
+		stream << ")";
+	}
+	else {
+		stream << "(";
+		Walk(node.OpA);
+		stream << ")" << TabOpString[node.Op];
+	}
+}
+
+
 void CppNodeWalker::WalkNode(CastNode& node) {
 	stream << "(" << node.Class->BackendName << ")(";
 	Walk(node.Object);

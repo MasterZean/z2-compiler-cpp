@@ -1,5 +1,5 @@
 {
-	var a: DWord = DWord{3}
+	var a: DWord = DWord{2}
 }
 {
 	var a: DWord = DWord{3}

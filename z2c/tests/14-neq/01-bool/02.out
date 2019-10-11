@@ -1,0 +1,13 @@
+true != false;
+true != 0;
+true != 0u;
+true != 0;
+true != 0u;
+true != 0;
+true != 0u;
+true != 0ll;
+true != 0ull;
+true != 0.0f;
+true != 0.0;
+true != '\0';
+true != 0u;

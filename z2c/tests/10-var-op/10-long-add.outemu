@@ -1,5 +1,5 @@
 {
-	var a: Long = Long{3}
+	var a: Long = Long{2}
 }
 {
 	var a: Long = Long{3}

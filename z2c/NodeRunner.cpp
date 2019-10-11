@@ -207,16 +207,40 @@ Node* NodeRunner::ExecuteNode(OpNode& node) {
 			ASSERT_(0, "shl");
 	}
 	else if (node.Op <= OpNode::opShr) {
-		if (node.Class == ass.CByte || node.Class == ass.CWord || node.Class == ass.CDWord || node.Class == ass.CQWord) {
-			uint64 dInt = (uint64)left->IntVal >> (uint64)right->IntVal;
-			return irg.constIntUnsigned(dInt, node.Class);
-		}
-		else if (node.Class == ass.CSmall || node.Class == ass.CShort || node.Class == ass.CInt || node.Class == ass.CLong) {
-			int64 dInt = (int64)left->IntVal >> (int64)right->IntVal;
+		if (node.Class == ass.CSmall) {
+			int64 dInt = (int8)((int8)left->IntVal >> (int64)right->IntVal);
 			return irg.constIntSigned(dInt, node.Class);
 		}
+		else if (node.Class == ass.CByte) {
+			uint64 dInt = (uint8)((uint8)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntUnsigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CShort) {
+			int64 dInt = (int16)((int16)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntSigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CWord) {
+			uint64 dInt = (uint16)((uint16)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntUnsigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CInt) {
+			int64 dInt = (int32)((int32)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntSigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CDWord) {
+			uint64 dInt = (uint32)((uint32)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntUnsigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CLong) {
+			int64 dInt = (int64)((int64)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntSigned(dInt, node.Class);
+		}
+		else if (node.Class == ass.CQWord) {
+			uint64 dInt = (uint64)((uint64)left->IntVal >> (int64)right->IntVal);
+			return irg.constIntUnsigned(dInt, node.Class);
+		}
 		else
-			ASSERT_(0, "shl");
+			ASSERT_(0, "shr");
 	}
 	else if (node.Op <= OpNode::opNeq) {
 		int t = TabRel[left->Class->MIndex][right->Class->MIndex];
@@ -261,6 +285,50 @@ Node* NodeRunner::ExecuteNode(CastNode& node) {
 		if (node.Object->Class != ass.CFloat && node.Object->Class != ass.CDouble) {
 			node.DblVal = node.IntVal;
 		}
+	}
+	else if (node.Class == ass.CBool) {
+		if (node.Object->Class != ass.CFloat && node.Object->Class != ass.CDouble) {
+			node.IntVal = (node.IntVal != 0);
+		}
+		else {
+			node.IntVal = (node.DblVal != 0);
+		}
+	}
+	else if (node.Class == ass.CSmall) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (int64)(int8)node.DblVal;
+		else
+			node.IntVal = (int64)(int8)node.IntVal;
+	}
+	else if (node.Class == ass.CShort) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (int64)(int16)node.DblVal;
+		else
+			node.IntVal = (int64)(int16)node.IntVal;
+	}
+	else if (node.Class == ass.CInt) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (int64)(int32)node.DblVal;
+		else
+			node.IntVal = (int64)(int32)node.IntVal;
+	}
+	else if (node.Class == ass.CByte) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (uint64)(uint8)node.DblVal;
+		else
+			node.IntVal = (uint64)(uint8)node.IntVal;
+	}
+	else if (node.Class == ass.CShort) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (uint64)(uint16)node.DblVal;
+		else
+			node.IntVal = (uint64)(uint16)node.IntVal;
+	}
+	else if (node.Class == ass.CInt) {
+		if (node.Class->MIsFloat)
+			node.IntVal = (uint64)(uint32)node.DblVal;
+		else
+			node.IntVal = (uint64)(uint32)node.IntVal;
 	}
 	
 	return &node;

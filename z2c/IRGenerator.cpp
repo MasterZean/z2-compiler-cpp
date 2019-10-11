@@ -682,6 +682,7 @@ Node* IRGenerator::opMinus(Node* node) {
 		UnaryOpNode* minus = unaryNodes.Get();
 		minus->OpA = node;
 		minus->Op = OpNode::opMinus;
+		minus->Prefix = true;
 
 		minus->IsConst = node->IsConst;
 		minus->IsCT = node->IsCT;
@@ -720,6 +721,7 @@ Node* IRGenerator::opNot(Node* node) {
 		UnaryOpNode* minus = unaryNodes.Get();
 		minus->OpA = node;
 		minus->Op = OpNode::opNot;
+		minus->Prefix = true;
 
 		minus->IsConst = node->IsConst;
 		minus->IsCT = node->IsCT;
@@ -743,6 +745,7 @@ Node* IRGenerator::opBitNot(Node* node) {
 		UnaryOpNode* minus = unaryNodes.Get();
 		minus->OpA = node;
 		minus->Op = OpNode::opComp;
+		minus->Prefix = true;
 
 		minus->IsConst = node->IsConst;
 		minus->IsCT = node->IsCT;

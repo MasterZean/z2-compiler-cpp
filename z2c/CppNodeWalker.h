@@ -39,6 +39,7 @@ public:
 	void WalkNode(MemNode& node);
 	void WalkNode(BlockNode& node);
 	void WalkNode(OpNode& node);
+	void WalkNode(UnaryOpNode& node);
 	void WalkNode(CastNode& node);
 	void WalkNode(CallNode& node);
 	void WalkNode(RetNode& node);

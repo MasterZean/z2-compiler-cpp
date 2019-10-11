@@ -1,5 +1,5 @@
 {
-	var a: Small = Small{3}
+	var a: Small = Small{2}
 }
 {
 	var a: Small = Small{3}

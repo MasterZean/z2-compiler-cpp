@@ -1,0 +1,13 @@
+false != false
+false != 0s8
+false != 0u8
+false != 0s16
+false != 0u16
+false != 0
+false != 0u
+false != 0l
+false != 0ul
+false != 0.0f
+false != 0.0
+false != '\0'
+false != 0p

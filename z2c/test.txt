@@ -1,6 +1,6 @@
 namespace foo
 
-val a = 7000
+val a = -100 == 156u
 val b = 0
 val c = 1
 

@@ -1,7 +1,8 @@
 namespace org.foo.bar.beagle
 
 def @main() {
-	const C = 7
+	const A = 4294967196p
+	const C = -100 == 156u;
 	C = 8
 
 	test(-1)

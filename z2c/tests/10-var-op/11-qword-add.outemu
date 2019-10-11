@@ -1,5 +1,5 @@
 {
-	var a: QWord = QWord{3}
+	var a: QWord = QWord{2}
 }
 {
 	var a: QWord = QWord{3}

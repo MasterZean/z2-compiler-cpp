@@ -380,7 +380,8 @@ ZParser::NumberType ZParser::ReadI(Point& p, int sign, int64& oInt) {
 		ps = true;
 		nt = ntPtrSize;
 	}
-	if (u) {
+	
+	if (u || ps) {
 		if (sign == -1)
 			ErrorReporter::UnsignedLeadingMinus(Path, p);
 		if (i > 4294967295 && !l)

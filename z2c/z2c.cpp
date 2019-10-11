@@ -81,6 +81,9 @@ void RunTest(const String& path) {
 			LOG("====================================================================");
 			LOG("");
 	
+			//SaveFile("c:\\temp\\a.txt", result);
+			//SaveFile("c:\\temp\\b.txt", out2);
+		
 			Cout() << path << " FAILLED!\n";
 		}
 	}
@@ -143,6 +146,8 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/12-shr/09-qword"));
 	
 	RunSuite(GetDataFile("tests/13-eq/01-bool"));
+	RunSuite(GetDataFile("tests/13-eq/02-small"));
+	RunSuite(GetDataFile("tests/14-neq/01-bool"));
 	
 	DUMP(ext);
 		
@@ -154,11 +159,46 @@ void RunMicroTests() {
 	}
 }
 
+template <class T>
+void GenReport() {
+	signed char i;
+	
+	for (int i = -128; i <= 127; i++) {
+		String line;
+		
+		String s = IntStr(i);
+		
+		line << s;
+		
+		Assembly ass;
+		Compiler compiler(ass);
+		compiler.PrintErrors = false;
+		
+		Overload* over = compiler.CompileSnipFunc(s);
+		
+		StringStream ss;
+		CppNodeWalker cpp(ass, ss);
+		
+		if (over->Nodes.GetCount())
+			cpp.Walk(over->Nodes[0]);
+		
+		String result = ss.GetResult();
+	
+		line << " " << result;
+		
+		LOG(line);
+	}
+}
+
 bool IgnoreDupes = true;
 
+#include <iostream>
+
 CONSOLE_APP_MAIN {
-	RunMicroTests();
+	//GenReport<int>();
 	
+	RunMicroTests();
+
 	Z2::CommandLine K;
 	if (!K.Read()) {
 		SetExitCode(-1);

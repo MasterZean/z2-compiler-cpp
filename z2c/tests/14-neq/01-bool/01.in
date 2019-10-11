@@ -1,0 +1,13 @@
+true != true
+true != 1s8
+true != 1u8
+true != 1s16
+true != 1u16
+true != 1
+true != 1u
+true != 1l
+true != 1ul
+true != 1.0f
+true != 1.0
+true != '\u000001'
+true != 1p
