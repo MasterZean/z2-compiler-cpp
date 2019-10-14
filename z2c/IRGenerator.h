@@ -73,7 +73,7 @@ public:
 	
 	ConstNode* constChar(int l, int base = 10);
 	ConstNode* constBool(bool l);
-	ConstNode* constClass(ZClass* cls);
+	Node*      constClass(ZClass* cls, Node* e = nullptr);
 	ConstNode* constNull();
 	ConstNode* constVoid();
 	

@@ -561,7 +561,11 @@ Node* NodeRunner::ExecuteNode(AssignNode& node) {
 }
 
 Node* NodeRunner::ExecuteNode(ListNode& node) {
-	Node* n = Execute(node.Object);
+	Node* n = nullptr;
+	
+	for (int i = 0; i < node.Params.GetCount(); i++)
+		n = Execute(node.Params[i]);
+	
 	return n;
 }
 

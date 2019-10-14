@@ -60,6 +60,8 @@ public:
 	String MangledName;
 	String ParamName;
 	
+	bool IsTemplate = false;
+	
 	Point SourcePos = Point(-1, -1);
 	
 	bool MIsInteger = false;

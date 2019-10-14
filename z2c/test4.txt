@@ -10,4 +10,6 @@ def @main() {
 	Byte
 	PtrSize
 	Int == Double
+
+	Int.Max
 }

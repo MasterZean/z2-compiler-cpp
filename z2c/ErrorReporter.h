@@ -45,8 +45,11 @@ public:
 	static void IdentifierExpected(const String& path, const Point& p, const String& found);
 	static void IdentifierExpected(const String& path, const Point& p, const String& id, const String& found);
 	static void UndeclaredIdentifier(const String& path, const Point& p, const String& id);
+	static void UndeclaredIdentifier(const String& path, const Point& p, const String& c1, const String& c2);
 	static void UndeclaredClass(const String& path, const Point& p, const String& id);
 	static void UnreachableCode(const String& path, const Point& p);
+	
+	static void ClassMustBeInstanciated(const String& path, const Point& p, const String& c);
 	
 	static void CantAssign(const String& path, const Point& p, const String& c1, const String& c2);
 	static void AssignNotLValue(const String& path, const Point& p);

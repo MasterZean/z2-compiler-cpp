@@ -8,6 +8,8 @@ namespace Z2 {
 String strops[] = { "@add", "@sub", "@mul", "@div", "@mod", "@shl", "@shr", "@less", "@lesseq", "@more", "@moreeq", "@eq", "@neq", "@minus", "@plus", "@not", "@bitnot" };
 String ops[]    = { "add",  "sub",  "mul",  "div",  "mod",  "shl",  "shr",  "less",  "lseq",    "more",  "mreq",    "eq",  "neq", "band", "bxor", "bor",  "land", "lor"  };
 
+String CLS_STR = "class";
+
 Node* Compiler::ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	Node* left = ParseAtom(conCls, conOver, parser);
 	parser.WSCurrentLine();
@@ -145,6 +147,16 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 			if (exp->IsLiteral && exp->Class == ass.CCls)
 				exp = ParseTemporary(conCls, conOver, parser, p, ass.Classes[(int)exp->IntVal]);
 		}
+		else if (parser.Char('.')) {
+			ASSERT(exp->Class);
+
+			if (exp->Class == ass.CCls && exp->IsLiteral && ass.Classes[(int)exp->IntVal].IsTemplate)
+				ErrorReporter::ClassMustBeInstanciated(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name);
+
+			exp = ParseDot(conCls, conOver, parser, exp);
+			
+			ASSERT(exp->Class);
+		}
 		else
 			break;
 	}
@@ -265,6 +277,41 @@ Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parse
 		
 		return irg.cast(exp, &cls);
 	}
+}
+
+Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Node* exp) {
+	Point p = parser.GetPoint();
+	String s;
+	
+	s = parser.ExpectId();
+	
+	if (s == CLS_STR) {
+		if (exp->Class == ass.CCls) {
+			if (!exp->IsLiteral)
+				ErrorReporter::Warning(conCls.Name, p, "chained .class statements detected. Expression is equivalent to 'Class.class' which is 'Class'");
+			if (exp->IntVal == ass.CCls->MIndex)
+				ErrorReporter::Warning(conCls.Name, p, "'Class.class' is 'Class'. Is this intentional?");
+			
+			exp = irg.constClass(&ass.Classes[(int)exp->IntVal]);
+			exp->IsLiteral = false;
+
+			ASSERT(exp->Class);
+			
+			return exp;
+		}
+		else {
+			exp = irg.constClass(exp->Class, exp);
+			exp->IsLiteral = false;
+			
+			ASSERT(exp->Class);
+			
+			return exp;
+		}
+	}
+	else
+		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name, s);
+	
+	return nullptr;
 }
 
 void Compiler::GetParams(Vector<Node*>& params, ZClass& conCls, Overload* conOver, ZParser& parser, char end) {

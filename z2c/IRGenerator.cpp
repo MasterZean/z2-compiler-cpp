@@ -201,7 +201,7 @@ ConstNode* IRGenerator::constNull() {
 	return node;
 }
 
-ConstNode* IRGenerator::constClass(ZClass* cls/*, Node* e*/) {
+Node* IRGenerator::constClass(ZClass* cls, Node* e) {
 	ConstNode* node = constNodes.Get();
 
 	node->SetType(ass.CCls);
@@ -212,17 +212,21 @@ ConstNode* IRGenerator::constClass(ZClass* cls/*, Node* e*/) {
 	
 	ASSERT(node->Class);
 
-	/*if (e != NULL && e->HasSe) {
+	if (e != NULL && e->HasSe) {
 		ListNode* l = listNodes.Get();
+		
 		l->Params.Add(e);
 		l->Params.Add(node);
-		l->Tt = node->Tt;
+		
+		l->Class = node->Class;
 		l->C1 = node->C1;
 		l->C2 = node->C2;
-		ASSERT(l->Tt.Class);
+		
+		ASSERT(l->Class);
+		
 		return l;
 	}
-	else*/
+	else
 		return node;
 }
 
@@ -261,7 +265,7 @@ ListNode* IRGenerator::list(Node* node) {
 	
 	ListNode* l = listNodes.Get();
 	
-	l->Object = node;
+	l->Params << node;
 	
 	l->Class = node->Class;
 	l->C1 = node->C1;

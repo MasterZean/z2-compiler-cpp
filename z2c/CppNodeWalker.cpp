@@ -373,7 +373,13 @@ void CppNodeWalker::WalkNode(AssignNode& node) {
 
 void CppNodeWalker::WalkNode(ListNode& node) {
 	stream << "(";
-	Walk(node.Object);
+	
+	for (int i = 0; i < node.Params.GetCount(); i++) {
+		if (i)
+			stream << ", ";
+		Walk(node.Params[i]);
+	}
+	
 	stream << ")";
 }
 

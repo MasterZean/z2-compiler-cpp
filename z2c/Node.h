@@ -57,7 +57,7 @@ public:
 	bool IsCT = false;
 	bool IsLiteral = false;
 	bool IsTemporary = false;
-	
+		
 	bool IsAddressable = false;
 	
 	bool HasSe = false;
@@ -217,7 +217,7 @@ public:
 
 class ListNode: public Node {
 public:
-	Node* Object = nullptr;
+	Vector<Node*> Params;
 
 	ListNode() {
 		NT = NodeType::List;

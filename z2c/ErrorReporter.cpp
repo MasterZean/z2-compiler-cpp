@@ -163,12 +163,20 @@ void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, con
 	Error(path, p, "undeclared identifier '" + id + "'");
 }
 
+void ErrorReporter::UndeclaredIdentifier(const String& path, const Point& p, const String& c1, const String& c2) {
+	Error(path, p, "class '\f" + c1 + "\f' does not have a member called '" + c2 + "'");
+}
+
 void ErrorReporter::UndeclaredClass(const String& path, const Point& p, const String& id) {
 	Error(path, p, "undeclared class '\f" + id + "\f'");
 }
 
 void ErrorReporter::UnreachableCode(const String& path, const Point& p) {
 	Error(path, p, "unreachable code after function return statement");
+}
+
+void ErrorReporter::ClassMustBeInstanciated(const String& path, const Point& p, const String& c) {
+	Error(path, p, "class '\f" + c + "\f' must be instantiated with a class in this context");
 }
 
 void ErrorReporter::CantAssign(const String& path, const Point& p, const String& c1, const String& c2) {
