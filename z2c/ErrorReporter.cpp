@@ -263,5 +263,44 @@ void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass
 	Error(path, p, s);
 }
 
+void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score) {
+	String s;
+	
+	s << "class '\f" << ci->Name << "\f': when trying to match overload" << NL << "\t\t";
+	if (def)
+		s << def->Name;
+	else
+		s << ci->Name;
+	s << "(";
+	
+	for (int k = 0; k < params.GetCount(); k++) {
+		s << params[k]->Class->Name;
+		if (k < params.GetCount() - 1)
+			s << ", ";
+	}
+	s << ")" << NL;
+	/*if (def && def->IsTemplate)
+		s << "class \f" << ci->Name <<"\f has an incompatible template '" << def->Name << "'";
+	else */if (def) {
+		s << "\tgot ambiguity between\n";
+		for (int i = 0; i < def->Overloads.GetCount(); i++) {
+			Overload& ol = def->Overloads[i];
+			bool found = false;
+			if (ol.Score == score)
+				found = true;
+			
+			String dd;
+			dd << "\t\t" << ol.Name() << "(";
+			dd << ol.Signature;
+			dd << ")\n";
+			
+			if (found)
+				s << dd;
+			//DUMP(dd);
+		}
+	}
+
+	Error(path, p, s);
+}
 
 }

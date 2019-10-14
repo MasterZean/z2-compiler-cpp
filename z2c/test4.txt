@@ -6,4 +6,8 @@ def @main() {
 	b = -b
 	a = Byte{!(a == 7000)}
 	b = Small{!(b == 32)}
+
+	Byte
+	PtrSize
+	Int == Double
 }

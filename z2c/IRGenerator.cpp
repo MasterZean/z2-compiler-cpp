@@ -497,16 +497,11 @@ Node* IRGenerator::opRel(Node* left, Node* right, OpNode::Type op, const Point& 
 		r = cast(r, &ass.CInt->Tt);
 	}
 
-	bool valid = false;
+	bool valid = false;*/
 	
-	if (op == OpNode::opEq) {
-		String s;
-		s == "gg";
-	}
-	
-	if ((op == OpNode::opEq || op == OpNode::opNeq) && left->Tt.Class == ass.CCls && right->Tt.Class == ass.CCls)
-		return const_bool(left->IntVal == right->IntVal);
-	else if (testOpRel(ass, l, r, op) == false) {
+	if ((op == OpNode::opEq || op == OpNode::opNeq) && left->Class == ass.CCls && right->Class == ass.CCls)
+		return constBool(left->IntVal == right->IntVal);
+	/*else if (testOpRel(ass, l, r, op) == false) {
 		Node* over = GetOp(Over, strops[op], l, r, ass, this, *Comp, p);
 		if (over == nullptr) {
 			if (op == OpNode::opLess)
@@ -530,7 +525,6 @@ Node* IRGenerator::opRel(Node* left, Node* right, OpNode::Type op, const Point& 
 
 	left = l;
 	right = r;
-
 	
 	bool b;
 

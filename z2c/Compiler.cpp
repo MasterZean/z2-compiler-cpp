@@ -50,15 +50,9 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 			bool checkEnd = true;
 			
 			if (parser.Id("val"))
-				CompileVar(conCls, nullptr, parser);
-			else if (parser.Id("const")) {
-				Node* n = CompileVar(conCls, nullptr, parser);
-				
-				if (n && n->NT == NodeType::Var) {
-					VarNode* v = (VarNode*)n;
-					v->Var->IsConst = true;
-				}
-			}
+				CompileVar(conCls, nullptr, parser, false);
+			else if (parser.Id("const"))
+				Node* n = CompileVar(conCls, nullptr, parser, true);
 			else if (parser.Id("def") || parser.Id("func")) {
 				parser.WSCurrentLine();
 				
@@ -85,6 +79,7 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 						
 						Overload& subover = m.GetOverloadByPoint(p);
 						jumps << &subover;
+
 						BuildSignature(conCls, subover, parser);
 					}
 				}
@@ -250,15 +245,9 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		bool returned = false;
 		
 		if (parser.Id("val"))
-			exp = CompileVar(conCls, &conOver, parser);
-		else if (parser.Id("const")) {
-			exp = CompileVar(conCls, &conOver, parser);
-			
-			if (exp && exp->NT == NodeType::Var) {
-				VarNode* v = (VarNode*)exp;
-				v->Var->IsConst = true;
-			}
-		}
+			exp = CompileVar(conCls, &conOver, parser, false);
+		else if (parser.Id("const"))
+			exp = CompileVar(conCls, &conOver, parser, true);
 		else if (parser.Id("return")) {
 			if (conOver.Return == ass.CVoid)
 				exp = irg.ret();
@@ -425,7 +414,7 @@ Node* Compiler::CompileExpression(ZClass& conCls, Overload* conOver, ZParser& pa
 	return ParseExpression(conCls, conOver, parser);
 }
 
-Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
+Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
 	parser.WS();
 	
 	Point ptName = parser.GetPoint();
@@ -489,6 +478,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	v.Value = value;
 	v.Class = varClass;
 	v.MIsMember = conOver == nullptr;
+	v.IsConst = cst;
 	if (conOver == nullptr)
 		v.OwnerClass = &conCls;
 	
@@ -565,6 +555,13 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 	int count = 0;
 	
 	while (!parser.IsChar(')')) {
+		bool move = false;
+		
+		if (parser.Id("move")) {
+			parser.WS();
+			move = true;
+		}
+		
 		String pname = parser.ExpectZId();
 		parser.WSCurrentLine();
 		parser.Expect(':');
@@ -578,13 +575,20 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		var.Name = pname;
 		var.Class = pcls;
 		
+		if (move)
+			var.PType = Variable::tyMove;
+		else
+			var.PType = Variable::tyAuto;
+		
 		if (over.Signature.GetCount())
 			over.Signature << ", ";
+		if (move)
+			over.Signature << "move ";
 		over.Signature << pcls->Name;
 		
-		if (over.BackSig.GetCount())
-			over.BackSig << ", ";
-		over.BackSig << pcls->BackendName;
+		if (over.LogSig.GetCount())
+			over.LogSig << ", ";
+		over.LogSig << pcls->Name;
 		
 		if (over.ParamSig.GetCount())
 			over.ParamSig << ", ";
@@ -603,7 +607,7 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 	parser.WSCurrentLine();
 	
 	LOG((over.IsConst ? "def " : "func ") + over.OwnerMethod.Name + "(" + over.Signature + ")" + " | " +
-	    (over.IsConst ? "def " : "func ") + over.OwnerMethod.BackendName + "(" + over.BackSig + ")");
+	    (over.IsConst ? "def " : "func ") + over.OwnerMethod.BackendName + "(" + over.ParamSig + ")");
 	
 	ZClass* ret = ass.CVoid;
 	if (parser.Char(':')) {
@@ -745,21 +749,6 @@ void Compiler::ScanToken(ZParser& parser) {
 	parser.WS();
 }
 
-void Compiler::WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent) {
-	cpp.ResetIndent(indent);
-	
-	for (int i = 0; i < overload.Nodes.GetCount(); i++)
-		cpp.WalkStatement(overload.Nodes[i]);
-}
-
-void Compiler::WriteOverload(CppNodeWalker& cpp, Overload& overload) {
-	cpp.WriteOverloadDefinition(overload);
-	
-	cpp.OpenOverload();
-	WriteOverloadBody(cpp, overload, 1);
-	cpp.CloseOverload();
-}
-
 void Compiler::Sanitize(ZClass& cls) {
 	for (int i = 0; i < cls.Methods.GetCount(); i++) {
 		Method& m = cls.Methods[i];
@@ -778,7 +767,7 @@ void Compiler::Sanitize(Method& m) {
 		for (int j = 0; j < i; j++) {
 			Overload& o2 = m.Overloads[j];
 			
-			if (o.BackSig == o2.BackSig || o.ParamSig == o2.ParamSig) {
+			if (/*o.BackSig == o2.BackSig || */o.ParamSig == o2.ParamSig) {
 				o.BackendName << index;
 				index++;
 			}

@@ -16,6 +16,14 @@ class Method;
 
 class Variable: Moveable<Variable> {
 public:
+	enum ParamType {
+		tyAuto,
+		tyRef,
+		tyConstRef,
+		tyVal,
+		tyMove,
+	};
+	
 	String Name;
 	Point SourcePoint = Point(-1, -1);
 	
@@ -23,6 +31,8 @@ public:
 	int  MIsParam = -1;
 	
 	bool IsConst = false;
+	
+	ParamType PType = Variable::tyAuto;
 	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
@@ -109,7 +119,7 @@ public:
 	ZClass* Return;
 	
 	String Signature;
-	String BackSig;
+	String LogSig;
 	String ParamSig;
 	
 	Array<Variable> Variables;

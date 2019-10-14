@@ -1,5 +1,6 @@
 #include "CppNodeWalker.h"
 #include "tables.h"
+#include "ErrorReporter.h"
 
 namespace Z2 {
 
@@ -526,6 +527,59 @@ void CppNodeWalker::WriteClassVars(ZClass& cls) {
 	
 	if (cls.Variables.GetCount())
 		NL();
+}
+
+void CppNodeWalker::WriteMethod(Method& m) {
+	ZClass& cls = m.OwnerClass;
+	
+	for (int i = 0; i < m.Overloads.GetCount(); i++) {
+		Overload& o = m.Overloads[i];
+		
+		if (!o.IsScanned)
+			continue;
+				
+		bool dupe = false;
+		for (int k = 0; k < i; k++) {
+			Overload& o2 = m.Overloads[k];
+			
+			if (o.LogSig == o2.LogSig) {
+				dupe = true;
+				if (PrintDupeErrors)
+					ErrorReporter::DupObject(cls.Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name).PrettyPrint(Cout());
+			}
+		}
+		
+		if ((IgnoreDupes && !dupe) || !IgnoreDupes) {
+			int written = 0;
+			
+			for (int k = 0; k < o.DepOver.GetCount(); k++)
+				if (o.DepOver[k]->MDecWritten != CompilationUnitIndex) {
+					WriteOverloadDeclaration(*o.DepOver[k]);
+					o.DepOver[k]->MDecWritten = CompilationUnitIndex;
+					written++;
+				}
+				
+			if (written)
+				NL();
+			
+			WriteOverload(o);
+		}
+	}
+}
+
+void CppNodeWalker::WriteOverload(Overload& overload) {
+	WriteOverloadDefinition(overload);
+	
+	OpenOverload();
+	WriteOverloadBody(overload, 1);
+	CloseOverload();
+}
+
+void CppNodeWalker::WriteOverloadBody(Overload& overload, int indent) {
+	ResetIndent(indent);
+	
+	for (int i = 0; i < overload.Nodes.GetCount(); i++)
+		WalkStatement(overload.Nodes[i]);
 }
 
 }

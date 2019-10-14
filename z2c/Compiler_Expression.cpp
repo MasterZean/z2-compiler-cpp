@@ -188,6 +188,9 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 		OverloadResolver res(ass);
 		Overload* found = res.Resolve(m, params, 0);
 		
+		if (res.IsAmbig())
+			ErrorReporter::AmbigError(conCls.Name, p, ass, &m.OwnerClass, &m, params, res.Score());
+
 		if (!found)
 			ErrorReporter::CantCall(conCls.Name, p, ass, &m.OwnerClass, &m, params, 2);
 		

@@ -18,7 +18,7 @@ public:
 	String Path;
 	String Error;
 	Point  ErrorPoint;
-	Overload* Context;
+	Overload* Context = nullptr;
 	
 	ZSyntaxError(const String& path, const Point& p, const String& error): Path(path), ErrorPoint(p), Error(error) {
 	}
@@ -54,6 +54,7 @@ public:
 	static void CantCreateClassVar(const String& path, const Point& p, const String& c);
 	
 	static void CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons = false);
+	static void AmbigError(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score);
 	
 	static void DivisionByZero(const String& path, const Point& p);
 	static void IncompatOperands(const String& path, const Point& p, const String& op, const String& text, const String& text2);

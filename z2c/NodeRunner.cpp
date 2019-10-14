@@ -132,6 +132,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 
 void NodeRunner::WriteValue(Stream& stream, Node* node) {
 	stream << node->Class->Name << "{";
+	
 	if (node->Class->MIsNumeric) {
 		if (node->Class == ass.CFloat || node->Class == ass.CDouble)
 			stream << node->DblVal;
@@ -168,6 +169,10 @@ void NodeRunner::WriteValue(Stream& stream, Node* node) {
 		else
 			stream << node->IntVal;
 	}
+	else if (node->Class == ass.CCls) {
+		stream << node->IntVal;
+	}
+	
 	stream << "}";
 }
 

@@ -89,8 +89,15 @@ public:
 	void WriteAssemblyParams(Stream& s, Overload &over);
 	void WriteMangledParams(Overload &over);
 	
+	void WriteMethod(Method& m);
+	void WriteOverloadBody(Overload& overload, int indent = 0);
+	void WriteOverload(Overload& overload);
+	
 	bool CommentZMethod = false;
 	bool CommentCMangled = false;
+	bool IgnoreDupes = true;
+	int  CompilationUnitIndex = 0;
+	bool PrintDupeErrors = true;
 	
 private:
 	Assembly& ass;

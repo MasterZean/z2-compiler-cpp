@@ -41,10 +41,7 @@ public:
 	
 	Node* CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
-	void WriteOverloadBody(CppNodeWalker& cpp, Overload& overload, int indent = 0);
-	void WriteOverload(CppNodeWalker& cpp, Overload& overload);
-	
-	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser);
+	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst);
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	

@@ -20,7 +20,16 @@ void RunTest(const String& path) {
 	
 	String test = NativePath(GetFileDirectory(path) + GetFileTitle(path));
 
-	String file = LoadFileBOM(test + ".in");
+	String file;
+	
+	bool snip = false;
+	if (FileExists(test + ".in"))
+		file = LoadFileBOM(test + ".in");
+	else if (FileExists(test + ".snip")) {
+		snip = true;
+		file = LoadFileBOM(test + ".snip");
+	}
+	
 	String out = LoadFileBOM(test + ".out");
 	String out2 = String::GetVoid();
 	
@@ -31,12 +40,34 @@ void RunTest(const String& path) {
 	Compiler compiler(ass);
 	compiler.PrintErrors = false;
 	
-	Overload* over = compiler.CompileSnipFunc(file);
-	
 	StringStream ss;
-	CppNodeWalker cpp(ass, ss);
 	
-	compiler.WriteOverloadBody(cpp, *over);
+	CppNodeWalker cpp(ass, ss);
+	cpp.PrintDupeErrors = false;
+	
+	Overload* over = nullptr;
+	
+	if (!snip) {
+		over = compiler.CompileSnipFunc(file);
+		cpp.WriteOverloadBody(*over);
+	}
+	else {
+		ZClass* cls = compiler.CompileAnonClass(file);
+		compiler.Sanitize(*cls);
+	
+		cpp.CompilationUnitIndex = 1;
+		cpp.WriteClassVars(*cls);
+		
+		for (int j = 0; j < cls->Methods.GetCount(); j++) {
+			Method& m = cls->Methods[j];
+			cpp.WriteMethod(m);
+		}
+		
+		int i = cls->Methods.Find("@main");
+	
+		if (i != -1)
+			over = &cls->Methods[i].Overloads[0];
+	}
 	
 	String result = ss.GetResult();
 	result << compiler.GetErrors();
@@ -61,7 +92,7 @@ void RunTest(const String& path) {
 		Cout() << path << " FAILLED!\n";
 	}
 	
-	if (!out2.IsVoid()) {
+	if (over && !out2.IsVoid()) {
 		StringStream ss;
 		NodeRunner exe(ass, ss);
 		
@@ -101,7 +132,7 @@ void RunSuite(const String& suite) {
 		if (ff.IsFile())
 			ext.FindAdd(GetFileExt(ff.GetName()));
 		
-		if (ff.IsFile() && GetFileExt(ff.GetName()) == ".in")
+		if (ff.IsFile() && (GetFileExt(ff.GetName()) == ".in" || GetFileExt(ff.GetName()) == ".snip"))
 			files << ff.GetPath();
 		ff.Next();
 	}
@@ -115,7 +146,7 @@ void RunSuite(const String& suite) {
 void RunMicroTests() {
 	StopWatch sw;
 
-	//RunTest("");
+	//RunTest("c:/Dev/z2c-reboot/z2c/tests/20-call/01-overloading/01-small");
 	
 	RunSuite(GetDataFile("tests/01-const/01-small"));
 	RunSuite(GetDataFile("tests/01-const/03-short"));
@@ -148,6 +179,8 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/13-eq/01-bool"));
 	RunSuite(GetDataFile("tests/13-eq/02-small"));
 	RunSuite(GetDataFile("tests/14-neq/01-bool"));
+	
+	RunSuite(GetDataFile("tests/20-call/01-overloading"));
 	
 	DUMP(ext);
 		
@@ -189,10 +222,6 @@ void GenReport() {
 		LOG(line);
 	}
 }
-
-bool IgnoreDupes = true;
-
-#include <iostream>
 
 CONSOLE_APP_MAIN {
 	//GenReport<int>();
@@ -314,42 +343,12 @@ CONSOLE_APP_MAIN {
 	
 	CppNodeWalker cpp(ass, ss);
 	
+	cpp.CompilationUnitIndex = 1;
 	cpp.WriteClassVars(*cls);
-	
-	const int TempCU = 1;
 	
 	for (int j = 0; j < cls->Methods.GetCount(); j++) {
 		Method& m = cls->Methods[j];
-	
-		for (int i = 0; i < m.Overloads.GetCount(); i++) {
-			Overload& o = m.Overloads[i];
-			
-			bool dupe = false;
-			for (int k = 0; k < i; k++) {
-				Overload& o2 = m.Overloads[k];
-				
-				if (o.Signature == o2.Signature) {
-					dupe = true;
-					ErrorReporter::DupObject(cls->Name, o.NamePoint, o2.NamePoint, o.OwnerMethod.Name).PrettyPrint(Cout());
-				}
-			}
-			
-			if ((IgnoreDupes && !dupe) || !IgnoreDupes) {
-				int written = 0;
-				
-				for (int k = 0; k < o.DepOver.GetCount(); k++)
-					if (o.DepOver[k]->MDecWritten != TempCU) {
-						cpp.WriteOverloadDeclaration(*o.DepOver[k]);
-						o.DepOver[k]->MDecWritten = TempCU;
-						written++;
-					}
-					
-				if (written)
-					cpp.NL();
-				
-				compiler.WriteOverload(cpp, o);
-			}
-		}
+		cpp.WriteMethod(m);
 	}
 	
 	ss << "int main(int argc, char* argv[]) {\n  _main();\n  return 0;\n}\n";
