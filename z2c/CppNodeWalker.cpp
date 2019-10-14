@@ -495,7 +495,10 @@ void CppNodeWalker::WriteParams(Overload &over) {
 	for (int i = 0; i < over.Params.GetCount(); i++) {
 		if (i)
 			stream << ", ";
-		stream << over.Params[i].Class->BackendName  << " " << over.Params[i].Name;
+		stream << over.Params[i].Class->BackendName;
+		if (over.Params[i].PType == Variable::tyMove)
+			stream << "&&";
+		stream << " " << over.Params[i].Name;
 	}
 	stream << ")";
 }

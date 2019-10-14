@@ -23,8 +23,10 @@ public:
 	Overload* GatherParIndex(Vector<Overload*>& oo, Vector<Node*>& params, int pi);
 	Overload* GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& params, int pi, ZClass* cls);
 	
-	void Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node&n, ZClass* ot);
+	void Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ZClass* ot);
 	void Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ZClass* ot, ZClass* ot2);
+	
+	void GatherDMove(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ZClass* ot);
 
 	bool IsAmbig() const {
 		return ambig;

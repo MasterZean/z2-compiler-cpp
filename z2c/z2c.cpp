@@ -381,7 +381,3 @@ CONSOLE_APP_MAIN {
 		SetExitCode(-1);
 	Cout() << bm.Name << " code generation finished in " << sw.ToString() << " seconds.\n";
 }
-
-
-
-

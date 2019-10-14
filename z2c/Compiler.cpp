@@ -588,14 +588,18 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		
 		if (over.LogSig.GetCount())
 			over.LogSig << ", ";
+		if (move)
+			over.LogSig << "move ";
 		over.LogSig << pcls->Name;
 		
 		if (over.ParamSig.GetCount())
 			over.ParamSig << ", ";
 		over.ParamSig << pcls->ParamName;
+		if (move)
+			over.ParamSig << "&&";
 		
 		if (parser.IsChar(')'))
-		    break;
+			break;
 		
 		if (parser.IsChar(',')) {
 			parser.Char(',');

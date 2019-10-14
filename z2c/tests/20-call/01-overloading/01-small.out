@@ -1,0 +1,127 @@
+void test(int8 b);
+
+void _main() {
+	int8 MIN = -128;
+	::test((int8)(MIN));
+}
+
+void test(uint8 b) {
+	'a';
+	(b, Class(2));
+}
+
+void test(uint16 b) {
+	'a';
+	(b, Class(4));
+}
+
+void test(uint32 b) {
+	'a';
+	(b, Class(6));
+}
+
+void test(uint64 b) {
+	'a';
+	(b, Class(8));
+}
+
+void test(int8 b) {
+	'a';
+	(b, Class(1));
+}
+
+void test(int16 b) {
+	'a';
+	(b, Class(3));
+}
+
+void test(int32 b) {
+	'a';
+	(b, Class(5));
+}
+
+void test(int64 b) {
+	'a';
+	(b, Class(7));
+}
+
+void test(float b) {
+	'a';
+	(b, Class(9));
+}
+
+void test(double b) {
+	'a';
+	(b, Class(10));
+}
+
+void test1(uint32 b) {
+	'a';
+	(b, Class(12));
+}
+
+void test2(size_t b) {
+	'a';
+	(b, Class(13));
+}
+
+void test(uint8&& b) {
+	'm';
+	(b, Class(2));
+}
+
+void test(uint16&& b) {
+	'm';
+	(b, Class(4));
+}
+
+void test(uint32&& b) {
+	'm';
+	(b, Class(6));
+}
+
+void test(uint64&& b) {
+	'm';
+	(b, Class(8));
+}
+
+void test(int8&& b) {
+	'm';
+	(b, Class(1));
+}
+
+void test(int16&& b) {
+	'm';
+	(b, Class(3));
+}
+
+void test(int32&& b) {
+	'm';
+	(b, Class(5));
+}
+
+void test(int64&& b) {
+	'm';
+	(b, Class(7));
+}
+
+void test(float&& b) {
+	'm';
+	(b, Class(9));
+}
+
+void test(double&& b) {
+	'm';
+	(b, Class(10));
+}
+
+void test3(uint32&& b) {
+	'm';
+	(b, Class(12));
+}
+
+void test4(size_t&& b) {
+	'm';
+	(b, Class(13));
+}
+

@@ -236,12 +236,12 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		/*if (n.IsTemporary) {
-			gi.Count = 0; GatherDMove(oo, params, pi, gi, a);
+		if (n.IsTemporary) {
+			gi.Count = 0; GatherDMove(oo, params, pi, gi, ass.CSmall);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		if (n.IsAddressable) {
+		/*if (n.IsAddressable) {
 			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}*/
@@ -358,6 +358,7 @@ void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int 
 			}
 		}
 		else {*/
+		if (over.Params[pi].PType == Variable::tyAuto || over.Params[pi].PType == Variable::tyVal)
 			if (f == ot)
 				temp.Add(&over);
 		//}
@@ -397,10 +398,42 @@ void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int 
 						temp.Add(&over);
 				}
 			}
-			else  if (over.Params[pi].PType == Variable::tyAuto || over.Params[pi].PType == Variable::tyVal) {
-			*/	if (f == ot || f == ot2)
+			else  */
+			if (over.Params[pi].PType == Variable::tyAuto || over.Params[pi].PType == Variable::tyVal)
+				if (f == ot || f == ot2)
 					temp.Add(&over);
 			//}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherDMove(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ZClass* ot) {
+	score++;
+	Vector<Overload*> temp;
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		Variable& par = over.Params[pi];
+
+		if (par.PType == Variable::tyMove && /*TypesEqualD(ass, &par.I.Tt, &a.Tt)*/par.Class == ot)
+			temp.Add(&over);
 	}
 	
 	for (int i = 0; i < temp.GetCount(); i++) {

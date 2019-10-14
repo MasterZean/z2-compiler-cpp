@@ -67,10 +67,12 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 			
 			p << over.Params[i].Class->Name << " = ";
 			
-			if ((*paramList)[i]->NT == NodeType::Const)
+			if ((*paramList)[i]->NT == NodeType::Const || (*paramList)[i]->NT == NodeType::Cast)
 				WriteValue(p, (*paramList)[i]);
-			else
+			else {
+				DUMP((int)(*paramList)[i]->NT);
 				p << "*";
+			}
 		}
 		
 		String ps = p;
@@ -109,7 +111,11 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 			if (node) {
 				if (in->NT == NodeType::Var) {
 					VarNode* var = (VarNode*)in;
-					stream << "var " << var->Var->Name << ": ";
+					if (var->Var->IsConst)
+						stream << "const ";
+					else
+						stream << "var ";
+					stream << var->Var->Name << ": ";
 					stream << var->Var->Class->Name << " = ";
 					WriteValue(stream, var->Var->Value);
 				}
@@ -170,7 +176,7 @@ void NodeRunner::WriteValue(Stream& stream, Node* node) {
 			stream << node->IntVal;
 	}
 	else if (node->Class == ass.CCls) {
-		stream << node->IntVal;
+		stream << "\"" << ass.Classes[(int)node->IntVal].Name << "\"";
 	}
 	
 	stream << "}";
