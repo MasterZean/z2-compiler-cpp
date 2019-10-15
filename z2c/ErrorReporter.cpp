@@ -239,9 +239,9 @@ void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass
 	}
 	
 	if (cons)
-		s << "}\n";
+		s << "}" << NL;
 	else
-		s << ")\n";
+		s << ")" << NL;
 	
 	//if (def && def->IsTemplate)
 	//	s << "Class \f" << ass.ClassToString(&i) <<"\f has an incompatible template '" << def->Name << "'";
@@ -254,16 +254,16 @@ void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass
 			//	continue;
 			
 			if (ol.IsCons == 1)
-				s << "\t\t" << "{" << ol.Signature << "}\n";
+				s << "\t\t" << "{" << ol.Signature << "}" << NL;
 			else if (ol.IsCons == 2)
-				s << "\t\t" << ol.Name() << "{" << ol.Signature << "}\n";
+				s << "\t\t" << ol.Name() << "{" << ol.Signature << "}" << NL;
 			else {
 				s << "\t\t";
 				if (ol.IsConst)
 					s << "func ";
 				else
 					s << "def  ";
-				s << ol.Name() << "(" << ol.Signature << ")\n";
+				s << ol.Name() << "(" << ol.Signature << ")" << NL;
 			}
 		}
 	//}
@@ -290,7 +290,7 @@ void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZCla
 	/*if (def && def->IsTemplate)
 		s << "class \f" << ci->Name <<"\f has an incompatible template '" << def->Name << "'";
 	else */if (def) {
-		s << "\tgot ambiguity between\n";
+		s << "\tgot ambiguity between" << NL;
 		for (int i = 0; i < def->Overloads.GetCount(); i++) {
 			Overload& ol = def->Overloads[i];
 			bool found = false;
@@ -300,7 +300,7 @@ void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZCla
 			String dd;
 			dd << "\t\t" << ol.Name() << "(";
 			dd << ol.Signature;
-			dd << ")\n";
+			dd << ")" << NL;
 			
 			if (found)
 				s << dd;

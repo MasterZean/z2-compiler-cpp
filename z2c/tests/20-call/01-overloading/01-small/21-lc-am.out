@@ -1,0 +1,126 @@
+void test(int8&& b);
+
+void _main() {
+	::test((int8&&)(-128));
+}
+
+void test(uint8 b) {
+	'a';
+	Class(2);
+}
+
+void test(uint16 b) {
+	'a';
+	Class(4);
+}
+
+void test(uint32 b) {
+	'a';
+	Class(6);
+}
+
+void test(uint64 b) {
+	'a';
+	Class(8);
+}
+
+void test(int8 b) {
+	'a';
+	Class(1);
+}
+
+void test(int16 b) {
+	'a';
+	Class(3);
+}
+
+void test(int32 b) {
+	'a';
+	Class(5);
+}
+
+void test(int64 b) {
+	'a';
+	Class(7);
+}
+
+void test(float b) {
+	'a';
+	Class(9);
+}
+
+void test(double b) {
+	'a';
+	Class(10);
+}
+
+void test1(uint32 b) {
+	'a';
+	Class(12);
+}
+
+void test2(size_t b) {
+	'a';
+	Class(13);
+}
+
+void test(uint8&& b) {
+	'm';
+	Class(2);
+}
+
+void test(uint16&& b) {
+	'm';
+	Class(4);
+}
+
+void test(uint32&& b) {
+	'm';
+	Class(6);
+}
+
+void test(uint64&& b) {
+	'm';
+	Class(8);
+}
+
+void test(int8&& b) {
+	'm';
+	Class(1);
+}
+
+void test(int16&& b) {
+	'm';
+	Class(3);
+}
+
+void test(int32&& b) {
+	'm';
+	Class(5);
+}
+
+void test(int64&& b) {
+	'm';
+	Class(7);
+}
+
+void test(float&& b) {
+	'm';
+	Class(9);
+}
+
+void test(double&& b) {
+	'm';
+	Class(10);
+}
+
+void test3(uint32&& b) {
+	'm';
+	Class(12);
+}
+
+void test4(size_t&& b) {
+	'm';
+	Class(13);
+}
+

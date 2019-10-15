@@ -1,0 +1,71 @@
+void _main() {
+	int8 MIN = -128;
+}
+
+void test(uint8&& b) {
+	'm';
+	Class(2);
+}
+
+void test(uint16&& b) {
+	'm';
+	Class(4);
+}
+
+void test(uint32&& b) {
+	'm';
+	Class(6);
+}
+
+void test(uint64&& b) {
+	'm';
+	Class(8);
+}
+
+void test(int8&& b) {
+	'm';
+	Class(1);
+}
+
+void test(int16&& b) {
+	'm';
+	Class(3);
+}
+
+void test(int32&& b) {
+	'm';
+	Class(5);
+}
+
+void test(int64&& b) {
+	'm';
+	Class(7);
+}
+
+void test(float&& b) {
+	'm';
+	Class(9);
+}
+
+void test(double&& b) {
+	'm';
+	Class(10);
+}
+
+void test1(uint32&& b) {
+	'm';
+	Class(12);
+}
+
+void test2(size_t&& b) {
+	'm';
+	Class(13);
+}
+
+DummyClass(3, 5): error:
+	class 'DummyClass': when trying to match overload
+		test(Small)
+	got ambiguity between
+		test(move Short)
+		test(move Int)
+

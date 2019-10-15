@@ -342,7 +342,10 @@ void CppNodeWalker::WalkNode(CallNode& node) {
 		if (count == 0)
 			Walk(node.Params[i]);
 		else {
-			stream << "(" << node.Params[i]->Class->BackendName << ")(";
+			stream << "(" << node.Over->Params[i].Class->BackendName;
+			if (node.Over->Params[i].PType == Variable::tyMove)
+				stream << "&&";
+			stream << ")(";
 			Walk(node.Params[i]);
 			stream << ")";
 		}

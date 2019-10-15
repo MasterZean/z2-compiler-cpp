@@ -278,7 +278,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 					ErrorReporter::CantAssign(conCls.Name, ptEq, exp->Class->Name, rs->Class->Name);
 				if (!exp->IsAddressable)
 					ErrorReporter::AssignNotLValue(conCls.Name, ptEq);
-				if (exp->IsConst)
+				if (exp->IsReadOnly)
 					ErrorReporter::AssignConst(conCls.Name, ptEq, exp->Class->Name);
 				
 				exp = irg.assign(exp, rs);
@@ -400,7 +400,7 @@ Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, N
 		ErrorReporter::CantAssign(conCls.Name, p, exp->Class->Name, rs->Class->Name);
 	if (!exp->IsAddressable)
 		ErrorReporter::AssignNotLValue(conCls.Name, p);
-	if (exp->IsConst)
+	if (exp->IsReadOnly)
 		ErrorReporter::AssignConst(conCls.Name, p, exp->Class->Name);
 	
 	AssignNode* node = irg.assign(exp, rs);
@@ -478,7 +478,8 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	v.Value = value;
 	v.Class = varClass;
 	v.MIsMember = conOver == nullptr;
-	v.IsConst = cst;
+	v.IsReadOnly = cst;
+	
 	if (conOver == nullptr)
 		v.OwnerClass = &conCls;
 	
@@ -579,6 +580,11 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 			var.PType = Variable::tyMove;
 		else
 			var.PType = Variable::tyAuto;
+		
+		if (var.PType == Variable::tyAuto || var.PType == Variable::tyConstRef)
+			var.IsReadOnly = true;
+		else
+			var.IsReadOnly = false;
 		
 		if (over.Signature.GetCount())
 			over.Signature << ", ";

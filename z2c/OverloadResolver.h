@@ -27,6 +27,8 @@ public:
 	void Gather(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Node& n, ZClass* ot, ZClass* ot2);
 	
 	void GatherDMove(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, ZClass* ot);
+	
+	void GatherN(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Variable::ParamType pt, ZClass* ot, ZClass* ot2 = nullptr);
 
 	bool IsAmbig() const {
 		return ambig;

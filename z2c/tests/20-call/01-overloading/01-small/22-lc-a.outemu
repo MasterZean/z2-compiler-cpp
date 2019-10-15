@@ -1,0 +1,4 @@
+// call test(Small = Small{-128})
+Char{97}
+Class{"Small"}
+// return test(Small)

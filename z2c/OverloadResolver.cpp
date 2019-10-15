@@ -236,25 +236,37 @@ Overload* OverloadResolver::GatherNumeric(Vector<Overload*>& oo, Vector<Node*>& 
 		GatherInfo gi;
 		gi.Rez = nullptr;
 		
-		if (n.IsTemporary) {
-			gi.Count = 0; GatherDMove(oo, params, pi, gi, ass.CSmall);
+		if (n.IsAddressable) {
+			gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyRef, ass.CSmall);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		}
 		
-		/*if (n.IsAddressable) {
-			gi.Count = 0; GatherRef(oo, params, pi, gi, n, a, &ass.CSmall->Tt);
+		if (n.IsTemporary) {
+			gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyMove, ass.CSmall);
 			if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		}*/
+		}
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyAuto, ass.CSmall);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 		
-		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CSmall);
+		
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyMove, ass.CShort, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CShort, ass.CInt);
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyAuto, ass.CShort, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CInt);
+		
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyMove, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CLong);
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyAuto, ass.CInt);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
-		gi.Count = 0; Gather(oo, params, pi, gi, n, ass.CFloat, ass.CDouble);
+		
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyMove, ass.CLong);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyAuto, ass.CLong);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyMove, ass.CFloat, ass.CDouble);
+		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
+		gi.Count = 0; GatherN(oo, params, pi, gi, Variable::tyAuto, ass.CFloat, ass.CDouble);
 		if (gi.Count == 1)	return gi.Rez; else if (gi.Count > 1) { ambig = true; return nullptr; }
 	}
 	else if (cls == ass.CShort) {
@@ -403,6 +415,40 @@ void OverloadResolver::Gather(Vector<Overload*>& oo, Vector<Node*>& params, int 
 				if (f == ot || f == ot2)
 					temp.Add(&over);
 			//}
+	}
+	
+	for (int i = 0; i < temp.GetCount(); i++) {
+		Overload& over = *temp[i];
+		
+		if (pi < params.GetCount() - 1) {
+			Overload* ret = GatherParIndex(temp, params, pi + 1);
+			
+			if (ret && ret != gi.Rez) {
+				gi.Rez = ret;
+				gi.Count++;
+				over.Score = score;
+			}
+		}
+		else {
+			gi.Rez = &over;
+			gi.Count++;
+			over.Score = score;
+		}
+	}
+}
+
+void OverloadResolver::GatherN(Vector<Overload*>& oo, Vector<Node*>& params, int pi, GatherInfo& gi, Variable::ParamType pt, ZClass* ot, ZClass* ot2) {
+	score++;
+	
+	Vector<Overload*> temp;
+	
+	for (int i = 0; i < oo.GetCount(); i++) {
+		Overload& over = *oo[i];
+		ZClass* f = over.Params[pi].Class;
+		
+		if (over.Params[pi].PType == pt)
+			if (f == ot || f == ot2)
+				temp.Add(&over);
 	}
 	
 	for (int i = 0; i < temp.GetCount(); i++) {

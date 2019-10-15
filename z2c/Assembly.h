@@ -30,7 +30,8 @@ public:
 	bool MIsMember = false;
 	int  MIsParam = -1;
 	
-	bool IsConst = false;
+	bool IsReadOnly = false;
+	bool IsCT = false;
 	
 	ParamType PType = Variable::tyAuto;
 	

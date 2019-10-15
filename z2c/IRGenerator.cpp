@@ -45,7 +45,7 @@ void IRGenerator::fillSignedTypeInfo(int64 l, Node* node, ZClass* cls) {
 
 void IRGenerator::fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls) {
 	node->Class = ass.CDWord;
-	node->C1 = ass.CDWord;
+	//node->C1 = ass.CDWord;
 	if (l <= 127) {
 		node->C1 = ass.CByte;
 		node->C2 = ass.CSmall;
@@ -82,11 +82,12 @@ ConstNode* IRGenerator::constIntSigned(int64 l, int base, ZClass* cls) {
 	fillSignedTypeInfo(l, node, cls);
 	
 	node->IntVal = l;
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsCT = true;
 	node->IsLiteral = true;
 	node->Base = base;
 	node->IsTemporary = true;
+	
 	ASSERT(node->Class);
 	
 	return node;
@@ -98,11 +99,12 @@ ConstNode* IRGenerator::constIntUnsigned(uint64 l, int base, ZClass* cls) {
 	fillUnsignedTypeInfo(l, node, cls);
 	
 	node->IntVal = l;
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsCT = true;
 	node->IsLiteral = true;
 	node->Base = base;
 	node->IsTemporary = true;
+	
 	ASSERT(node->Class);
 	
 	return node;
@@ -112,7 +114,7 @@ ConstNode* IRGenerator::constFloatSingle(double l) {
 	ConstNode* node = constNodes.Get();
 	
 	node->SetType(ass.CFloat);
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->DblVal = l;
@@ -127,7 +129,7 @@ ConstNode* IRGenerator::constFloatDouble(double l) {
 	ConstNode* node = constNodes.Get();
 	
 	node->SetType(ass.CDouble);
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->DblVal = l;
@@ -148,7 +150,7 @@ ConstNode* IRGenerator::constChar(int l, int base) {
 	else
 		node->SetType(ass.CChar, ass.CChar);
 	
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->IntVal = l;
@@ -164,7 +166,7 @@ ConstNode* IRGenerator::constBool(bool l) {
 	ConstNode* node = constNodes.Get();
 	
 	node->SetType(ass.CBool);
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->IntVal = l;
@@ -179,7 +181,7 @@ ConstNode* IRGenerator::constVoid() {
 	ConstNode* node = constNodes.Get();
 	
 	node->SetType(ass.CVoid);
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	
@@ -192,7 +194,7 @@ ConstNode* IRGenerator::constNull() {
 	ConstNode* node = constNodes.Get();
 	
 	node->SetType(ass.CNull);
-	node->IsConst = true;
+	node->IsReadOnly = true;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	
@@ -205,7 +207,7 @@ Node* IRGenerator::constClass(ZClass* cls, Node* e) {
 	ConstNode* node = constNodes.Get();
 
 	node->SetType(ass.CCls);
-	node->IsConst = false;
+	node->IsReadOnly = false;
 	node->IsLiteral = true;
 	node->IsCT = true;
 	node->IntVal = cls->MIndex;
@@ -249,10 +251,10 @@ MemNode* IRGenerator::mem(Variable& v) {
 	
 	var->Var = &v;
 	var->SetType(v.Class);
-	var->HasSe = true;
 	
 	var->IsAddressable = true;
-	var->IsConst = v.IsConst;
+	var->IsReadOnly = v.IsReadOnly;
+	var->IsCT = v.IsCT;
 	
 	ASSERT(var->Class);
 	
@@ -270,7 +272,7 @@ ListNode* IRGenerator::list(Node* node) {
 	l->Class = node->Class;
 	l->C1 = node->C1;
 	l->C2 = node->C2;
-	l->IsConst = node->IsConst;
+	l->IsReadOnly = node->IsReadOnly;
 	l->IsCT = node->IsCT;
 	l->IsLiteral = node->IsLiteral;
 	l->HasSe = node->HasSe;
@@ -452,8 +454,8 @@ Node* IRGenerator::opShl(Node* left, Node* right, const Point& p) {
 	node->OpB = right;
 	node->Op = OpNode::opShl;
 
-	node->IsConst = left->IsCT && right->IsCT;
-	node->IsCT = node->IsConst;
+	node->IsReadOnly = true;
+	node->IsCT = left->IsCT && right->IsCT;
 	node->SetType(ass.Classes[t]);
 	node->DblVal = 0;
 	
@@ -482,8 +484,8 @@ Node* IRGenerator::opShr(Node* left, Node* right, const Point& p) {
 	node->OpB = right;
 	node->Op = OpNode::opShr;
 
-	node->IsConst = left->IsCT && right->IsCT;;
-	node->IsCT = node->IsConst;
+	node->IsReadOnly = true;
+	node->IsCT = left->IsCT && right->IsCT;
 	node->SetType(ass.Classes[t]);
 	node->DblVal = 0;
 	
@@ -565,8 +567,8 @@ Node* IRGenerator::opRel(Node* left, Node* right, OpNode::Type op, const Point& 
 	node->OpB = right;
 	node->Op = op;
 
-	node->IsConst = cst;
-	node->IsCT = cst;
+	node->IsReadOnly = true;
+	node->IsCT = left->IsCT && right->IsCT;
 	node->SetType(ass.CBool);
 	node->IntVal = b;
 	
@@ -679,7 +681,7 @@ Node* IRGenerator::opLog(Node* left, Node* right, OpNode::Type op) {
 	node->OpB = right;
 	node->Op = op;
 
-	node->IsConst = cst;
+	node->IsReadOnly = true;
 	node->IsCT = cst;
 	node->SetType(ass.CBool);
 	node->IntVal = b;
@@ -706,7 +708,7 @@ Node* IRGenerator::opMinus(Node* node) {
 		minus->Op = OpNode::opMinus;
 		minus->Prefix = true;
 
-		minus->IsConst = node->IsConst;
+		minus->IsReadOnly = true;
 		minus->IsCT = node->IsCT;
 		minus->SetType(node->Class);
 		
@@ -745,7 +747,7 @@ Node* IRGenerator::opNot(Node* node) {
 		minus->Op = OpNode::opNot;
 		minus->Prefix = true;
 
-		minus->IsConst = node->IsConst;
+		minus->IsReadOnly = node->IsReadOnly;
 		minus->IsCT = node->IsCT;
 		minus->SetType(node->Class);
 		
@@ -769,7 +771,7 @@ Node* IRGenerator::opBitNot(Node* node) {
 		minus->Op = OpNode::opBitNot;
 		minus->Prefix = true;
 
-		minus->IsConst = node->IsConst;
+		minus->IsReadOnly = node->IsReadOnly;
 		minus->IsCT = node->IsCT;
 		minus->SetType(node->Class);
 		

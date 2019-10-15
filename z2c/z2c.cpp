@@ -89,7 +89,7 @@ void RunTest(const String& path) {
 		//SaveFile("c:\\temp\\a.txt", result);
 		//SaveFile("c:\\temp\\b.txt", out);
 
-		Cout() << path << " FAILLED!\n";
+		Cout() << path << " FAILLED CODE GENERATION!\n";
 	}
 	
 	if (over && !out2.IsVoid()) {
@@ -115,7 +115,7 @@ void RunTest(const String& path) {
 			//SaveFile("c:\\temp\\a.txt", result);
 			//SaveFile("c:\\temp\\b.txt", out2);
 		
-			Cout() << path << " FAILLED!\n";
+			Cout() << path << " FAILLED EMULATION!\n";
 		}
 	}
 	
@@ -146,7 +146,7 @@ void RunSuite(const String& suite) {
 void RunMicroTests() {
 	StopWatch sw;
 
-	//RunTest("c:/Dev/z2c-reboot/z2c/tests/20-call/01-overloading/01-small");
+	RunTest("c:/Dev/z2c-reboot/z2c/tests/20-call/01-overloading/01-small/03-sc-m.snip");
 	
 	RunSuite(GetDataFile("tests/01-const/01-small"));
 	RunSuite(GetDataFile("tests/01-const/03-short"));
@@ -180,7 +180,8 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/13-eq/02-small"));
 	RunSuite(GetDataFile("tests/14-neq/01-bool"));
 	
-	RunSuite(GetDataFile("tests/20-call/01-overloading"));
+	RunSuite(GetDataFile("tests/20-call/01-overloading/01-small"));
+	RunSuite(GetDataFile("tests/20-call/01-overloading/02-small"));
 	
 	DUMP(ext);
 		

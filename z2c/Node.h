@@ -53,11 +53,12 @@ public:
 	ZClass* C2 = nullptr;
 	ZClass* C3 = nullptr;
 	
-	bool IsConst = false;
+	bool IsReadOnly = false;
 	bool IsCT = false;
+	
 	bool IsLiteral = false;
+	
 	bool IsTemporary = false;
-		
 	bool IsAddressable = false;
 	
 	bool HasSe = false;

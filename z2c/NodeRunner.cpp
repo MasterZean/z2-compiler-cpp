@@ -65,6 +65,8 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 			if (i)
 				p << ", ";
 			
+			if (over.Params[i].PType == Variable::tyMove)
+				p << "move ";
 			p << over.Params[i].Class->Name << " = ";
 			
 			if ((*paramList)[i]->NT == NodeType::Const || (*paramList)[i]->NT == NodeType::Cast)
@@ -111,7 +113,7 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 			if (node) {
 				if (in->NT == NodeType::Var) {
 					VarNode* var = (VarNode*)in;
-					if (var->Var->IsConst)
+					if (var->Var->IsReadOnly)
 						stream << "const ";
 					else
 						stream << "var ";
