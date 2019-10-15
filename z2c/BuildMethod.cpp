@@ -479,7 +479,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods, bool print) {
 							if (t.GetCount())
 								tt << t;
 						}
-						DUMP(tt);
+						//DUMP(tt);
 						res = lp.GetExitCode() == 0;
 						
 						if (res) {
@@ -503,7 +503,7 @@ void BuildMethod::Get(Vector<BuildMethod>& methods, bool print) {
 							if (t.GetCount())
 								tt << t;
 						}
-						DUMP(tt);
+						//DUMP(tt);
 						res = lp.GetExitCode() == 0;
 						
 						if (res) {

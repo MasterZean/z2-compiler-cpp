@@ -57,51 +57,58 @@ public:
 	}
 	
 	static void Get(Vector<BuildMethod>& methods, bool print = false);
-	
+
+#ifdef PLATFORM_WIN32
+
 	static String Exe(const String& exe) {
-	#ifdef PLATFORM_WIN32
 		return exe + ".exe";
-	#endif
-	#ifdef PLATFORM_POSIX
-		return exe;
-	#endif
 	}
 	
 	static int ErrorCode(int code) {
-	#ifdef PLATFORM_WIN32
 		return code;
-	#endif
-	#ifdef PLATFORM_POSIX
+	}
+	
+	static int SuccessCode(int code) {
+		return code;
+	}
+	
+	static bool IsSuccessCode(int code) {
+		return code >= 0;
+	}
+	
+#endif
+
+#ifdef PLATFORM_POSIX
+	
+	static String Exe(const String& exe) {
+		return exe;
+	}
+	
+	static int ErrorCode(int code) {
 		byte c = (byte)code;
 		if (c == 0)
 			c = 1;
 		
 		return c;
-	#endif
 	}
 	
 	static int SuccessCode(int code) {
-	#ifdef PLATFORM_WIN32
-		return code;
-	#endif
-	#ifdef PLATFORM_POSIX
 		return 0;
-	#endif
 	}
 	
 	static bool IsSuccessCode(int code) {
-	#ifdef PLATFORM_WIN32
-		return code >= 0;
-	#endif
-	#ifdef PLATFORM_POSIX
 		return code == 0;
-	#endif
+
 	}
+	
+#endif
 	
 	bool TestLib(Vector<BuildMethod>& methods, const String& arch);
 	
 private:
+	
 #ifdef PLATFORM_WIN32
+
 	bool DetectMSC7_1(Vector<BuildMethod>& methods);
 	bool DetectMSC8(Vector<BuildMethod>& methods);
 	bool DetectMSC9(Vector<BuildMethod>& methods);
@@ -109,6 +116,7 @@ private:
 	bool DetectMSC11(Vector<BuildMethod>& methods);
 	bool DetectMSC12(Vector<BuildMethod>& methods);
 	bool DetectMSC14(Vector<BuildMethod>& methods);
+	
 #endif
 };
 

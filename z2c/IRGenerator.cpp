@@ -45,7 +45,7 @@ void IRGenerator::fillSignedTypeInfo(int64 l, Node* node, ZClass* cls) {
 
 void IRGenerator::fillUnsignedTypeInfo(uint64 l, Node* node, ZClass* cls) {
 	node->Class = ass.CDWord;
-	//node->C1 = ass.CDWord;
+
 	if (l <= 127) {
 		node->C1 = ass.CByte;
 		node->C2 = ass.CSmall;

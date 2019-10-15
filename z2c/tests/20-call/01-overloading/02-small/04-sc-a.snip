@@ -1,0 +1,20 @@
+def @main() {
+	const MIN: Small = -128
+	test(MIN)
+}
+
+def test(b: Byte),
+def test(b: Word),
+def test(b: DWord),
+def test(b: QWord),
+//def test(b: Small),
+def test(b: Short),
+def test(b: Int),
+def test(b: Long),
+def test(b: Float),
+def test(b: Double),
+def test(b: Char),
+def test(b: PtrSize) {
+	'a'
+	b.class
+}

@@ -97,7 +97,6 @@ public:
 	}
 };
 
-
 class VarNode: public Node {
 public:
 	Variable* Var = nullptr;

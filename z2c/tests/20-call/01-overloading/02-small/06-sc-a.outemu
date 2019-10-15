@@ -1,0 +1,5 @@
+const MIN: Small = Small{-128}
+// call test(Int = Small{-128})
+Char{97}
+Class{"Int"}
+// return test(Int)

@@ -434,27 +434,6 @@ void CppNodeWalker::WriteOverloadDefinition(Overload &over) {
 		NL();
 	}
 	
-	/*
-	// param hash C
-	//stream << "// ";
-	StringStream ss;
-	WriteAssemblyParams(ss, over);
-	if (over.Return != ass.CVoid)
-		ss << over.Return->GlobalName;
-	if (over.IsConst)
-		ss << "_" << "const";
-	String s = ss;
-	//stream << s;
-	//NL();
-	
-	// hash C
-	stream << "// ";
-	stream << "_" << MangleNamespace(over.OwnerClass.Namespace) << "_";
-	stream << over.OwnerClass.Name << "_";
-	stream << over.BackendName << over.Params.GetCount() << "_";
-	stream << ToUpper(FormatIntHex(xxHash(s)));
-	NL();*/
-	
 	if (over.IsVirtual)
 		stream << "virtual ";
 	else if (over.IsInline)
@@ -495,6 +474,7 @@ void CppNodeWalker::WriteOverloadNameParams(Overload &over) {
 
 void CppNodeWalker::WriteParams(Overload &over) {
 	stream << "(";
+	
 	for (int i = 0; i < over.Params.GetCount(); i++) {
 		if (i)
 			stream << ", ";
@@ -503,16 +483,19 @@ void CppNodeWalker::WriteParams(Overload &over) {
 			stream << "&&";
 		stream << " " << over.Params[i].Name;
 	}
+	
 	stream << ")";
 }
 
 void CppNodeWalker::WriteAssemblyParams(Stream& s, Overload &over) {
 	s << "(";
+	
 	for (int i = 0; i < over.Params.GetCount(); i++) {
 		if (i)
 			s << ",";
 		s << over.Params[i].Class->GlobalName;
 	}
+	
 	s << ")";
 }
 
