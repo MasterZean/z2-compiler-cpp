@@ -146,7 +146,7 @@ void RunSuite(const String& suite) {
 void RunMicroTests() {
 	StopWatch sw;
 
-	RunTest("c:/Dev/z2c-reboot/z2c/tests/20-call/01-overloading/01-small/03-sc-m.snip");
+	//RunTest("c:/Dev/z2c-reboot/z2c/tests/20-call/01-overloading/01-small/03-sc-m.snip");
 	
 	RunSuite(GetDataFile("tests/01-const/01-small"));
 	RunSuite(GetDataFile("tests/01-const/03-short"));
