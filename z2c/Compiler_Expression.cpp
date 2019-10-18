@@ -188,12 +188,19 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 		parser.Expect('(');
 		Vector<Node*> params;
 		GetParams(params, conCls, conOver, parser);
-			
+		
+		int goodOvers = 0;
 		Method& m = conCls.Methods[i];
-		for (int i = 0; i < m.Overloads.GetCount(); i++)
+		for (int i = 0; i < m.Overloads.GetCount(); i++) {
 			if (m.Overloads[i].IsScanned == false)
 				BuildSignature(conCls, m.Overloads[i]);
+			if (m.Overloads[i].IsScanned == true)
+				goodOvers++;
+		}
 		
+		if (goodOvers != m.Overloads.GetCount())
+			ErrorReporter::SomeOverloadsBad(conCls.Name, p, s);
+			
 		OverloadResolver res(ass);
 		Overload* found = res.Resolve(m, params, 0);
 		

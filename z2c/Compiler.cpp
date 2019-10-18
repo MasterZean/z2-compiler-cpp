@@ -385,7 +385,9 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		}
 	}
 	catch (Exc& err) {
-		Cout() << err;
+		if (PrintErrors)
+			Cout() << err;
+		valid = false;
 	}
 	
 	return valid;
@@ -539,8 +541,29 @@ void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& va
 void Compiler::BuildSignature(ZClass& conCls, Overload& over) {
 	ZParser parser;
 	parser.SetPos(over.ParamPos);
+	parser.Path = over.OwnerClass.Name;
 	
-	BuildSignature(conCls, over, parser);
+	compileStack << nullptr;
+	
+	try {
+		BuildSignature(conCls, over, parser);
+	}
+	catch (ZSyntaxError& err) {
+		if (compileStack.GetCount())
+			err.Context = compileStack.Top();
+			
+		errors.Add(err);
+		if (PrintErrors)
+			err.PrettyPrint(Cout());
+		//valid = false;
+	}
+	catch (Exc& err) {
+		if (PrintErrors)
+			Cout() << err;
+		//valid = false;
+	}
+	
+	compileStack.Pop();
 }
 
 void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {

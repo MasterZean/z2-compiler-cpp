@@ -207,6 +207,10 @@ void ErrorReporter::IncompatUnary(const String& path, const Point& p, const Stri
 	Error(path, p, "can't apply unary " + text + " on type '\f" + text2 + "\f'");
 }
 
+void ErrorReporter::SomeOverloadsBad(const String& path, const Point& p, const String& f) {
+	Error(path, p, "can't call method '" + f + "' because errors were encountered in at least one of its overloads");
+}
+
 void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons) {
 	String s;
 	
