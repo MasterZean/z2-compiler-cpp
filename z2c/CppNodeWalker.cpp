@@ -324,7 +324,10 @@ void CppNodeWalker::WalkNode(UnaryOpNode& node) {
 
 
 void CppNodeWalker::WalkNode(CastNode& node) {
-	stream << "(" << node.Class->BackendName << ")(";
+	stream << "(" << node.Class->BackendName;
+	if (node.MoveCast)
+		stream << "&&";
+	stream << ")(";
 	Walk(node.Object);
 	stream << ")";
 }
@@ -342,12 +345,27 @@ void CppNodeWalker::WalkNode(CallNode& node) {
 		if (count == 0)
 			Walk(node.Params[i]);
 		else {
-			stream << "(" << node.Over->Params[i].Class->BackendName;
-			if (node.Over->Params[i].PType == Variable::tyMove)
-				stream << "&&";
-			stream << ")(";
-			Walk(node.Params[i]);
-			stream << ")";
+			bool proced = false;
+			
+			if (node.Params[i]->NT == NodeType::Cast) {
+				CastNode& c = (CastNode&)*node.Params[i];
+				
+				if (node.Over->Params[i].Class == node.Params[i]->Class) {
+					proced = true;
+					c.MoveCast = node.Over->Params[i].PType == Variable::tyMove;
+				}
+			}
+			
+			if (!proced) {
+				stream << "(" << node.Over->Params[i].Class->BackendName;
+				if (node.Over->Params[i].PType == Variable::tyMove)
+					stream << "&&";
+				stream << ")(";
+				Walk(node.Params[i]);
+				stream << ")";
+			}
+			else
+				Walk(node.Params[i]);
 		}
 	}
 		

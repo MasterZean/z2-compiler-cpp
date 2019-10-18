@@ -1,5 +1,5 @@
 const MIN: Small = Small{-128}
-// call test(move Int = Small{-128})
+// call test(move Int = Int{-128})
 Char{109}
 Class{"Int"}
 // return test(move Int)

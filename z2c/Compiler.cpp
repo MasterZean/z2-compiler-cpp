@@ -593,11 +593,22 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		
 		Point tp = parser.GetPoint();
 		ZClass* pcls = GetClass(conCls, tp, parser.ExpectZId());
+		parser.WSCurrentLine();
 		
 		Variable& var = over.Params.Add(pname);
 		var.MIsParam = count++;
 		var.Name = pname;
 		var.Class = pcls;
+		
+		if (parser.Char('=')) {
+			parser.WSCurrentLine();
+			
+			Point p = parser.GetPoint();
+			Node* n = CompileExpression(conCls, &over, parser);
+			
+			if (!n->IsCT)
+				ErrorReporter::ExpectCT(conCls.Name, p);
+		}
 		
 		if (move)
 			var.PType = Variable::tyMove;

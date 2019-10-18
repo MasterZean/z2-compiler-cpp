@@ -214,6 +214,7 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 			conOver->DepOver.Add(found);
 		
 		CallNode* call = irg.call(*found);
+		FixupParams(*found, params);
 		call->Params = pick(params);
 		
 		return call;
@@ -333,6 +334,14 @@ void Compiler::GetParams(Vector<Node*>& params, ZClass& conCls, Overload* conOve
 	
 	parser.Expect(end);
 	parser.WSCurrentLine();
+}
+
+void Compiler::FixupParams(Overload& over, Vector<Node*>& params) {
+	int c = min(over.Params.GetCount(), params.GetCount());
+	for (int i = 0; i < c; i++) {
+		if (over.Params[i].Class->MIsNumeric && over.Params[i].Class != params[i]->Class)
+			params[i] = irg.cast(params[i], over.Params[i].Class);
+	}
 }
 
 int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {

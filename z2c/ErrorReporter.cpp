@@ -147,6 +147,10 @@ void ErrorReporter::ExpectedNotFound(const String& path, const Point& p, const S
 	Error(path, p, expected + " expected, " + found + " found");
 }
 
+void ErrorReporter::ExpectCT(const String& path, const Point& p) {
+	Error(path, p, "expression can't be evaluated at compile time");
+}
+
 void ErrorReporter::EosExpected(const String& path, const Point& p, const String& found) {
 	Error(path, p, "end of statement expected, " + found + " found");
 }
@@ -295,6 +299,7 @@ void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZCla
 		s << "class \f" << ci->Name <<"\f has an incompatible template '" << def->Name << "'";
 	else */if (def) {
 		s << "\tgot ambiguity between" << NL;
+		String z;
 		for (int i = 0; i < def->Overloads.GetCount(); i++) {
 			Overload& ol = def->Overloads[i];
 			bool found = false;
@@ -307,9 +312,29 @@ void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZCla
 			dd << ")" << NL;
 			
 			if (found)
-				s << dd;
+				z << dd;
 			//DUMP(dd);
 		}
+		
+		if (z.GetCount() == 0) {
+			for (int i = 0; i < def->Overloads.GetCount(); i++)
+				for (int j = 0; j < i; j++) {
+					Overload& ol = def->Overloads[i];
+					Overload& ol2 = def->Overloads[j];
+					
+					if (ol.Signature == ol2.Signature) {
+						z << "\t\t" << ol.Name() << "(";
+						z << ol.Signature;
+						z << ")" << NL;
+						
+						z << "\t\t" << ol2.Name() << "(";
+						z << ol2.Signature;
+						z << ")" << NL;
+					}
+				}
+		}
+		
+		s << z;
 	}
 
 	Error(path, p, s);

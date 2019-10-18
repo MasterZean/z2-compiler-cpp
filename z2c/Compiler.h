@@ -70,6 +70,8 @@ public:
 	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
 	void ScanToken(ZParser& parser);
 	
+	void FixupParams(Overload& over, Vector<Node*>& params);
+	
 	bool PrintErrors = true;
 	
 	void Sanitize(ZClass& cls);

@@ -178,6 +178,7 @@ class CastNode: public Node {
 public:
 	Node* Object = nullptr;
 	ZClass* Class = nullptr;
+	bool MoveCast = false;
 
 	CastNode() {
 		NT = NodeType::Cast;

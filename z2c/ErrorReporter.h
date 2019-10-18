@@ -40,6 +40,7 @@ public:
 	static void UnsignedLeadingMinus(const String& path, const Point& p);
 	
 	static void ExpectedNotFound(const String& path, const Point& p, const String& expected, const String& found);
+	static void ExpectCT(const String& path, const Point& p);
 	static void EosExpected(const String& path, const Point& p, const String& found);
 	
 	static void IdentifierExpected(const String& path, const Point& p, const String& found);
