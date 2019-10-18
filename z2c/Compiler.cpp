@@ -606,7 +606,7 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 			Point p = parser.GetPoint();
 			var.Default = CompileExpression(conCls, &over, parser);
 			
-			if (!var.Default)
+			if (!var.Default->IsCT)
 				ErrorReporter::ExpectCT(conCls.Name, p);
 			
 			if (over.MinParams == -1)
