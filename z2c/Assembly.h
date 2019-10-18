@@ -37,6 +37,7 @@ public:
 	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
+	Node* Default = nullptr;
 	ZClass* Class = nullptr;
 };
 
@@ -118,7 +119,8 @@ public:
 	int MDecWritten = 0;
 	bool IsScanned = false;
 	int Score = 0;
-	
+
+	int MinParams = -1;
 	ZClass* Return;
 	
 	String Signature;

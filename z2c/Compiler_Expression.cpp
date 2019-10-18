@@ -338,10 +338,23 @@ void Compiler::GetParams(Vector<Node*>& params, ZClass& conCls, Overload* conOve
 
 void Compiler::FixupParams(Overload& over, Vector<Node*>& params) {
 	int c = min(over.Params.GetCount(), params.GetCount());
+	int d = max(over.Params.GetCount(), params.GetCount());
+	
 	for (int i = 0; i < c; i++) {
 		if (over.Params[i].Class->MIsNumeric && over.Params[i].Class != params[i]->Class)
 			params[i] = irg.cast(params[i], over.Params[i].Class);
 	}
+	
+	for (int i = c; i < d; i++) {
+		ASSERT(over.Params[i].Default);
+		
+		if (over.Params[i].Class->MIsNumeric && over.Params[i].Class != over.Params[i].Default->Class)
+			params << irg.cast(over.Params[i].Default, over.Params[i].Class);
+		else
+			params << over.Params[i].Default;
+	}
+	
+	ASSERT(params.GetCount() == over.Params.GetCount());
 }
 
 int Compiler::GetPriority(CParser& parser, int& op, bool& opc) {

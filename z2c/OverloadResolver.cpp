@@ -17,7 +17,7 @@ Overload* OverloadResolver::Resolve(Method& def, Vector<Node*>& params, int limi
 		Overload& over = def.Overloads[ii];
 		over.Score = 0;
 		
-		if (params.GetCount() == over.Params.GetCount()) {
+		if (over.MinParams <= params.GetCount() && params.GetCount() <= over.Params.GetCount()) {
 			if (!spec || (spec && over.TParam.GetCount() && over.TParam[0] == spec)) {
 				// function that take no parameters are a match by definition
 				if (params.GetCount() == 0) {

@@ -1,4 +1,7 @@
 def @main() {
+	f(1, 2)
+	f(3)
+	f()
     val a = Byte{-0b00000100} >> 1
 	val b = Small{ 0b10000000} >> 2
 	0b10000000u >> 2
@@ -13,3 +16,23 @@ def @main() {
 
 	Int.Max
 }
+
+func f(a: Int = 20, b: Double = 45) {
+	a
+	b
+}
+
+/*
+func f(a: Int, b: Double) {
+	b
+	a
+}
+
+func f(a: Char) {
+	
+}
+
+func f(a: Char): Byte {
+	
+}
+*/

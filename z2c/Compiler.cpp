@@ -596,7 +596,7 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		parser.WSCurrentLine();
 		
 		Variable& var = over.Params.Add(pname);
-		var.MIsParam = count++;
+		var.MIsParam = count;
 		var.Name = pname;
 		var.Class = pcls;
 		
@@ -604,10 +604,13 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 			parser.WSCurrentLine();
 			
 			Point p = parser.GetPoint();
-			Node* n = CompileExpression(conCls, &over, parser);
+			var.Default = CompileExpression(conCls, &over, parser);
 			
-			if (!n->IsCT)
+			if (!var.Default)
 				ErrorReporter::ExpectCT(conCls.Name, p);
+			
+			if (over.MinParams == -1)
+				over.MinParams = count;
 		}
 		
 		if (move)
@@ -638,6 +641,8 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 		if (move)
 			over.ParamSig << "&&";
 		
+		count++;
+		
 		if (parser.IsChar(')'))
 			break;
 		
@@ -646,6 +651,9 @@ void Compiler::BuildSignature(ZClass& conCls, Overload& over, ZParser& parser) {
 			parser.WS();
 		}
 	}
+	
+	if (over.MinParams == -1)
+		over.MinParams = count;
 	
 	parser.Expect(')');
 	parser.WSCurrentLine();
