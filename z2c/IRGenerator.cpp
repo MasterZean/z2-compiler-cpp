@@ -298,9 +298,12 @@ AssignNode* IRGenerator::assign(Node* ls, Node* rs) {
 	return node;
 }
 
-BlockNode* IRGenerator::openBlock() {
+BlockNode* IRGenerator::openBlock(bool ss) {
 	BlockNode* block = blockNodes.Get();
+	
 	block->IntVal = 1;
+	block->SS = ss;
+	
 	return block;
 }
 

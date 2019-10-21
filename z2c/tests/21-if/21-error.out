@@ -1,0 +1,12 @@
+void _main() {
+	if (60) {
+	}
+	float a = 9.0f;
+	if (a) {
+	}
+}
+
+DummyClass(2, 9): error:
+	condition must be 'Bool', class 'Int' found
+DummyClass(7, 9): error:
+	condition must be 'Bool', class 'Float' found

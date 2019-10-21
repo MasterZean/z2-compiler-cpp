@@ -1,0 +1,10 @@
+var a: Int = Int{3}
+if (Bool{true})
+{
+	Int{1}
+}
+Char{49}
+Char{50}
+if (Bool{false}): jumping to instruction 10
+Char{51}
+Char{52}

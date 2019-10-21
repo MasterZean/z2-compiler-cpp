@@ -183,6 +183,8 @@ void RunMicroTests() {
 	RunSuite(GetDataFile("tests/20-call/01-overloading/01-small"));
 	RunSuite(GetDataFile("tests/20-call/01-overloading/02-small"));
 	
+	RunSuite(GetDataFile("tests/21-if"));
+	
 	DUMP(ext);
 		
 	if (attemptedTests > 0 && failledTests != 0)

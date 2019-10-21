@@ -31,7 +31,10 @@ public:
 			if (DebugOriginalLine && node->OriginalLine)
 				stream << "\t\t\t\t // " << node->OriginalLine;
 			
-			NL();
+			if (node->NT != NodeType::If)
+				NL();
+			else
+				stream << " ";
 		}
 	}
 	

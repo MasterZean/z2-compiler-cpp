@@ -118,6 +118,8 @@ public:
 
 class BlockNode: public Node {
 public:
+	bool SS = true;
+	
 	BlockNode() {
 		NT = NodeType::Block;
 	}

@@ -36,8 +36,8 @@ public:
 	bool CompileOverload(Overload& overload, ZParser& parser);
 	bool CompileOverloadJump(Overload& overload);
 	
-	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level);
-	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser);
+	bool CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, Vector<Node*>* nodePool, int level);
+	bool CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser, Vector<Node*>* nodePool);
 	
 	Node* CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
@@ -45,7 +45,7 @@ public:
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
-	Node* CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser);
+	Node* CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool);
 	
 	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
@@ -78,6 +78,8 @@ public:
 	
 	void Sanitize(ZClass& cls);
 	void Sanitize(Method& m);
+	
+	bool SkipUntilNL(ZParser& parser, bool cb = false);
 	
 	static String GetName() {
 		return "";

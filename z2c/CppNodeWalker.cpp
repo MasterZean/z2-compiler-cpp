@@ -290,7 +290,8 @@ void CppNodeWalker::WalkNode(MemNode& node) {
 
 void CppNodeWalker::WalkNode(BlockNode& node) {
 	if (node.IntVal) {
-		SS();
+		if (node.SS)
+			SS();
 		stream << "{";
 		NL();
 		indent++;

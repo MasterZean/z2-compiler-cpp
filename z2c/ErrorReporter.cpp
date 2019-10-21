@@ -199,6 +199,10 @@ void ErrorReporter::CantCreateClassVar(const String& path, const Point& p, const
 	Error(path, p, "can't create variable of type '\f" + c + "\f'");
 }
 
+void ErrorReporter::CondNotBool(const String& path, const Point& p, const String& c) {
+	Error(path, p, "condition must be '\fBool\f', class '\f" + c + "\f' found");
+}
+
 void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 	Error(path, p, "second operand of division is 0 or equivalent");
 }

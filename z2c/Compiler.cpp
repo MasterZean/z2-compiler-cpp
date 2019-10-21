@@ -178,7 +178,7 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
 	compileStack << &overload;
 	
-	auto res = CompileBlock(overload.OwnerClass, overload, parser, 1);
+	auto res = CompileBlock(overload.OwnerClass, overload, parser, &overload.Nodes, 1);
 	
 	compileStack.Pop();
 	
@@ -191,14 +191,14 @@ bool Compiler::CompileOverloadJump(Overload& overload) {
 	ZParser parser;
 	parser.SetPos(overload.EntryPos);
 	
-	auto res = CompileBlock(overload.OwnerClass, overload, parser, 1);
+	auto res = CompileBlock(overload.OwnerClass, overload, parser, &overload.Nodes, 1);
 	
 	compileStack.Pop();
 	
 	return res;
 }
 
-bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, int level) {
+bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, Vector<Node*>* nodePool, int level) {
 	bool valid = true;
 	
 	parser.WS();
@@ -206,22 +206,22 @@ bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, 
 	conOver.Blocks.Add();
 	conOver.Blocks.Top().Temps = 0;
 	
-	if (level > 1)
-		conOver.Nodes << irg.openBlock();
+	if (nodePool && level > 1)
+		*nodePool << irg.openBlock();
 	
 	while (!parser.IsChar('}')) {
 		if (parser.Char('{')) {
-			if (!CompileBlock(conCls, conOver, parser, level + 1))
+			if (!CompileBlock(conCls, conOver, parser, nodePool, level + 1))
 				valid = false;
 		}
 		else {
-			if (!CompileStatement(conCls, conOver, parser))
+			if (!CompileStatement(conCls, conOver, parser, nodePool))
 				valid = false;
 		}
 	}
 	
-	if (level > 1)
-		conOver.Nodes << irg.closeBlock();
+	if (nodePool && level > 1)
+		*nodePool << irg.closeBlock();
 	
 	parser.Expect('}');
 	parser.WS();
@@ -231,7 +231,7 @@ bool Compiler::CompileBlock(ZClass& conCls, Overload& conOver, ZParser& parser, 
 	return valid;
 }
 
-bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser) {
+bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& parser, Vector<Node*>* nodePool) {
 	bool valid = true;
 	
 	Node* exp = nullptr;
@@ -265,7 +265,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			returned = true;
 		}
 		else if (parser.Id("if")) {
-			exp = CompileIf(conCls, &conOver, parser);
+			exp = CompileIf(conCls, &conOver, parser, nodePool);
 			expectES = false;
 		}
 		else {
@@ -347,8 +347,8 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			parser.ExpectEndStat();
 			parser.WS();
 			
-			if (conOver.Blocks.Top().Returned == false)
-				conOver.Nodes << exp;
+			if (nodePool && conOver.Blocks.Top().Returned == false)
+				*nodePool << exp;
 		}
 		
 		ASSERT(exp);
@@ -365,31 +365,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			err.PrettyPrint(Cout());
 		valid = false;
 		
-		int line = parser.GetLine();
-		while (true) {
-			if (parser.IsChar('}')) {
-				if (parser.OpenCB) {
-					parser.Char('}');
-					parser.Spaces();
-					parser.OpenCB--;
-				}
-				else
-					break;
-			}
-			else if (parser.Char(';')) {
-				parser.Spaces();
-				break;
-			}
-			else {
-				parser.SkipError();
-				parser.Spaces();
-			}
-			
-			if (parser.GetLine() != line) {
-				parser.Spaces();
-				break;
-			}
-		}
+		SkipUntilNL(parser);
 	}
 	catch (Exc& err) {
 		if (PrintErrors)
@@ -398,6 +374,42 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 	}
 	
 	return valid;
+}
+
+bool Compiler::SkipUntilNL(ZParser& parser, bool cb) {
+	int line = parser.GetLine();
+	
+	while (true) {
+		if (parser.IsChar('}')) {
+			if (parser.OpenCB) {
+				parser.Char('}');
+				parser.Spaces();
+				parser.OpenCB--;
+			}
+			else
+				return false;
+		}
+		else if (parser.Char(';')) {
+			parser.Spaces();
+			break;
+		}
+		else if (parser.Char('{')) {
+			parser.Spaces();
+			if (cb)
+				return true;
+		}
+		else {
+			parser.SkipError();
+			parser.Spaces();
+		}
+		
+		if (parser.GetLine() != line) {
+			parser.Spaces();
+			return false;
+		}
+	}
+	
+	return false;
 }
 
 Node* Compiler::AssignOp(ZClass& conCls, Overload& conDef, Point p, Node* exp, Node* rs, OpNode::Type op) {
@@ -501,29 +513,61 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 		return irg.defineLocalVar(v);
 }
 
-Node* Compiler::CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser) {
-	parser.WS();
-	parser.Expect('(');
-	parser.WS();
-	
-	Node* cond = CompileExpression(conCls, conOver, parser);
-	
-	parser.Expect(')');
-	parser.WS();
-	
-	IfNode* ifNode = irg.ifNode(cond);
-	
-	conOver->Nodes << ifNode;
-	
-	if (parser.Char('{'))
-		CompileBlock(conCls, *conOver, parser, 2);
-	else {
-		conOver->Nodes << irg.openBlock();
-		CompileStatement(conCls, *conOver, parser);
-		conOver->Nodes << irg.closeBlock();
+Node* Compiler::CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool) {
+	Node* cond = nullptr;
+	bool ocb = false;
+		
+	try {
+		parser.WS();
+		parser.Expect('(');
+		parser.WS();
+		
+		Point p = parser.GetPoint();
+		cond = CompileExpression(conCls, conOver, parser);
+		
+		parser.Expect(')');
+		parser.WS();
+		
+		if (cond->Class != ass.CBool)
+			ErrorReporter::CondNotBool(conCls.Name, p, cond->Class->Name);
+	}
+	catch (ZSyntaxError& err) {
+		if (compileStack.GetCount())
+			err.Context = compileStack.Top();
+			
+		errors.Add(err);
+		if (PrintErrors)
+			err.PrettyPrint(Cout());
+		
+		ocb = SkipUntilNL(parser, true);
+		//valid = false;
+	}
+	catch (Exc& err) {
+		if (PrintErrors)
+			Cout() << err;
+		//valid = false;
 	}
 	
-	ifNode->JumpOnFalse = conOver->Nodes.GetCount() - 1;
+	IfNode* ifNode = irg.ifNode(cond ? cond : irg.constBool(false));
+	
+	Vector<Node*>* ifPool = nodePool;
+	if (cond == nullptr || (cond->IsCT && cond->IntVal == 0))
+		ifPool = nullptr;
+	
+	if (ifPool) {
+		*ifPool << ifNode;
+		*ifPool << irg.openBlock(false);
+	}
+	
+	if (parser.Char('{') || ocb)
+		CompileBlock(conCls, *conOver, parser, ifPool, 1);
+	else
+		CompileStatement(conCls, *conOver, parser, ifPool);
+
+	if (ifPool) {
+		*ifPool << irg.closeBlock();
+		ifNode->JumpOnFalse = nodePool->GetCount() - 1;
+	}
 	
 	return cond;
 }

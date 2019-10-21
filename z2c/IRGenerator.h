@@ -79,7 +79,7 @@ public:
 	
 	CastNode* cast(Node* object, ZClass* cls);
 	
-	BlockNode* openBlock();
+	BlockNode* openBlock(bool ss = true);
 	BlockNode* closeBlock();
 	
 	IfNode* ifNode(Node* cond);
