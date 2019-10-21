@@ -351,6 +351,14 @@ RetNode* IRGenerator::ret(Node* value) {
 	return r;
 }
 
+IfNode* IRGenerator::ifNode(Node* cond) {
+	IfNode* r = ifNodes.Get();
+	
+	r->Cond = cond;
+	
+	return r;
+}
+
 Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	if (op <= OpNode::opMod)
 		return opArit(left, right, op, p);

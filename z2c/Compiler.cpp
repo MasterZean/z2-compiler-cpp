@@ -243,6 +243,7 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		int line = parser.GetLine();
 		
 		bool returned = false;
+		bool expectES = true;
 		
 		if (parser.Id("val"))
 			exp = CompileVar(conCls, &conOver, parser, false);
@@ -262,6 +263,10 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			}
 			
 			returned = true;
+		}
+		else if (parser.Id("if")) {
+			exp = CompileIf(conCls, &conOver, parser);
+			expectES = false;
 		}
 		else {
 			exp = CompileExpression(conCls, &conOver, parser);
@@ -336,16 +341,18 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		}
 			
 		// end statement
-		if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
-			parser.WSCurrentLine();
-		parser.ExpectEndStat();
-		parser.WS();
+		if (expectES) {
+			if (parser.PeekChar() != '\r' && parser.PeekChar() != '\n')
+				parser.WSCurrentLine();
+			parser.ExpectEndStat();
+			parser.WS();
+			
+			if (conOver.Blocks.Top().Returned == false)
+				conOver.Nodes << exp;
+		}
 		
 		ASSERT(exp);
 		exp->OriginalLine = line;
-		
-		if (conOver.Blocks.Top().Returned == false)
-			conOver.Nodes << exp;
 		
 		conOver.Blocks.Top().Returned = returned;
 	}
@@ -492,6 +499,33 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	}
 	else
 		return irg.defineLocalVar(v);
+}
+
+Node* Compiler::CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser) {
+	parser.WS();
+	parser.Expect('(');
+	parser.WS();
+	
+	Node* cond = CompileExpression(conCls, conOver, parser);
+	
+	parser.Expect(')');
+	parser.WS();
+	
+	IfNode* ifNode = irg.ifNode(cond);
+	
+	conOver->Nodes << ifNode;
+	
+	if (parser.Char('{'))
+		CompileBlock(conCls, *conOver, parser, 2);
+	else {
+		conOver->Nodes << irg.openBlock();
+		CompileStatement(conCls, *conOver, parser);
+		conOver->Nodes << irg.closeBlock();
+	}
+	
+	ifNode->JumpOnFalse = conOver->Nodes.GetCount() - 1;
+	
+	return cond;
 }
 
 Node* Compiler::GetVarDefault(ZClass* cls) {

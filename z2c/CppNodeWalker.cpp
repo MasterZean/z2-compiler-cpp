@@ -43,6 +43,8 @@ void CppNodeWalker::Walk(Node* node) {
 		WalkNode(*(RetNode*)node);
 	else if (node->NT == NodeType::Var)
 		WalkNode(*(VarNode*)node);
+	else if (node->NT == NodeType::If)
+		WalkNode(*(IfNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
@@ -381,6 +383,12 @@ void CppNodeWalker::WalkNode(RetNode& node) {
 	}
 }
 
+void CppNodeWalker::WalkNode(IfNode& node) {
+	stream << "if (";
+	Walk(node.Cond);
+	stream << ")";
+}
+
 void CppNodeWalker::WalkNode(AssignNode& node) {
 	Walk(node.LS);
 	
@@ -403,7 +411,6 @@ void CppNodeWalker::WalkNode(ListNode& node) {
 	
 	stream << ")";
 }
-
 
 String MangleNamespace(const String& ns) {
 	String s;

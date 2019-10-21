@@ -362,7 +362,7 @@ CONSOLE_APP_MAIN {
 	if (i != -1) {
 		StringStream ss;
 		NodeRunner exe(ass, ss);
-				
+		
 		exe.ExecuteOverload(cls->Methods[i].Overloads[0]);
 				
 		String result = ss.GetResult();

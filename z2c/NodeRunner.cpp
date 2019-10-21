@@ -42,6 +42,8 @@ Node* NodeRunner::Execute(Node* node) {
 		return ExecuteNode(*(RetNode*)node);
 	else if (node->NT == NodeType::Var)
 		return ExecuteNode(*(VarNode*)node);
+	else if (node->NT == NodeType::If)
+		return ExecuteNode(*(IfNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
@@ -105,6 +107,23 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 		else if (in->NT == NodeType::Return) {
 			ret = Execute(in);
 			break;
+		}
+		else if (in->NT == NodeType::If) {
+			IfNode* ifNode = (IfNode*)in;
+			
+			stream << "if (";
+			ret = Execute(in);
+			WriteValue(stream, ret);
+			stream << ")";
+			
+			if (ret->IntVal == 0) {
+				stream << ": jumping to instruction " << ifNode->JumpOnFalse;
+				
+				// should be -1, but jump over closing block node
+				i = ifNode->JumpOnFalse;
+			}
+			
+			NL();
 		}
 		else {
 			SS();
@@ -575,6 +594,10 @@ Node* NodeRunner::ExecuteNode(ListNode& node) {
 		n = Execute(node.Params[i]);
 	
 	return n;
+}
+
+Node* NodeRunner::ExecuteNode(IfNode& node) {
+	return Execute(node.Cond);
 }
 
 }

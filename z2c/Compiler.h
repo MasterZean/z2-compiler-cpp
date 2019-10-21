@@ -45,6 +45,8 @@ public:
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
+	Node* CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser);
+	
 	Node* ParseExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
 	Node* ParseBin(ZClass& conCls, Overload* conOver, ZParser& parser, int prec, Node* left, CParser::Pos& backupPoint, bool secondOnlyAttempt = false);

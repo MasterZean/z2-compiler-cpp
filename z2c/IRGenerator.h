@@ -82,6 +82,8 @@ public:
 	BlockNode* openBlock();
 	BlockNode* closeBlock();
 	
+	IfNode* ifNode(Node* cond);
+	
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
 	ListNode* list(Node* n);
@@ -135,6 +137,7 @@ private:
 	NodePool<AssignNode> assNodes;
 	NodePool<UnaryOpNode> unaryNodes;
 	NodePool<ListNode> listNodes;
+	NodePool<IfNode> ifNodes;
 };
 
 }

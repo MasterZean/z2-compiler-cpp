@@ -37,6 +37,7 @@ public:
 		Intrinsic,*/
 		Return,
 		Var,
+		If,
 		/*Alloc,
 		Array,*/
 		Using,
@@ -201,6 +202,16 @@ public:
 	
 	RetNode() {
 		NT = NodeType::Return;
+	}
+};
+
+class IfNode: public Node {
+public:
+	Node* Cond = nullptr;
+	int JumpOnFalse = 0;
+	
+	IfNode() {
+		NT = NodeType::If;
 	}
 };
 

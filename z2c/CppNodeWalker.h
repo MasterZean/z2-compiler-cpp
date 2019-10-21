@@ -25,7 +25,8 @@ public:
 			SS();
 			Walk(node);
 			
-			stream << ";";
+			if (node->NT != NodeType::If)
+				stream << ";";
 		
 			if (DebugOriginalLine && node->OriginalLine)
 				stream << "\t\t\t\t // " << node->OriginalLine;
@@ -43,6 +44,7 @@ public:
 	void WalkNode(CastNode& node);
 	void WalkNode(CallNode& node);
 	void WalkNode(RetNode& node);
+	void WalkNode(IfNode& node);
 	void WalkNode(AssignNode& node);
 	void WalkNode(ListNode& node);
 	
