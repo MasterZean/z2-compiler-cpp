@@ -21,11 +21,11 @@ public:
 	void WalkStatement(Node* node) {
 		if (node->NT == NodeType::Block)
 			Walk(node);
-		else {
+		else if (node->NT != NodeType::Goto) {
 			SS();
 			Walk(node);
 			
-			if (node->NT != NodeType::If)
+			if (node->NT != NodeType::If && node->NT != NodeType::While)
 				stream << ";";
 		
 			if (DebugOriginalLine && node->OriginalLine)

@@ -31,4 +31,22 @@ def @main() {
 	while (a < 3) {
 		a += 1
 	}
+
+	a = 3
+	while (a < 7) 
+		a++
+
+	a = 3				
+	while (a <= 7) {
+		a++
+	}
+
+	a = 3
+	while (a < 7) 
+		++a
+
+	a = 3				
+	while (a <= 7) {
+		++a
+	}
 }

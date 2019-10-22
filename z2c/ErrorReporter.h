@@ -54,6 +54,7 @@ public:
 	
 	static void CantAssign(const String& path, const Point& p, const String& c1, const String& c2);
 	static void AssignNotLValue(const String& path, const Point& p);
+	static void NotLValue(const String& path, const Point& p);
 	static void AssignConst(const String& path, const Point& p, const String& c);
 	static void CantCreateClassVar(const String& path, const Point& p, const String& c);
 	static void CondNotBool(const String& path, const Point& p, const String& c);

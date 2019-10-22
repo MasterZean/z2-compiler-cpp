@@ -191,6 +191,10 @@ void ErrorReporter::AssignNotLValue(const String& path, const Point& p) {
 	Error(path, p, "left hand side of the assignment is not a L-value");
 }
 
+void ErrorReporter::NotLValue(const String& path, const Point& p) {
+	Error(path, p, "expression is not a L-value");
+}
+
 void ErrorReporter::AssignConst(const String& path, const Point& p, const String& c) {
 	Error(path, p, "can't assign to const '\f" + c + "\f' instance");
 }

@@ -492,6 +492,74 @@ Node* NodeRunner::ExecuteNode(UnaryOpNode& node) {
 		
 		return irg.constBool(v.i64 == 0);
 	}
+	else if (node.Op == OpNode::opInc) {
+		if (node.OpA->NT == NodeType::Memory) {
+			Variable& var = *((MemNode&)*node.OpA).Var;
+			var.Value = Execute(node.OpA);
+			
+			if (!node.Prefix) {
+				if (var.Value->Class == ass.CFloat) {
+					Node* n = irg.constFloatSingle(var.Value->DblVal);
+					var.Value->DblVal++;
+					return n;
+				}
+				else if (var.Value->Class == ass.CDouble) {
+					Node* n = irg.constFloatDouble(var.Value->DblVal);
+					var.Value->DblVal++;
+					return n;
+				}
+				else {
+					Node* n = irg.constIntSigned(var.Value->IntVal);
+					var.Value->IntVal++;
+					return n;
+				}
+			}
+			else {
+				if (var.Value->Class->MIsFloat)
+					var.Value->DblVal++;
+				else
+					var.Value->IntVal++;
+				
+				return var.Value;
+			}
+		}
+		else
+			ASSERT(0);
+	}
+	else if (node.Op == OpNode::opDec) {
+		if (node.OpA->NT == NodeType::Memory) {
+			Variable& var = *((MemNode&)*node.OpA).Var;
+			var.Value = Execute(node.OpA);
+			
+			if (!node.Prefix) {
+				if (var.Value->Class == ass.CFloat) {
+					Node* n = irg.constFloatSingle(var.Value->DblVal);
+					var.Value->DblVal--;
+					return n;
+				}
+				else if (var.Value->Class == ass.CDouble) {
+					Node* n = irg.constFloatDouble(var.Value->DblVal);
+					var.Value->DblVal--;
+					return n;
+				}
+				else {
+					Node* n = irg.constIntSigned(var.Value->IntVal);
+					var.Value->IntVal--;
+					return n;
+				}
+			}
+			else {
+				if (var.Value->Class->MIsFloat)
+					var.Value->DblVal--;
+				else
+					var.Value->IntVal--;
+				
+				return var.Value;
+			}
+		}
+		else
+			ASSERT(0);
+	}
 	else
 		ASSERT(0);
 	
@@ -606,6 +674,8 @@ Node* NodeRunner::ExecuteNode(AssignNode& node) {
 		
 		return var.Value;
 	}
+	else
+		ASSERT(0);
 	
 	return nullptr;
 }

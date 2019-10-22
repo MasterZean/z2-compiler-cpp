@@ -749,6 +749,35 @@ Node* IRGenerator::opMinus(Node* node) {
 	return nullptr;
 }
 
+Node* IRGenerator::inc(Node* obj, bool prefix) {
+	UnaryOpNode* minus = unaryNodes.Get();
+	minus->OpA = obj;
+	minus->Op = OpNode::opInc;
+	minus->Prefix = prefix;
+	
+	minus->IsReadOnly = true;
+	minus->IsCT = obj->IsCT;
+	minus->SetType(ass.CVoid);
+	
+	ASSERT(minus->Class);
+	
+	return minus;
+}
+
+Node* IRGenerator::dec(Node* obj, bool prefix) {
+	UnaryOpNode* minus = unaryNodes.Get();
+	minus->OpA = obj;
+	minus->Op = OpNode::opDec;
+	minus->Prefix = prefix;
+	
+	minus->IsReadOnly = true;
+	minus->IsCT = obj->IsCT;
+	minus->SetType(ass.CVoid);
+	
+	ASSERT(minus->Class);
+	
+	return minus;
+}
 
 Node* IRGenerator::opPlus(Node* node) {
 	if (node->Class->MIsNumeric)

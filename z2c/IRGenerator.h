@@ -98,6 +98,9 @@ public:
 	Node* opShr(Node* left, Node* right, const Point& p);
 	Node* opRel(Node* left, Node* right, OpNode::Type op, const Point& p);
 	
+	Node* inc(Node* obj, bool prefix = false);
+	Node* dec(Node* obj, bool prefix = false);
+	
 	Node* opAritCT(Node* left, Node* right, OpNode::Type op, ZClass* cls, ZClass* e, int64& dInt, double& dDouble);
 	Node* opRelCT(Node* left, Node* right, OpNode::Type op, ZClass* e);
 	

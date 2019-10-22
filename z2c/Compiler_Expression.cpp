@@ -96,6 +96,32 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 		if (exp == nullptr)
 			ErrorReporter::IncompatUnary(conCls.Name, p, "'-' ('@minus')",  node->Class->Name);
 	}
+	else if (parser.Char2('+', '+')) {
+		Point p = parser.GetPoint();
+		
+		exp = ParseAtom(conCls, conOver, parser);
+		if (!exp->IsAddressable || exp->IsReadOnly)
+			ErrorReporter::NotLValue(conCls.Name, p);
+		
+		exp = irg.inc(exp, true);
+		
+		ASSERT(exp->Class);
+		
+		return exp;
+	}
+	else if (parser.Char2('-', '-')) {
+		Point p = parser.GetPoint();
+		
+		exp = ParseAtom(conCls, conOver, parser);
+		if (!exp->IsAddressable || exp->IsReadOnly)
+			ErrorReporter::NotLValue(conCls.Name, p);
+		
+		exp = irg.dec(exp, true);
+		
+		ASSERT(exp->Class);
+		
+		return exp;
+	}
 	else if (parser.Char('+')) {
 		Node* node = ParseAtom(conCls, conOver, parser);
 		exp = irg.opPlus(node);
@@ -154,6 +180,24 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 				ErrorReporter::ClassMustBeInstanciated(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name);
 
 			exp = ParseDot(conCls, conOver, parser, exp);
+			
+			ASSERT(exp->Class);
+		}
+		else if (parser.Char2('+', '+')) {
+			if (!exp->IsAddressable || exp->IsReadOnly)
+				ErrorReporter::NotLValue(conCls.Name, p);
+			
+			Node* op = irg.inc(exp);
+			exp = op;
+			
+			ASSERT(exp->Class);
+		}
+		else if (parser.Char2('-', '-')) {
+			if (!exp->IsAddressable || exp->IsReadOnly)
+				ErrorReporter::NotLValue(conCls.Name, p);
+			
+			Node* op = irg.dec(exp);
+			exp = op;
 			
 			ASSERT(exp->Class);
 		}
