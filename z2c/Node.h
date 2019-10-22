@@ -38,6 +38,8 @@ public:
 		Return,
 		Var,
 		If,
+		While,
+		Goto,
 		/*Alloc,
 		Array,*/
 		Using,
@@ -214,6 +216,23 @@ public:
 	
 	IfNode() {
 		NT = NodeType::If;
+	}
+};
+
+class WhileNode: public IfNode {
+public:
+	WhileNode() {
+		NT = NodeType::While;
+	}
+};
+
+class GotoNode: public Node {
+public:
+	int Instruction = 0;
+	bool Explicit = false;
+	
+	GotoNode() {
+		NT = NodeType::Goto;
 	}
 };
 

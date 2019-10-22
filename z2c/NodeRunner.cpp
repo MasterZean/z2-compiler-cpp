@@ -44,6 +44,8 @@ Node* NodeRunner::Execute(Node* node) {
 		return ExecuteNode(*(VarNode*)node);
 	else if (node->NT == NodeType::If)
 		return ExecuteNode(*(IfNode*)node);
+	else if (node->NT == NodeType::While)
+		return ExecuteNode(*(WhileNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
@@ -124,6 +126,27 @@ Node* NodeRunner::ExecuteOverload(Overload& over) {
 			}
 			
 			NL();
+		}
+		else if (in->NT == NodeType::While) {
+			WhileNode* whileNode = (WhileNode*)in;
+			
+			stream << "while (";
+			ret = Execute(in);
+			WriteValue(stream, ret);
+			stream << ")";
+			
+			if (ret->IntVal == 0) {
+				stream << ": jumping to instruction " << whileNode->JumpOnFalse;
+				
+				// should be -1, but jump over closing block node
+				i = whileNode->JumpOnFalse;
+			}
+			
+			NL();
+		}
+		else if (in->NT == NodeType::Goto) {
+			GotoNode* g = (GotoNode*)in;
+			i = g->Instruction - 1;
 		}
 		else {
 			SS();
@@ -599,6 +622,12 @@ Node* NodeRunner::ExecuteNode(ListNode& node) {
 Node* NodeRunner::ExecuteNode(IfNode& node) {
 	return Execute(node.Cond);
 }
+
+Node* NodeRunner::ExecuteNode(WhileNode& node) {
+	return Execute(node.Cond);
+}
+
+
 
 }
 

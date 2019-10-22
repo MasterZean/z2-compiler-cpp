@@ -177,30 +177,10 @@ void Builder::DoEnvGCC() {
 	StringStream ss;
 	
 	ss << "PATH=";
-	//ss << bm.Tools << "\\" << ";";
 	ss << bm.Compiler << "\\bin\\" << ";";
 	ss << GetEnv("PATH") << ";";
 	ss.Put(0);
 
-	/*ss << "LIB=";
-	ss << GetEnv("LIB");
-	
-	for (int i = 0; i < bm.Lib.GetCount(); i++) {
-		ss << bm.Lib[i] << ";";
-	}
-	ss.Put(0);
-	
-	String tempPath = GetEnv("TMP");
-	ss << "TMP=";
-	ss << tempPath;
-	ss.Put(0);
-	ss << "TEMP=";
-	ss << tempPath;
-	ss.Put(0);
-	
-	ss << "SystemRoot=" << GetWinPath();
-	ss.Put(0);*/
-	
 	ss.Put(0);
 	
 	env = ss;
@@ -213,13 +193,13 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 	String cmd;
 	String t, tt;
 	
-	/*cmd << "SET PATH=%PATH%;";
-	cmd << bm.Compiler << "\\bin" << ";";
-	cmd << " & ";*/
-	
 	cmd << QT << cppPath << QT << " ";
 	cmd << "-w " << optimize << " ";
-	cmd << "-c -x c++ -fpermissive -fexceptions -msse2 -std=c++11";
+	cmd << "-c -fpermissive -fexceptions -msse2";
+	if (cpp)
+		cmd << " -x c++ -std=c++11";
+	else
+		cmd << " -x c";
 	cmd << " -m";
 	if (arch == "x64")
 		cmd << "64";
@@ -231,15 +211,12 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 	
 	//DUMP(cmd);
 	
-	//String pp = "cmd.exe /C \"" + cmd + "\"";
-	
 	LocalProcess lp(cmd, env);
 	while (lp.Read(t)) {
 		if (t.GetCount())
 			tt << t;
 	}
 	
-	//DUMP(lp.GetExitMessage());
 	if (!tt.IsEmpty()) {
 		Cout() << "FAILLED!\n";
 		Cout() << tt << "\n";
@@ -252,32 +229,13 @@ bool Builder::CompileGCC(const String& src, const String& out) {
 }
 
 bool Builder::BuildGCC(const String& path, const String& origPath) {
-	//DUMP(path);
 	String inPath = GetFileDirectory(path);
 	String inTitle = GetFileTitle(path);
 	String outPath = GetFileDirectory(origPath);
 	String outTitle = GetFileTitle(origPath);
-	String c;
-	//String O = optimize;
+
 	bool result = true;
 
-	/*c << "SET PATH=%PATH%;";
-	c << bm.Compiler << "\\bin" << ";";
-	c << " & ";*/
-	
-	/*StringStream ss;
-	
-	ss << "PATH=";
-	ss << GetEnv("PATH") << ";";
-	ss << bm.Compiler << "\\bin" << ";";
-	ss.Put(0);
-	
-	ss.Put(0);
-	
-	env = ss;
-	DUMP(c);
-	DUMP(env);*/
-	
 	cppPath = bm.Compiler + "\\bin\\c++.exe";
 	linkPath = cppPath;
 	
@@ -295,36 +253,6 @@ bool Builder::BuildGCC(const String& path, const String& origPath) {
 	
 	if (!CompileGCC(inPath + inTitle + ".cpp", inPath + inTitle + ".o"))
 		result = false;
-	
-	//c << "cd \"" + s + "\" & ";
-	
-	/*String leak = zPath + "codegen\\win32\\gcc\\leakdetect." + arch + ".o ";
-	if (optimize == " -Od")
-		optimize = " -Og";
-	//O << " ";
-	c << "\"" +  -w " + s + n + ".cpp " + leak + O + " -o " + s2 + n2 + ".exe" + " -fpermissive -fexceptions -msse2 -m";
-	if (arch == "x64")
-		c << "64";
-	else
-		c << "32";
-	//c << " -g2 -static -x c++ -std=c++11 ";
-	c << " -x c++ -std=c++11 ";
-	c << "-luser32";
-	//c << "-luser32 -lraylib -lopengl32 -lgdi32";
-	String t, tt;
-	String pp = "cmd.exe /C \"" + c + "\"";
-
-	SetCurrentDirectory(s);
-
-	LocalProcess lp(pp);
-	while (lp.Read(t)) {
-		if (t.GetCount())
-			tt << t;
-	}
-	if (!tt.IsEmpty()) {
-		Cout() << "Binary generation output: " << tt << "\n";
-		result = false;
-	}*/
 	
 	StopWatch sw;
 	String d, t, tt;

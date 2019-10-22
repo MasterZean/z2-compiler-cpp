@@ -31,7 +31,7 @@ public:
 			if (DebugOriginalLine && node->OriginalLine)
 				stream << "\t\t\t\t // " << node->OriginalLine;
 			
-			if (node->NT != NodeType::If)
+			if (node->NT != NodeType::If && node->NT != NodeType::While)
 				NL();
 			else
 				stream << " ";
@@ -47,9 +47,11 @@ public:
 	void WalkNode(CastNode& node);
 	void WalkNode(CallNode& node);
 	void WalkNode(RetNode& node);
-	void WalkNode(IfNode& node);
 	void WalkNode(AssignNode& node);
 	void WalkNode(ListNode& node);
+	void WalkNode(IfNode& node);
+	void WalkNode(WhileNode& node);
+	void WalkNode(GotoNode& node);
 	
 	void SS() {
 		for (int i = 0; i < indent; i++)
@@ -65,11 +67,14 @@ public:
 		indent = ind;
 	}
 	
+	bool CPP = true;
 	bool DebugOriginalLine = false;
 	
 	void WriteClassName(const ZClass& ce) {
 		stream << ce.BackendName;
 	}
+	
+	void WriteClass(ZClass& cls);
 	
 	void WriteClassVars(ZClass& cls);
 	void WriteVar(Variable& var);

@@ -16,6 +16,7 @@ public:
 	String O;
 	String BMName;
 	String ARCH = "x86";
+	String BE = "c++";
 	
 	bool CC = false;
 	bool FF = false;

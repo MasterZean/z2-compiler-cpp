@@ -343,8 +343,16 @@ CONSOLE_APP_MAIN {
 	FileOut ss(K.OutPath);
 	
 	ss << LoadFile(AppendFileName(exeDir, "codegen\\cppcode2.h"));
-	
+		
 	CppNodeWalker cpp(ass, ss);
+	
+	if (K.BE == "c++") {
+		cpp.CPP = true;
+		cpp.WriteClass(*ass.CCls);
+	}
+	else {
+		cpp.CPP = false;
+	}
 	
 	cpp.CompilationUnitIndex = 1;
 	cpp.WriteClassVars(*cls);
@@ -379,6 +387,7 @@ CONSOLE_APP_MAIN {
 	builder.TargetRoot(compiler.BuildPath);
 	builder.Arch(K.ARCH);
 	builder.Optimize(K.O);
+	builder.CPP(cpp.CPP);
 	
 	if (!builder.Build(compiler.OutPath, compiler.OrigOutPath))
 		SetExitCode(-1);

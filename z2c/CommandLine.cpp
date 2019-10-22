@@ -51,6 +51,17 @@ bool CommandLine::Read() {
 				return false;
 			}*/
 		}
+		else if (commands[i] == "-be") {
+			i++;
+			if (i < commands.GetCount()) {
+				BE = commands[i];
+				OutPath = GetFileDirectory(Path) + GetFileTitle(Path) + ".cpp";
+			}
+			else {
+				Cout() << Compiler::GetName() << " requires that the '-be' parameter be followed by a value" << '\n';
+				return false;
+			}
+		}
 		else if (commands[i] == "-i")
 			INT = true;
 		else if (commands[i] == "-vasm") {

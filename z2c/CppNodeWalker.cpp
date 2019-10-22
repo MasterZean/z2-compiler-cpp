@@ -45,6 +45,10 @@ void CppNodeWalker::Walk(Node* node) {
 		WalkNode(*(VarNode*)node);
 	else if (node->NT == NodeType::If)
 		WalkNode(*(IfNode*)node);
+	else if (node->NT == NodeType::Goto)
+		WalkNode(*(GotoNode*)node);
+	else if (node->NT == NodeType::While)
+		WalkNode(*(WhileNode*)node);
 	/*else if (node->NT == NodeType::Alloc)
 		Walk((AllocNode*)node);
 	else if (node->NT == NodeType::Array)
@@ -390,6 +394,12 @@ void CppNodeWalker::WalkNode(IfNode& node) {
 	stream << ")";
 }
 
+void CppNodeWalker::WalkNode(WhileNode& node) {
+	stream << "while (";
+	Walk(node.Cond);
+	stream << ")";
+}
+
 void CppNodeWalker::WalkNode(AssignNode& node) {
 	Walk(node.LS);
 	
@@ -411,6 +421,9 @@ void CppNodeWalker::WalkNode(ListNode& node) {
 	}
 	
 	stream << ")";
+}
+
+void CppNodeWalker::WalkNode(GotoNode& node) {
 }
 
 String MangleNamespace(const String& ns) {
@@ -531,6 +544,21 @@ void CppNodeWalker::WriteMangledParams(Overload &over) {
 		//	stream << "_B";
 		stream << over.Params[i].Class->MangledName;
 	}
+}
+
+void CppNodeWalker::WriteClass(ZClass& cls) {
+	stream << "class " << cls.Name << " {";
+	NL();
+	stream << "public:";
+	stream << "\tClass(int aCls): cls(aCls) {}";
+	NL();
+	stream << "private:";
+	NL();
+	stream << "\tint cls;";
+	NL();
+	stream << "};";
+	NL();
+	NL();
 }
 
 void CppNodeWalker::WriteClassVars(ZClass& cls) {

@@ -83,6 +83,8 @@ public:
 	BlockNode* closeBlock();
 	
 	IfNode* ifNode(Node* cond);
+	WhileNode* whileNode(Node* cond);
+	GotoNode* gotoNode(int inst);
 	
 	VarNode* defineLocalVar(Variable& v);
 	MemNode* mem(Variable& v);
@@ -138,6 +140,8 @@ private:
 	NodePool<UnaryOpNode> unaryNodes;
 	NodePool<ListNode> listNodes;
 	NodePool<IfNode> ifNodes;
+	NodePool<WhileNode> whileNodes;
+	NodePool<GotoNode> gotoNodes;
 };
 
 }

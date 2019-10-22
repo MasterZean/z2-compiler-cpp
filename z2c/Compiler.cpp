@@ -265,7 +265,11 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 			returned = true;
 		}
 		else if (parser.Id("if")) {
-			exp = CompileIf(conCls, &conOver, parser, nodePool);
+			exp = CompileIfWhile(conCls, &conOver, parser, nodePool, true);
+			expectES = false;
+		}
+		else if (parser.Id("while")) {
+			exp = CompileIfWhile(conCls, &conOver, parser, nodePool, false);
 			expectES = false;
 		}
 		else {
@@ -513,7 +517,7 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 		return irg.defineLocalVar(v);
 }
 
-Node* Compiler::CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool) {
+Node* Compiler::CompileIfWhile(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool, bool isIf) {
 	Node* cond = nullptr;
 	bool ocb = false;
 		
@@ -548,24 +552,31 @@ Node* Compiler::CompileIf(ZClass& conCls, Overload* conOver, ZParser& parser, Ve
 		//valid = false;
 	}
 	
-	IfNode* ifNode = irg.ifNode(cond ? cond : irg.constBool(false));
+	IfNode* ifNode = isIf ?
+						irg.ifNode(cond ? cond : irg.constBool(false)) :
+						irg.whileNode(cond ? cond : irg.constBool(false));
 	
-	Vector<Node*>* ifPool = nodePool;
+	Vector<Node*>* csPool = nodePool;
 	if (cond == nullptr || (cond->IsCT && cond->IntVal == 0))
-		ifPool = nullptr;
+		csPool = nullptr;
 	
-	if (ifPool) {
-		*ifPool << ifNode;
-		*ifPool << irg.openBlock(false);
+	int origCount = 0;
+	
+	if (csPool) {
+		origCount = nodePool->GetCount();
+		*csPool << ifNode;
+		*csPool << irg.openBlock(false);
 	}
 	
 	if (parser.Char('{') || ocb)
-		CompileBlock(conCls, *conOver, parser, ifPool, 1);
+		CompileBlock(conCls, *conOver, parser, csPool, 1);
 	else
-		CompileStatement(conCls, *conOver, parser, ifPool);
+		CompileStatement(conCls, *conOver, parser, csPool);
 
-	if (ifPool) {
-		*ifPool << irg.closeBlock();
+	if (csPool) {
+		*csPool << irg.closeBlock();
+		if (isIf == false)
+			*csPool << irg.gotoNode(origCount);
 		ifNode->JumpOnFalse = nodePool->GetCount() - 1;
 	}
 	

@@ -16,4 +16,19 @@ def @main() {
 		9
 		10	
 	}
+
+	while (a < 3) 
+		a += 1
+
+	while (a < 7) 
+		a += 1
+
+	a = 3				
+	while (a <= 7) {
+		a += 1
+	}
+
+	while (a < 3) {
+		a += 1
+	}
 }

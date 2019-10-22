@@ -29,6 +29,10 @@ public:
 	void Optimize(const String& ao) {
 		optimize = ao;
 	}
+	
+	void CPP(bool aCpp) {
+		cpp = aCpp;
+	}
 		
 	bool Build(const String& path, const String& origPath);
 	
@@ -41,6 +45,7 @@ private:
 	String arch;
 	String env;
 	String optimize;
+	bool cpp = true;
 	
 	bool BuildMSC(const String& path, const String& origPath);
 	bool BuildGCC(const String& path, const String& origPath);

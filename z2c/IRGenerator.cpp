@@ -362,6 +362,22 @@ IfNode* IRGenerator::ifNode(Node* cond) {
 	return r;
 }
 
+WhileNode* IRGenerator::whileNode(Node* cond) {
+	WhileNode* r = whileNodes.Get();
+	
+	r->Cond = cond;
+	
+	return r;
+}
+
+GotoNode* IRGenerator::gotoNode(int inst) {
+	GotoNode* r = gotoNodes.Get();
+	
+	r->Instruction = inst;
+	
+	return r;
+}
+
 Node* IRGenerator::op(Node* left, Node* right, OpNode::Type op, const Point& p) {
 	if (op <= OpNode::opMod)
 		return opArit(left, right, op, p);

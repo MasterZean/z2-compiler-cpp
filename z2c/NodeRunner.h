@@ -33,6 +33,7 @@ public:
 	Node* ExecuteNode(AssignNode& node);
 	Node* ExecuteNode(ListNode& node);
 	Node* ExecuteNode(IfNode& node);
+	Node* ExecuteNode(WhileNode& node);
 	
 	void WriteValue(Stream& stream, Node* node);
 	
