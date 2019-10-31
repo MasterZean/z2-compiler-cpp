@@ -30,7 +30,9 @@ public:
 		skipspaces = false;
 	}
 	
-	ZParser(const char* ptr): CParser(ptr, false) {
+	ZParser(const char* ptr) {
+		skipspaces = false;
+		Set(ptr);
 	}
 			
 	Point GetPoint() {
