@@ -52,7 +52,21 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 			if (parser.Id("val"))
 				CompileVar(conCls, nullptr, parser, false);
 			else if (parser.Id("const"))
-				Node* n = CompileVar(conCls, nullptr, parser, true);
+				CompileVar(conCls, nullptr, parser, true);
+			else if (parser.Id("class")) {
+				parser.WSCurrentLine();
+				
+				Point p = parser.GetPoint();
+				String name = parser.ExpectZId();
+				parser.WSCurrentLine();
+				
+				ZClass* newClass = GetClass(conCls, p, name);
+				
+				parser.Expect('{');
+				parser.WS();
+				
+				CompileSourceLoop(*newClass, parser);
+			}
 			else if (parser.Id("def") || parser.Id("func")) {
 				parser.WSCurrentLine();
 				
@@ -439,6 +453,26 @@ Node* Compiler::CompileExpression(ZClass& conCls, Overload* conOver, ZParser& pa
 	return ParseExpression(conCls, conOver, parser);
 }
 
+void Compiler::CompileClass(ZClass& cls) {
+	if (cls.IsEvaluated)
+		return;
+	
+	cls.IsEvaluated = true;
+	
+	ZParser parser;
+	parser.SetPos(cls.EntryPos);
+	parser.Path = cls.Name;
+	
+	CompileSourceLoop(cls, parser);
+}
+
+void Compiler::CompileVar(Variable& v) {
+	if (!v.IsEvaluated)
+		return;
+	
+	v.IsEvaluated = true;
+}
+
 Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
 	parser.WS();
 	
@@ -812,6 +846,56 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 			ScanDef(conCls, parser, false);
 		else if (parser.Id("func"))
 			ScanDef(conCls, parser, true);
+		else if (parser.Id("class")) {
+			parser.WSCurrentLine();
+			if (parser.IsZId()) {
+				String name = parser.ReadZId();
+				parser.WSCurrentLine();
+				
+				ZClass& newClass = ass.AddClass(name);
+				newClass.BackendName = name;
+				
+				if (parser.Char('{')) {
+					parser.WS();
+					
+					newClass.EntryPos = parser.GetPos();
+					
+					ScanClass(newClass, parser);
+				}
+				else
+					ScanToken(parser);
+			}
+			else
+				ScanToken(parser);
+		}
+		else
+			ScanToken(parser);
+	}
+}
+
+void Compiler::Scan(ZParser& parser) {
+}
+	
+void Compiler::ScanClass(ZClass& conCls, ZParser& parser) {
+	int o = 1;
+	int c = 0;
+	
+	while (!parser.IsEof()) {
+		if (parser.Id("def"))
+			ScanDef(conCls, parser, false);
+		else if (parser.Id("func"))
+			ScanDef(conCls, parser, true);
+		else if (parser.Char('{')) {
+			parser.WS();
+			o++;
+		}
+		else if (parser.Char('}')) {
+			parser.WS();
+			c--;
+			
+			if (o == c)
+				return;
+		}
 		else
 			ScanToken(parser);
 	}
@@ -888,6 +972,186 @@ void Compiler::ScanToken(ZParser& parser) {
 	}
 	
 	parser.WS();
+}
+
+bool Compiler::AddPackage(const String& aPath) {
+	String pakName = GetFileName(NativePath(aPath));
+	if (pakName.GetCount() == 0)
+		pakName = GetFileName(GetFileFolder(aPath));
+	
+	FindFile ff(aPath);
+	
+	if (!ff.IsFolder()) {
+		Cout() << "Could not find package '" << pakName << "' in folder '" << aPath << "'.\n";
+		Cout() << "Exiting!\n";
+		return false;
+	}
+	
+	int pakIndex = packages.Find(pakName);
+	if (pakIndex != -1) {
+		ZPackage& existingPak = packages[pakIndex];
+		
+		if (existingPak.Path != aPath) {
+			Cout() << "A package with the same name is already referenced at '" << existingPak.Path << "'.\n";
+			Cout() << "Exiting!\n";
+			return false;
+		}
+	}
+	else
+		pakIndex = packages.FindAdd(pakName);
+	
+	ZPackage& package = packages[pakIndex];
+	package.Name = pakName;
+	package.Path = AppendFileName(aPath, "");
+	
+	package.CachePath = NativePath(BuildPath + "\\" + package.Name);
+	DirectoryCreate(package.CachePath);
+	
+	ZPackage temp;
+	LoadFromFile(temp, NativePath(package.CachePath + "\\cache.dat"));
+	
+	AddModule(0, package.Path, package, temp);
+	
+	return true;
+}
+
+void Compiler::AddModule(int parent, const String& path, ZPackage& pak, ZPackage& temp) {
+	FindFile ff;
+	ff.Search(path + "/*");
+
+	String post;
+	
+	while (ff) {
+		if (ff.IsFile()) {
+			String name = ff.GetName();
+
+			if (GetFileExt(name) == ".z2")
+				AddModuleSource(pak, temp, ff);
+			else if (name.EndsWith(".msc.binds") && MSC)
+				AddBindsFile(ff.GetPath());
+			else if (name.EndsWith(".gcc.binds") && !MSC)
+				AddBindsFile(ff.GetPath());
+			else if (name.EndsWith("." + BMName + ".binds"))
+				post = ff.GetPath();
+			else if (!name.EndsWith(".msc.binds") && !name.EndsWith(".gcc.binds") && (name.EndsWith(".binds") && GetFileExt(GetFileExt(name)) == ""))
+				AddBindsFile(ff.GetPath());
+		}
+		else if (ff.IsFolder())
+			AddModule(parent + 1, ff.GetPath(), pak, temp);
+		
+		ff.Next();
+	}
+	
+	if (post.GetCount())
+		AddBindsFile(post);
+}
+
+void Compiler::AddModuleSource(ZPackage& pak, ZPackage& temp, FindFile& ff) {
+	String filePath = ff.GetPath();
+	String fileName = filePath.Mid(pak.Path.GetLength());
+	int i = temp.Files.Find(fileName);
+	
+	if (i != -1) {
+		Time t = FileGetTime(filePath);
+
+		if (t.Compare(temp.Files[i].Modified)) {
+			// "Overwriting file
+			ZSource& zs = AddSource(pak, filePath);
+		}
+		else {
+			// Skipping file
+			ZSource& srcIn = temp.Files[i];
+			ZSource& srcSkip = pak.Files.Add(fileName);
+			
+			srcSkip.Path = fileName;
+			srcSkip.Modified = srcIn.Modified;
+			srcSkip.Package = &pak;
+			//srcSkip.ClassNameList = clone(srcIn.ClassNameList);
+			
+			/*for (int i = 0; i < srcSkip.ClassNameList.GetCount(); i++) {
+				LookUp.Add(srcSkip.ClassNameList[i], filePath);
+				
+				int dd = srcSkip.ClassNameList[i].ReverseFind('.');
+				String name = srcSkip.ClassNameList[i].Mid(dd + 1);
+				ass.AddClassCount(name);
+			}*/
+		}
+	}
+	else {
+		// "Adding file
+		ZSource& zs = AddSource(pak, filePath);
+	}
+}
+
+ZSource& Compiler::AddSource(ZPackage& aPackage, const String& aFile, bool populate) {
+	String relPath = aFile.Mid(aPackage.Path.GetLength());
+	int fileIndex = aPackage.Files.FindAdd(relPath);
+	
+	ZSource& source = aPackage.Files[fileIndex];
+	source.Path = relPath;
+	source.Modified = FileGetTime(aFile);
+	source.Package = &aPackage;
+	
+	return LoadSource(source, populate);
+}
+
+ZSource& Compiler::LoadSource(ZSource& source, bool populate) {
+	if (source.IsScaned)
+		return source;
+	
+	String fullPath = source.Package->Path + source.Path;
+	//Cout() << "Loading: " << fullPath << "\n";
+	filesOpened++;
+	
+	if (Cache) {
+		int i = Cache->Find(fullPath);
+		if (i != -1)
+			source.Data = (*Cache)[i];
+		else
+			source.Data = LoadFile(fullPath);
+	}
+	else
+		source.Data = LoadFile(fullPath);
+	
+	/*Scanner scanner(source, Platform == WINDOWS32);
+	scanner.Scan();
+	source.AddStdClassRefs();
+	source.IsScaned = true;
+		
+	if (populate) {
+		ass.AddSource(source);
+		Populate(source);
+	}*/
+	
+	return source;
+}
+
+void Compiler::AddBindsFile(const String& path) {
+	FileIn f(path);
+	
+	String key;
+	String con;
+	
+	while (!f.IsEof()) {
+		String line = f.GetLine();
+		
+		if (line.EndsWith(":")) {
+			if (key.GetCount() && con.GetCount())
+				Binds.FindAdd(key, con);
+			
+			key = line.Mid(0, line.GetCount() - 1);
+			con = "";
+		}
+		else {
+			if (con.GetCount())
+				con << "\n";
+			
+			con << line;
+		}
+	}
+	
+	if (key.GetCount() && con.GetCount())
+		Binds.FindAdd(key, con);
 }
 
 void Compiler::Sanitize(ZClass& cls) {

@@ -14,8 +14,45 @@ namespace Z2 {
 	
 using namespace Upp;
 
+class ZPackage;
+
+class ZFile: Moveable<ZFile> {
+public:
+	String Path;
+	Time Modified;
+	String Data;
+	
+	void Serialize(Stream& s) {
+		s % Path % Modified;
+	}
+};
+
+class ZSource: public ZFile, Moveable<ZSource> {
+public:
+	bool IsScaned = false;
+	ZPackage* Package = nullptr;
+};
+
+class ZPackage: Moveable<ZPackage> {
+public:
+	String Name;
+	String Path;
+	String CachePath;
+	
+	ArrayMap<String, ZSource> Files;
+	
+	void Serialize(Stream& s) {
+		s % Name % Path % Files;
+	}
+};
+
 class Compiler {
 public:
+	enum PlatformType {
+		WINDOWS32,
+		POSIX,
+	};
+	
 	Compiler(Assembly& aAss): ass(aAss), irg(aAss), cpp(aAss, ss) {
 		static bool tableSetup = false;
 		
@@ -23,6 +60,14 @@ public:
 			SetupTables();
 			tableSetup = true;
 		}
+		
+#ifdef PLATFORM_WIN32
+		Platform = WINDOWS32;
+#endif
+
+#ifdef PLATFORM_POSIX
+		Platform = POSIX;
+#endif
 	}
 	
 	Overload* CompileSnipFunc(const String& snip);
@@ -41,7 +86,9 @@ public:
 	
 	Node* CompileExpression(ZClass& conCls, Overload* conOver, ZParser& parser);
 	
+	void  CompileClass(ZClass& cls);
 	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst);
+	void  CompileVar(Variable& v);
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
@@ -68,7 +115,9 @@ public:
 	
 	String GetErrors();
 	
+	void Scan(ZParser& parser);
 	void Scan(ZClass& conCls, ZParser& parser);
+	void ScanClass(ZClass& conCls, ZParser& parser);
 	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
 	void ScanToken(ZParser& parser);
 	
@@ -81,6 +130,13 @@ public:
 	
 	bool SkipUntilNL(ZParser& parser, bool cb = false);
 	
+	bool AddPackage(const String& aPath);
+	void AddModule(int parent, const String& path, ZPackage& pak, ZPackage& temp);
+	void AddModuleSource(ZPackage& pak, ZPackage& temp, FindFile& ff);
+	ZSource& AddSource(ZPackage& aPackage, const String& aFile, bool populate = true);
+	ZSource& LoadSource(ZSource& source, bool populate);
+	void AddBindsFile(const String& path);
+	
 	static String GetName() {
 		return "";
 	}
@@ -90,15 +146,24 @@ public:
 	String OutPath;
 	String OrigOutPath;
 	
+	bool MSC = false;
+	String BMName;
+	PlatformType Platform;
+	
 private:
 	Assembly& ass;
 	IRGenerator irg;
 	CppNodeWalker cpp;
 	StringStream ss;
+	int filesOpened = 0;
 	
 	Vector<ZSyntaxError> errors;
 	Vector<Overload*> postOverloads;
 	Vector<Overload*> compileStack;
+	
+	ArrayMap<String, ZPackage> packages;
+	VectorMap<String, String> Binds;
+	VectorMap<String, String>* Cache = nullptr;
 		
 	int GetPriority(CParser& parser, int& op, bool& opc);
 	void GetParams(Vector<Node*>& params, ZClass& cls, Overload* def, ZParser& parser, char end = ')');

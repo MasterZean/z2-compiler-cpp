@@ -1,0 +1,32 @@
+namespace miu.foo
+
+class A {
+	val a = 5
+
+	def f(): Int {
+		return a
+	}
+}
+
+def @main() {
+	A.a + a
+	B.a + a
+}
+
+class B {
+	val a = 60
+
+	def f(): Int {
+		return a
+	}
+}
+
+val a = -5
+
+namespace miu.foo
+
+class A {
+	val a = ::a
+}
+
+val a = 7.0f

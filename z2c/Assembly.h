@@ -24,6 +24,12 @@ public:
 		tyMove,
 	};
 	
+	enum AccessType {
+		atPublic,
+		atPrivate,
+		atProtected
+	};
+	
 	String Name;
 	Point SourcePoint = Point(-1, -1);
 	
@@ -32,8 +38,12 @@ public:
 	
 	bool IsReadOnly = false;
 	bool IsCT = false;
+	bool IsEvaluated = false;
+	bool IsStatic = false;
+	bool InUse = false;
 	
 	ParamType PType = Variable::tyAuto;
+	AccessType Access = Variable::atPublic;
 	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
@@ -70,6 +80,11 @@ public:
 	bool MIsFloat = false;
 	bool MIsNumeric = false;
 	int  MIndex = -1;
+	
+	bool IsEvaluated = false;
+	
+	ZParser::Pos EntryPos;
+	ZParser::Pos PostPos;
 	
 	Method& GetAddMethod(const String& name);
 	
@@ -148,6 +163,9 @@ public:
 	}
 };
 
+class SubModule: public ZClass {
+};
+
 class Assembly {
 public:
 	ZClass* CCls = nullptr;
@@ -188,6 +206,7 @@ public:
 	ZClass& AddClass(const String& name) {
 		ZClass& cls = Classes.Add(name);
 		cls.Name = name;
+		cls.MIndex = Classes.GetCount() - 1;
 		return cls;
 	}
 

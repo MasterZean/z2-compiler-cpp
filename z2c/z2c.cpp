@@ -335,7 +335,12 @@ CONSOLE_APP_MAIN {
 
 	compiler.BuildProfile = platform + ToUpper(K.ARCH) + "." + ToUpper(bm.Name) + K.O;
 	compiler.BuildPath = exeDir + NativePath("build\\") + platform + "." + ToUpper(K.ARCH) + "." + ToUpper(bm.Name);
+	compiler.BMName = bm.Name;
+	compiler.MSC = bm.Type == BuildMethod::btMSC;
+	
 	RealizeDirectory(compiler.BuildPath);
+	
+	compiler.AddPackage(GetDataFile("st"));
 	
 	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
 	compiler.Sanitize(*cls);

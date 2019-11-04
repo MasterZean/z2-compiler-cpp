@@ -1,0 +1,11 @@
+namespace miu.foo
+
+class A {
+	val a = ::a
+
+	def f(): Float {
+		return miu.foo.a;
+	}
+}
+
+val a = 7.0f

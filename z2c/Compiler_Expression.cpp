@@ -357,8 +357,44 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 			return exp;
 		}
 	}
-	else
-		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name, s);
+	
+	ZClass* cobj = exp->Class;
+	
+	if (!cobj->IsEvaluated)
+		CompileClass(*cobj);
+	
+	int i = cobj->Variables.Find(s);
+	if (i != -1) {
+		Variable& v = cobj->Variables[i];
+		
+		if (!v.IsEvaluated)
+			CompileVar(v);
+		
+		/*if (exp == nullptr) {
+			if (InConstMode)
+				parser.Error(p, "'" + s + "' is not a constant, can't use it to initialize a constant");
+			if (!v.IsStatic && over && over->IsStatic)
+				parser.Error(p, "'" + s + "' is not a static, can't access it in a static function");
+			if (InVarMode && !v.IsDeclared)
+				parser.Error(p, "class member initialization must be done in order, use of '" + v.Name +
+						"' before it was declared at (" + IntStr(v.Location.x) + ", " + IntStr(v.Location.y) + ")");
+		}
+		else {*/
+			/*if (v.Access != Variable::atPublic) {
+				if (&conCls != exp->Class)
+					ErrorReporter::CantAccess(*cls->Source, p, v);
+			}*/
+		//}
+		
+		v.InUse = true;
+		
+		MemNode* node = irg.mem(conCls.Variables[i]);
+		//node->IsClass = true;
+		
+		return node;
+	}
+	
+	ErrorReporter::UndeclaredIdentifier(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name, s);
 	
 	return nullptr;
 }
