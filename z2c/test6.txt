@@ -1,32 +1,30 @@
 namespace miu.foo
 
-class A {
-	val a = 5
-
-	def f(): Int {
-		return a
-	}
-}
-
 def @main() {
 	A.a + a
 	B.a + a
 }
 
-class B {
-	val a = 60
-
+class A {
 	def f(): Int {
 		return a
 	}
+
+	val a = 5
+	val b = c
+	val c = 67
+}
+
+class B {
+	def f(): Int {
+		return a
+	}
+
+	val a = 60
+	val b = c
+	val c = 7000
 }
 
 val a = -5
-
-namespace miu.foo
-
-class A {
-	val a = ::a
-}
-
-val a = 7.0f
+val b = c
+val c = 0

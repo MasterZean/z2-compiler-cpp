@@ -340,7 +340,7 @@ CONSOLE_APP_MAIN {
 	
 	RealizeDirectory(compiler.BuildPath);
 	
-	compiler.AddPackage(GetDataFile("st"));
+	//compiler.AddPackage(GetDataFile("st"));
 	
 	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
 	compiler.Sanitize(*cls);

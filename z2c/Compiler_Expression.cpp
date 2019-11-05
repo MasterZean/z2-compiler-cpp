@@ -359,6 +359,8 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	}
 	
 	ZClass* cobj = exp->Class;
+	if (cobj == ass.CCls)
+		cobj = &ass.Classes[(int)exp->IntVal];
 	
 	if (!cobj->IsEvaluated)
 		CompileClass(*cobj);
@@ -388,7 +390,7 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 		
 		v.InUse = true;
 		
-		MemNode* node = irg.mem(conCls.Variables[i]);
+		MemNode* node = irg.mem(cobj->Variables[i]);
 		//node->IsClass = true;
 		
 		return node;

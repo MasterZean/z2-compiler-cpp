@@ -30,13 +30,21 @@ ZClass* Compiler::CompileAnonClass(const String& snip) {
 	ZClass& tempClass = ass.AddClass("DummyClass");
 	tempClass.BackendName = "DummyClass";
 	
-	ZParser scan(snip);
-	Scan(tempClass, scan);
+	//ZParser scan(snip);
+	//Scan(tempClass, scan);
+	
+	ZSource src;
+	src.Data = snip;
+	
+	//Scanner scanner(Ass);
+	//scanner.Scan(src);
+	Scan(src);
 	
 	ZParser tempParser(snip);
-	tempParser.Path = tempClass.Name;
+	src.Module.Name = "DummyClass";
+	tempParser.Path = src.Module.Name;
 	
-	CompileSourceLoop(tempClass, tempParser);
+	CompileSourceLoop(src.Module, tempParser);
 	
 	return &tempClass;
 }
@@ -873,7 +881,85 @@ void Compiler::Scan(ZClass& conCls, ZParser& parser) {
 	}
 }
 
-void Compiler::Scan(ZParser& parser) {
+void Compiler::Scan(ZSource& src) {
+	ZParser parser;
+	parser.Set(src.Data);
+	parser.Path = src.Path;
+	
+	parser.WS();
+	
+	while (!parser.IsEof()) {
+		if (parser.Id("namespace")) {
+			parser.WSCurrentLine();
+			
+			String total = parser.ExpectZId();
+			total << ".";
+
+			while (parser.Char('.')) {
+				parser.WSCurrentLine();
+				total << parser.ExpectZId() << ".";
+				parser.WSCurrentLine();
+			}
+			
+			parser.WS();
+		
+			src.Namespace = total;
+		}
+		else if (parser.Id("def"))
+			ScanDef(src.Module, parser, false);
+		else if (parser.Id("func"))
+			ScanDef(src.Module, parser, true);
+		else if (parser.Id("class")) {
+			parser.WSCurrentLine();
+			
+			if (parser.IsZId()) {
+				String name = parser.ReadZId();
+				parser.WSCurrentLine();
+				
+				ZClass& newClass = ass.AddClass(name);
+				newClass.BackendName = name;
+				
+				if (parser.Char('{')) {
+					parser.WS();
+					
+					newClass.EntryPos = parser.GetPos();
+					
+					ScanClass(newClass, parser);
+				}
+				else
+					ScanToken(parser);
+			}
+			else
+				ScanToken(parser);
+		}
+		else if (parser.Char('{')) {
+			parser.WS();
+			
+			int o = 1;
+			int c = 0;
+			
+			while (!parser.IsEof()) {
+				if (parser.Char('{')) {
+					parser.WS();
+					o++;
+				}
+				else if (parser.Char('}')) {
+					parser.WS();
+					c++;
+					
+					if (o == c)
+						break;
+				}
+				else
+					ScanToken(parser);
+			}
+		}
+		else
+			ScanToken(parser);
+	}
+	
+	//DUMP(nameSpace);
+	//ass.Modules.FindAdd(nameSpace);
 }
 	
 void Compiler::ScanClass(ZClass& conCls, ZParser& parser) {
@@ -891,7 +977,7 @@ void Compiler::ScanClass(ZClass& conCls, ZParser& parser) {
 		}
 		else if (parser.Char('}')) {
 			parser.WS();
-			c--;
+			c++;
 			
 			if (o == c)
 				return;
@@ -1123,6 +1209,9 @@ ZSource& Compiler::LoadSource(ZSource& source, bool populate) {
 		Populate(source);
 	}*/
 	
+	Scanner scanner(ass);
+	scanner.Scan(source);
+	
 	return source;
 }
 
@@ -1178,6 +1267,9 @@ void Compiler::Sanitize(Method& m) {
 			}
 		}
 	}
+}
+
+void Scanner::Scan(ZSource& src) {
 }
 
 }

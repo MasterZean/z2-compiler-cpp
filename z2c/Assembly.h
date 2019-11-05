@@ -213,6 +213,7 @@ public:
 	bool CanAssign(ZClass* cls, Node* n);
 		
 	ArrayMap<String, ZClass> Classes;
+	ArrayMap<String, SubModule> Modules;
 };
 
 }

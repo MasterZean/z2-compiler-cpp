@@ -31,6 +31,9 @@ class ZSource: public ZFile, Moveable<ZSource> {
 public:
 	bool IsScaned = false;
 	ZPackage* Package = nullptr;
+	
+	String Namespace;
+	SubModule Module;
 };
 
 class ZPackage: Moveable<ZPackage> {
@@ -44,6 +47,22 @@ public:
 	void Serialize(Stream& s) {
 		s % Name % Path % Files;
 	}
+};
+
+class Scanner {
+public:
+	enum PlatformType {
+		WINDOWS32,
+		POSIX,
+	};
+	
+	Scanner(Assembly& aAss): ass(aAss) {
+	}
+	
+	void Scan(ZSource& src);
+	
+private:
+	Assembly& ass;
 };
 
 class Compiler {
@@ -115,7 +134,7 @@ public:
 	
 	String GetErrors();
 	
-	void Scan(ZParser& parser);
+	void Scan(ZSource& src);
 	void Scan(ZClass& conCls, ZParser& parser);
 	void ScanClass(ZClass& conCls, ZParser& parser);
 	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
