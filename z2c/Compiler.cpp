@@ -26,27 +26,22 @@ Overload* Compiler::CompileSnipFunc(const String& snip) {
 	return &tempOver;
 }
 
-ZClass* Compiler::CompileAnonClass(const String& snip) {
-	ZClass& tempClass = ass.AddClass("DummyClass");
-	tempClass.BackendName = "DummyClass";
+ZClass* Compiler::CompileModule(ZSource& src) {
+	//ZClass& tempClass = ass.AddClass("DummyClass");
+	//tempClass.BackendName = "DummyClass";
 	
-	//ZParser scan(snip);
-	//Scan(tempClass, scan);
+	Scanner scanner(ass);
+	scanner.Scan(src);
 	
-	ZSource src;
-	src.Data = snip;
-	
-	//Scanner scanner(Ass);
-	//scanner.Scan(src);
-	Scan(src);
-	
-	ZParser tempParser(snip);
+	ZParser tempParser(src.Data);
 	src.Module.Name = "DummyClass";
 	tempParser.Path = src.Module.Name;
 	
+	CompileClass(src.Module);
+	
 	CompileSourceLoop(src.Module, tempParser);
 	
-	return &tempClass;
+	return &src.Module;
 }
 
 bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
@@ -465,21 +460,51 @@ void Compiler::CompileClass(ZClass& cls) {
 	if (cls.IsEvaluated)
 		return;
 	
-	cls.IsEvaluated = true;
+	/*cls.IsEvaluated = true;
+	
 	
 	ZParser parser;
 	parser.SetPos(cls.EntryPos);
 	parser.Path = cls.Name;
 	
-	CompileSourceLoop(cls, parser);
+	CompileSourceLoop(cls, parser);*/
+	
+	ZParser parser;
+	parser.Path = cls.Name;
+	
+	for (int i = 0; i < cls.Variables.GetCount(); i++) {
+		Variable& v = cls.Variables[i];
+	
+		parser.SetPos(v.EntryPos);
+		
+		try {
+			CompileVar(cls, nullptr, parser, false);
+		}
+		catch (ZSyntaxError& err) {
+			if (compileStack.GetCount())
+				err.Context = compileStack.Top();
+				
+			errors.Add(err);
+			if (PrintErrors)
+				err.PrettyPrint(Cout());
+			
+			SkipUntilNL(parser, true);
+			//valid = false;
+		}
+		catch (Exc& err) {
+			if (PrintErrors)
+				Cout() << err;
+			//valid = false;
+		}
+	}
 }
 
-void Compiler::CompileVar(Variable& v) {
+/*void Compiler::CompileVar(Variable& v) {
 	if (!v.IsEvaluated)
 		return;
 	
 	v.IsEvaluated = true;
-}
+}*/
 
 Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
 	parser.WS();
@@ -487,6 +512,14 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	Point ptName = parser.GetPoint();
 	
 	String varName = parser.ExpectZId();
+	
+	Variable* v = conOver ? nullptr : conCls.Variables.FindPtr(varName);
+	
+	if (v && v->IsDefined) {
+		parser.SetPos(v->ExitPos);
+		return irg.defineLocalVar(*v);
+	}
+	
 	parser.WS();
 	
 	ZClass* varClass = nullptr;
@@ -519,6 +552,8 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 		varClass = value->Class;
 	}
 	
+	ZParser::Pos exitPos = parser.GetPos();
+	
 	CheckLocalVar(conCls, conOver, varName, ptName);
 	
 	if (varClass == ass.CCls)
@@ -539,24 +574,32 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	if (varClass != value->Class)
 		value = irg.cast(value, varClass);
 	
-	Variable& v = conOver ? conOver->AddVariable() : conCls.AddVariable(varName);
-	v.Name = varName;
-	v.SourcePoint = ptName;
-	v.Value = value;
-	v.Class = varClass;
-	v.MIsMember = conOver == nullptr;
-	v.IsReadOnly = cst;
+	if (!v) {
+		ASSERT(conOver);
+		v = &conOver->AddVariable();
+	}
+	
+	v->Name = varName;
+	v->SourcePoint = ptName;
+	v->Value = value;
+	v->Class = varClass;
+	v->MIsMember = conOver == nullptr;
+	v->IsReadOnly = cst;
+	v->IsDefined = true;
+	v->ExitPos = exitPos;
+	
+	ASSERT(v->Class);
 	
 	if (conOver == nullptr)
-		v.OwnerClass = &conCls;
+		v->OwnerClass = &conCls;
 	
 	if (conOver) {
-		conOver->Blocks.Top().AddVaribleRef(v);
+		conOver->Blocks.Top().AddVaribleRef(*v);
 		
-		return irg.defineLocalVar(v);
+		return irg.defineLocalVar(*v);
 	}
 	else
-		return irg.defineLocalVar(v);
+		return irg.defineLocalVar(*v);
 }
 
 Node* Compiler::CompileIfWhile(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool, bool isIf) {
@@ -650,7 +693,7 @@ void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& va
 		ErrorReporter::Dup(conCls.Name, p, conOver->SourcePoint, varName);
 		
 	for (int i = 0; i < conCls.Variables.GetCount(); i++)
-		if (conCls.Variables[i].Name == varName)
+		if (conCls.Variables[i].IsDefined && conCls.Variables[i].Name == varName)
 			ErrorReporter::Warning(conCls.Name, p, "local '" + varName + "' hides a class member");
 		
 	if (conOver) {
@@ -845,221 +888,7 @@ String Compiler::GetErrors() {
 	
 	return result;
 }
-
-void Compiler::Scan(ZClass& conCls, ZParser& parser) {
-	// TODO: rewrite for performance
 	
-	while (!parser.IsEof()) {
-		if (parser.Id("def"))
-			ScanDef(conCls, parser, false);
-		else if (parser.Id("func"))
-			ScanDef(conCls, parser, true);
-		else if (parser.Id("class")) {
-			parser.WSCurrentLine();
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				parser.WSCurrentLine();
-				
-				ZClass& newClass = ass.AddClass(name);
-				newClass.BackendName = name;
-				
-				if (parser.Char('{')) {
-					parser.WS();
-					
-					newClass.EntryPos = parser.GetPos();
-					
-					ScanClass(newClass, parser);
-				}
-				else
-					ScanToken(parser);
-			}
-			else
-				ScanToken(parser);
-		}
-		else
-			ScanToken(parser);
-	}
-}
-
-void Compiler::Scan(ZSource& src) {
-	ZParser parser;
-	parser.Set(src.Data);
-	parser.Path = src.Path;
-	
-	parser.WS();
-	
-	while (!parser.IsEof()) {
-		if (parser.Id("namespace")) {
-			parser.WSCurrentLine();
-			
-			String total = parser.ExpectZId();
-			total << ".";
-
-			while (parser.Char('.')) {
-				parser.WSCurrentLine();
-				total << parser.ExpectZId() << ".";
-				parser.WSCurrentLine();
-			}
-			
-			parser.WS();
-		
-			src.Namespace = total;
-		}
-		else if (parser.Id("def"))
-			ScanDef(src.Module, parser, false);
-		else if (parser.Id("func"))
-			ScanDef(src.Module, parser, true);
-		else if (parser.Id("class")) {
-			parser.WSCurrentLine();
-			
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				parser.WSCurrentLine();
-				
-				ZClass& newClass = ass.AddClass(name);
-				newClass.BackendName = name;
-				
-				if (parser.Char('{')) {
-					parser.WS();
-					
-					newClass.EntryPos = parser.GetPos();
-					
-					ScanClass(newClass, parser);
-				}
-				else
-					ScanToken(parser);
-			}
-			else
-				ScanToken(parser);
-		}
-		else if (parser.Char('{')) {
-			parser.WS();
-			
-			int o = 1;
-			int c = 0;
-			
-			while (!parser.IsEof()) {
-				if (parser.Char('{')) {
-					parser.WS();
-					o++;
-				}
-				else if (parser.Char('}')) {
-					parser.WS();
-					c++;
-					
-					if (o == c)
-						break;
-				}
-				else
-					ScanToken(parser);
-			}
-		}
-		else
-			ScanToken(parser);
-	}
-	
-	//DUMP(nameSpace);
-	//ass.Modules.FindAdd(nameSpace);
-}
-	
-void Compiler::ScanClass(ZClass& conCls, ZParser& parser) {
-	int o = 1;
-	int c = 0;
-	
-	while (!parser.IsEof()) {
-		if (parser.Id("def"))
-			ScanDef(conCls, parser, false);
-		else if (parser.Id("func"))
-			ScanDef(conCls, parser, true);
-		else if (parser.Char('{')) {
-			parser.WS();
-			o++;
-		}
-		else if (parser.Char('}')) {
-			parser.WS();
-			c++;
-			
-			if (o == c)
-				return;
-		}
-		else
-			ScanToken(parser);
-	}
-}
-
-void Compiler::ScanDef(ZClass& conCls, ZParser& parser, bool ct) {
-	parser.Spaces();
-			
-	Point p = parser.GetPoint();
-	
-	if (parser.IsZId()) {
-		String name = parser.ReadZId();
-		
-		Method& main = conCls.GetAddMethod(name);
-		if (name[0] == '@') {
-			main.BackendName = "_";
-			main.BackendName << name.Mid(1);
-		}
-		else
-			main.BackendName = name;
-		
-		Overload& over = main.AddOverload();
-		over.ParamPos = parser.GetPos();
-		over.NamePoint = p;
-		over.IsConst = ct;
-	}
-	else
-		ScanToken(parser);
-}
-	
-// TODO: fix
-void Compiler::ScanToken(ZParser& parser) {
-	parser.WS();
-	
-	if (parser.IsInt()) {
-		try {
-			int64 oInt;
-			double oDub;
-			int base;
-			parser.ReadInt64(oInt, oDub, base);
-		}
-		catch (ZSyntaxError& err) {
-			parser.SkipError();
-			parser.WS();
-		}
-	}
-	else if (parser.IsString())
-		parser.ReadString();
-	else if (parser.IsZId())
-		parser.ReadZId();
-	else if (parser.IsId())
-		parser.ReadId();
-	else if (parser.IsCharConst())
-		parser.ReadChar();
-	else {
-		for (int i = 0; i < 9; i++)
-			if (parser.Char2(tab2[i], tab3[i])) {
-				parser.Spaces();
-			    return;
-			}
-		for (int i = 0; i < 24; i++)
-			if (parser.Char(tab1[i])) {
-				parser.Spaces();
-			    return;
-			}
-		if (parser.Char('{') || parser.Char('}')) {
-			parser.Spaces();
-		    return;
-		}
-		DUMP(parser.Identify());
-		ASSERT(0);
-		//Point p = parser.GetPoint();
-		//parser.Error(p, "syntax error: " + parser.Identify() + " found");
-	}
-	
-	parser.WS();
-}
-
 bool Compiler::AddPackage(const String& aPath) {
 	String pakName = GetFileName(NativePath(aPath));
 	if (pakName.GetCount() == 0)
@@ -1267,9 +1096,6 @@ void Compiler::Sanitize(Method& m) {
 			}
 		}
 	}
-}
-
-void Scanner::Scan(ZSource& src) {
 }
 
 }

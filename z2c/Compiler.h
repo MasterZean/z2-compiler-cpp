@@ -9,61 +9,11 @@
 #include "Assembly.h"
 #include "CppNodeWalker.h"
 #include "ErrorReporter.h"
+#include "Scanner.h"
 
 namespace Z2 {
 	
 using namespace Upp;
-
-class ZPackage;
-
-class ZFile: Moveable<ZFile> {
-public:
-	String Path;
-	Time Modified;
-	String Data;
-	
-	void Serialize(Stream& s) {
-		s % Path % Modified;
-	}
-};
-
-class ZSource: public ZFile, Moveable<ZSource> {
-public:
-	bool IsScaned = false;
-	ZPackage* Package = nullptr;
-	
-	String Namespace;
-	SubModule Module;
-};
-
-class ZPackage: Moveable<ZPackage> {
-public:
-	String Name;
-	String Path;
-	String CachePath;
-	
-	ArrayMap<String, ZSource> Files;
-	
-	void Serialize(Stream& s) {
-		s % Name % Path % Files;
-	}
-};
-
-class Scanner {
-public:
-	enum PlatformType {
-		WINDOWS32,
-		POSIX,
-	};
-	
-	Scanner(Assembly& aAss): ass(aAss) {
-	}
-	
-	void Scan(ZSource& src);
-	
-private:
-	Assembly& ass;
-};
 
 class Compiler {
 public:
@@ -91,7 +41,7 @@ public:
 	
 	Overload* CompileSnipFunc(const String& snip);
 	
-	ZClass* CompileAnonClass(const String& snip);
+	ZClass* CompileModule(ZSource& src);
 	bool CompileSourceLoop(ZClass& conCls, ZParser& parser);
 	
 	void BuildSignature(ZClass& conCls, Overload& over);
@@ -107,7 +57,7 @@ public:
 	
 	void  CompileClass(ZClass& cls);
 	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst);
-	void  CompileVar(Variable& v);
+	//void  CompileVar(Variable& v);
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
@@ -133,12 +83,6 @@ public:
 	ZClass* GetClass(const String& name);
 	
 	String GetErrors();
-	
-	void Scan(ZSource& src);
-	void Scan(ZClass& conCls, ZParser& parser);
-	void ScanClass(ZClass& conCls, ZParser& parser);
-	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
-	void ScanToken(ZParser& parser);
 	
 	void FixupParams(Overload& over, Vector<Node*>& params);
 	

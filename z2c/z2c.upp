@@ -6,6 +6,8 @@ file
 	Compiler.h,
 	Compiler.cpp,
 	Compiler_Expression.cpp,
+	Scanner.h,
+	Scanner.cpp,
 	Node.h,
 	Node.cpp,
 	IRGenerator.h,

@@ -287,8 +287,12 @@ void CppNodeWalker::WalkNode(MemNode& node) {
 	Variable& var = *node.Var;
 	//ASSERT(var.Value);
 	
-	if (var.MIsMember)
+	if (var.MIsMember) {
+		if (!var.OwnerClass->IsModule)
+			stream << var.OwnerClass->BackendName;
 		stream << "::";
+	}
+	
 	stream << var.Name;
 }
 
@@ -550,6 +554,7 @@ void CppNodeWalker::WriteClass(ZClass& cls) {
 	stream << "class " << cls.Name << " {";
 	NL();
 	stream << "public:";
+	NL();
 	stream << "\tClass(int aCls): cls(aCls) {}";
 	NL();
 	stream << "private:";
@@ -564,6 +569,9 @@ void CppNodeWalker::WriteClass(ZClass& cls) {
 void CppNodeWalker::WriteClassVars(ZClass& cls) {
 	for (int i = 0; i < cls.Variables.GetCount(); i++) {
 		Variable& var = cls.Variables[i];
+		
+		if (!var.IsDefined)
+			continue;
 		
 		stream << "// ";
 		stream << cls.Namespace << cls.Name << "::" << var.Name;

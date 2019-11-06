@@ -31,7 +31,10 @@ public:
 	};
 	
 	String Name;
+	
 	Point SourcePoint = Point(-1, -1);
+	ZParser::Pos EntryPos;
+	ZParser::Pos ExitPos;
 	
 	bool MIsMember = false;
 	int  MIsParam = -1;
@@ -41,6 +44,7 @@ public:
 	bool IsEvaluated = false;
 	bool IsStatic = false;
 	bool InUse = false;
+	bool IsDefined = false;
 	
 	ParamType PType = Variable::tyAuto;
 	AccessType Access = Variable::atPublic;
@@ -72,6 +76,7 @@ public:
 	String MangledName;
 	String ParamName;
 	
+	bool IsModule = false;
 	bool IsTemplate = false;
 	
 	Point SourcePos = Point(-1, -1);
@@ -164,6 +169,10 @@ public:
 };
 
 class SubModule: public ZClass {
+public:
+	SubModule() {
+		IsModule = true;
+	}
 };
 
 class Assembly {

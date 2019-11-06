@@ -267,6 +267,10 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 	i = conCls.Variables.Find(s);
 	if (i != -1) {
 		parser.WSCurrentLine();
+		
+		if (!conCls.Variables[i].IsDefined)
+			ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
+		
 		return irg.mem(conCls.Variables[i]);
 	}
 	
@@ -369,8 +373,8 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	if (i != -1) {
 		Variable& v = cobj->Variables[i];
 		
-		if (!v.IsEvaluated)
-			CompileVar(v);
+		//if (!v.IsEvaluated)
+		//	CompileVar(v);
 		
 		/*if (exp == nullptr) {
 			if (InConstMode)

@@ -52,7 +52,10 @@ void RunTest(const String& path) {
 		cpp.WriteOverloadBody(*over);
 	}
 	else {
-		ZClass* cls = compiler.CompileAnonClass(file);
+		ZSource src;
+		src.Data = file;
+		
+		ZClass* cls = compiler.CompileModule(src);
 		compiler.Sanitize(*cls);
 	
 		cpp.CompilationUnitIndex = 1;
@@ -195,42 +198,9 @@ void RunMicroTests() {
 	}
 }
 
-template <class T>
-void GenReport() {
-	signed char i;
-	
-	for (int i = -128; i <= 127; i++) {
-		String line;
-		
-		String s = IntStr(i);
-		
-		line << s;
-		
-		Assembly ass;
-		Compiler compiler(ass);
-		compiler.PrintErrors = false;
-		
-		Overload* over = compiler.CompileSnipFunc(s);
-		
-		StringStream ss;
-		CppNodeWalker cpp(ass, ss);
-		
-		if (over->Nodes.GetCount())
-			cpp.Walk(over->Nodes[0]);
-		
-		String result = ss.GetResult();
-	
-		line << " " << result;
-		
-		LOG(line);
-	}
-}
-
 CONSOLE_APP_MAIN {
-	//GenReport<int>();
+	//RunMicroTests();
 	
-	RunMicroTests();
-
 	Z2::CommandLine K;
 	if (!K.Read()) {
 		SetExitCode(-1);
@@ -342,7 +312,10 @@ CONSOLE_APP_MAIN {
 	
 	//compiler.AddPackage(GetDataFile("st"));
 	
-	ZClass* cls = compiler.CompileAnonClass(LoadFile(K.Path));
+	ZSource src;
+	src.Data = LoadFile(K.Path);
+		
+	ZClass* cls = compiler.CompileModule(src);
 	compiler.Sanitize(*cls);
 	
 	FileOut ss(K.OutPath);
