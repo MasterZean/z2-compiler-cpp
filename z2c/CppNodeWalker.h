@@ -109,6 +109,7 @@ public:
 	bool IgnoreDupes = true;
 	int  CompilationUnitIndex = 0;
 	bool PrintDupeErrors = true;
+	bool WriteComments = true;
 	
 private:
 	Assembly& ass;

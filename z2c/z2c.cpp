@@ -35,7 +35,7 @@ void RunTest(const String& path) {
 	
 	if (FileExists(test + ".outemu"))
 		out2 = LoadFileBOM(test + ".outemu");
-	
+			
 	Assembly ass;
 	Compiler compiler(ass);
 	compiler.PrintErrors = false;
@@ -44,15 +44,17 @@ void RunTest(const String& path) {
 	
 	CppNodeWalker cpp(ass, ss);
 	cpp.PrintDupeErrors = false;
+	cpp.WriteComments = false;
 	
 	Overload* over = nullptr;
+	
+	ZSource src;
 	
 	if (!snip) {
 		over = compiler.CompileSnipFunc(file);
 		cpp.WriteOverloadBody(*over);
 	}
 	else {
-		ZSource src;
 		src.Data = file;
 		
 		ZClass* cls = compiler.CompileModule(src);
@@ -199,7 +201,7 @@ void RunMicroTests() {
 }
 
 CONSOLE_APP_MAIN {
-	//RunMicroTests();
+	RunMicroTests();
 	
 	Z2::CommandLine K;
 	if (!K.Read()) {

@@ -590,7 +590,7 @@ void CppNodeWalker::WriteClassVars(ZClass& cls) {
 		
 		indent++;
 	}
-	else {
+	else if (WriteComments) {
 		SS();
 		stream << "// ";
 		stream << cls.Namespace << cls.Name;
