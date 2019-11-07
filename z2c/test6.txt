@@ -10,9 +10,11 @@ class A {
 		return a
 	}
 
-	val a = 5
-	val b = c
-	val c = 67
+	static val a = 5
+	static val b = c
+	static val c = 67
+
+	val d = -1
 }
 
 class B {
@@ -20,11 +22,15 @@ class B {
 		return a
 	}
 
-	val a = 60
-	val b = c
-	val c = 7000
+	static val a = 60
+	static val b = c
+	static val c = 7000
+
+	val d = -1
 }
 
 val a = -5
 val b = c
 val c = 0
+val d = -1
+

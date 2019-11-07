@@ -77,6 +77,7 @@ public:
 	void WriteClass(ZClass& cls);
 	
 	void WriteClassVars(ZClass& cls);
+	void WriteClassStaticVars(ZClass& cls);
 	void WriteVar(Variable& var);
 	void WriteVarValue(Variable& var);
 	

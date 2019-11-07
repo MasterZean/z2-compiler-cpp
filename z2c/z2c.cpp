@@ -62,6 +62,7 @@ void RunTest(const String& path) {
 	
 		cpp.CompilationUnitIndex = 1;
 		cpp.WriteClassVars(*cls);
+		cpp.WriteClassStaticVars(*cls);
 		
 		for (int j = 0; j < cls->Methods.GetCount(); j++) {
 			Method& m = cls->Methods[j];
@@ -336,6 +337,7 @@ CONSOLE_APP_MAIN {
 	
 	cpp.CompilationUnitIndex = 1;
 	cpp.WriteClassVars(*cls);
+	cpp.WriteClassStaticVars(*cls);
 	
 	for (int j = 0; j < cls->Methods.GetCount(); j++) {
 		Method& m = cls->Methods[j];

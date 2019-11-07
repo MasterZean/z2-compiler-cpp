@@ -270,6 +270,8 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 		
 		if (!conCls.Variables[i].IsEvaluated)
 			ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
+		if (!conCls.Variables[i].IsStatic)
+			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + conCls.Variables[i].Name + "' not static");
 		
 		return irg.mem(conCls.Variables[i]);
 	}
@@ -375,6 +377,9 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	int i = cobj->Variables.Find(s);
 	if (i != -1) {
 		Variable& v = cobj->Variables[i];
+		
+		if (!v.IsStatic)
+			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + v.Name + "' not static");
 		
 		/*if (exp == nullptr) {
 			if (InConstMode)

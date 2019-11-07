@@ -58,6 +58,7 @@ public:
 	static void AssignConst(const String& path, const Point& p, const String& c);
 	static void CantCreateClassVar(const String& path, const Point& p, const String& c);
 	static void CondNotBool(const String& path, const Point& p, const String& c);
+	static void NotStatic(const String& path, const Point& p, const String& c);
 	
 	static void CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons = false);
 	static void AmbigError(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score);

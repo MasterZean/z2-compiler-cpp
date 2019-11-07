@@ -49,10 +49,22 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 			int line = parser.GetLine();
 			bool checkEnd = true;
 			
-			if (parser.Id("val"))
-				CompileVar(conCls, nullptr, parser, false);
+			if (parser.Id("static")) {
+				parser.WSCurrentLine();
+				
+				if (parser.Id("val"))
+					CompileSourceVar(conCls, nullptr, parser, false);
+				else if (parser.Id("const"))
+					CompileSourceVar(conCls, nullptr, parser, true);
+				else if (parser.Id("def") || parser.Id("func")) {
+					CompileSourceDef(conCls, parser);
+					checkEnd = false;
+				}
+			}
+			else if (parser.Id("val"))
+				CompileSourceVar(conCls, nullptr, parser, false);
 			else if (parser.Id("const"))
-				CompileVar(conCls, nullptr, parser, true);
+				CompileSourceVar(conCls, nullptr, parser, true);
 			else if (parser.Id("class")) {
 				parser.WSCurrentLine();
 				
@@ -68,51 +80,8 @@ bool Compiler::CompileSourceLoop(ZClass& conCls, ZParser& parser) {
 				CompileSourceLoop(*newClass, parser);
 			}
 			else if (parser.Id("def") || parser.Id("func")) {
-				parser.WSCurrentLine();
-				
-				Point p = parser.GetPoint();
-				String name = parser.ExpectZId();
-				
-				int i = conCls.Methods.Find(name);
-				ASSERT(i != -1);
-				
-				Method& m = conCls.Methods[i];
-				Overload& over = m.GetOverloadByPoint(p);
-				BuildSignature(conCls, over, parser);
-				
-				Vector<Overload*> jumps;
-				
-				while (parser.Char(',')) {
-					parser.WS();
-					
-					if (parser.Id("def") || parser.Id("func")) {
-						parser.WSCurrentLine();
-						
-						Point p = parser.GetPoint();
-						String name = parser.ExpectZId();
-						
-						Overload& subover = m.GetOverloadByPoint(p);
-						jumps << &subover;
-
-						BuildSignature(conCls, subover, parser);
-					}
-				}
-				
-				parser.Expect('{');
-				parser.WS();
-								
-				over.EntryPos = parser.GetPos();
-
-				postOverloads.Add(&over);
-				
-				CompileOverload(over, parser);
-				
+				CompileSourceDef(conCls, parser);
 				checkEnd = false;
-				
-				for (int i = 0; i < jumps.GetCount(); i++) {
-					jumps[i]->EntryPos = over.EntryPos;
-					CompileOverloadJump(*jumps[i]);
-				}
 			}
 			else if (parser.Id("namespace")) {
 				parser.WSCurrentLine();
@@ -260,9 +229,9 @@ bool Compiler::CompileStatement(ZClass& conCls, Overload& conOver, ZParser& pars
 		bool expectES = true;
 		
 		if (parser.Id("val"))
-			exp = CompileVar(conCls, &conOver, parser, false);
+			exp = CompileSourceVar(conCls, &conOver, parser, false);
 		else if (parser.Id("const"))
-			exp = CompileVar(conCls, &conOver, parser, true);
+			exp = CompileSourceVar(conCls, &conOver, parser, true);
 		else if (parser.Id("return")) {
 			if (conOver.Return == ass.CVoid)
 				exp = irg.ret();
@@ -468,7 +437,7 @@ void Compiler::CompileClass(ZClass& cls) {
 		parser.SetPos(v.EntryPos);
 		
 		try {
-			CompileVar(cls, nullptr, parser, false);
+			CompileSourceVar(cls, nullptr, parser, false);
 			v.IsValid = true;
 		}
 		catch (ZSyntaxError& err) {
@@ -490,7 +459,7 @@ void Compiler::CompileClass(ZClass& cls) {
 	}
 }
 
-Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
+Node* Compiler::CompileSourceVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
 	parser.WS();
 	
 	Point ptName = parser.GetPoint();
@@ -586,6 +555,52 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	}
 	
 	return nullptr;
+}
+
+void Compiler::CompileSourceDef(ZClass& conCls, ZParser& parser) {
+	parser.WSCurrentLine();
+				
+	Point p = parser.GetPoint();
+	String name = parser.ExpectZId();
+	
+	int i = conCls.Methods.Find(name);
+	ASSERT(i != -1);
+	
+	Method& m = conCls.Methods[i];
+	Overload& over = m.GetOverloadByPoint(p);
+	BuildSignature(conCls, over, parser);
+	
+	Vector<Overload*> jumps;
+	
+	while (parser.Char(',')) {
+		parser.WS();
+		
+		if (parser.Id("def") || parser.Id("func")) {
+			parser.WSCurrentLine();
+			
+			Point p = parser.GetPoint();
+			String name = parser.ExpectZId();
+			
+			Overload& subover = m.GetOverloadByPoint(p);
+			jumps << &subover;
+
+			BuildSignature(conCls, subover, parser);
+		}
+	}
+	
+	parser.Expect('{');
+	parser.WS();
+					
+	over.EntryPos = parser.GetPos();
+
+	postOverloads.Add(&over);
+	
+	CompileOverload(over, parser);
+	
+	for (int i = 0; i < jumps.GetCount(); i++) {
+		jumps[i]->EntryPos = over.EntryPos;
+		CompileOverloadJump(*jumps[i]);
+	}
 }
 
 Node* Compiler::CompileIfWhile(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool, bool isIf) {

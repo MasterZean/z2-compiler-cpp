@@ -619,14 +619,21 @@ void CppNodeWalker::WriteClassVars(ZClass& cls) {
 	
 	if (cls.Variables.GetCount())
 		NL();
-	
+}
+
+void CppNodeWalker::WriteClassStaticVars(ZClass& cls) {
 	if (cls.IsModule)
 		return;
 		
+	int written = 0;
+	
 	for (int i = 0; i < cls.Variables.GetCount(); i++) {
 		Variable& var = cls.Variables[i];
 		
 		if (!var.IsValid)
+			continue;
+		
+		if (!var.IsStatic)
 			continue;
 		
 		SS();
@@ -638,9 +645,11 @@ void CppNodeWalker::WriteClassVars(ZClass& cls) {
 		
 		stream << ";";
 		NL();
+		
+		written = true;
 	}
 	
-	if (cls.Variables.GetCount())
+	if (written)
 		NL();
 }
 
@@ -670,6 +679,7 @@ void CppNodeWalker::WriteMethod(Method& m) {
 			for (int k = 0; k < o.DepClass.GetCount(); k++)
 				if (o.DepClass[k]->MDecWritten != CompilationUnitIndex) {
 					WriteClassVars(*o.DepClass[k]);
+					WriteClassStaticVars(*o.DepClass[k]);
 					o.DepClass[k]->MDecWritten = CompilationUnitIndex;
 				}
 			

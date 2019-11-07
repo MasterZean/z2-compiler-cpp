@@ -207,6 +207,10 @@ void ErrorReporter::CondNotBool(const String& path, const Point& p, const String
 	Error(path, p, "condition must be '\fBool\f', class '\f" + c + "\f' found");
 }
 
+void ErrorReporter::NotStatic(const String& path, const Point& p, const String& c) {
+	Error(path, p, c);
+}
+
 void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
 	Error(path, p, "second operand of division is 0 or equivalent");
 }

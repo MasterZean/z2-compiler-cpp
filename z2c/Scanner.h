@@ -58,7 +58,8 @@ public:
 	
 	void Scan(ZSource& src);
 	void ScanClass(ZClass& conCls, ZParser& parser);
-	void ScanDef(ZClass& conCls, ZParser& parser, bool ct);
+	void ScanDef(ZClass& conCls, ZParser& parser, bool ct, bool st = false);
+	void ScanVar(ZClass& conCls, ZParser& parser, bool ct, bool st = false);
 	void ScanToken(ZParser& parser);
 	
 private:

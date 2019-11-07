@@ -30,21 +30,10 @@ void Scanner::Scan(ZSource& src) {
 			ScanDef(src.Module, parser, false);
 		else if (parser.Id("func"))
 			ScanDef(src.Module, parser, true);
-		else if (parser.Id("val")) {
-			parser.WSCurrentLine();
-			
-			ZParser::Pos p = parser.GetPos();
-			
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				
-				Variable& v = src.Module.AddVariable(name);
-				v.Name = name;
-				v.EntryPos = p;
-			}
-			else
-				ScanToken(parser);
-		}
+		else if (parser.Id("val"))
+			ScanVar(src.Module, parser, false, true);
+		else if (parser.Id("const"))
+			ScanVar(src.Module, parser, false, true);
 		else if (parser.Id("class")) {
 			parser.WSCurrentLine();
 			
@@ -100,26 +89,26 @@ void Scanner::ScanClass(ZClass& conCls, ZParser& parser) {
 	int c = 0;
 	
 	while (!parser.IsEof()) {
-		if (parser.Id("def"))
+		if (parser.Id("static")) {
+			parser.WSCurrentLine();
+			
+			if (parser.Id("def"))
+				ScanDef(conCls, parser, false, true);
+			else if (parser.Id("func"))
+				ScanDef(conCls, parser, true, true);
+			else if (parser.Id("val"))
+				ScanVar(conCls, parser, false, true);
+			else if (parser.Id("const"))
+				ScanVar(conCls, parser, true, true);
+		}
+		else if (parser.Id("def"))
 			ScanDef(conCls, parser, false);
 		else if (parser.Id("func"))
 			ScanDef(conCls, parser, true);
-		else if (parser.Id("val")) {
-			parser.WSCurrentLine();
-			
-			ZParser::Pos p = parser.GetPos();
-			
-			if (parser.IsZId()) {
-				String name = parser.ReadZId();
-				
-				Variable& v = conCls.AddVariable(name);
-				v.Name = name;
-				v.EntryPos = p;
-				v.IsStatic = true;
-			}
-			else
-				ScanToken(parser);
-		}
+		else if (parser.Id("val"))
+			ScanVar(conCls, parser, false);
+		else if (parser.Id("const"))
+			ScanVar(conCls, parser, true);
 		else if (parser.Char('{')) {
 			parser.WS();
 			o++;
@@ -136,7 +125,7 @@ void Scanner::ScanClass(ZClass& conCls, ZParser& parser) {
 	}
 }
 
-void Scanner::ScanDef(ZClass& conCls, ZParser& parser, bool ct) {
+void Scanner::ScanDef(ZClass& conCls, ZParser& parser, bool ct, bool st) {
 	parser.Spaces();
 			
 	Point p = parser.GetPoint();
@@ -156,11 +145,30 @@ void Scanner::ScanDef(ZClass& conCls, ZParser& parser, bool ct) {
 		over.ParamPos = parser.GetPos();
 		over.NamePoint = p;
 		over.IsConst = ct;
+		over.IsStatic = st;
 	}
 	else
 		ScanToken(parser);
 }
 	
+void Scanner::ScanVar(ZClass& conCls, ZParser& parser, bool ct, bool st) {
+	parser.WSCurrentLine();
+			
+	ZParser::Pos p = parser.GetPos();
+	
+	if (parser.IsZId()) {
+		String name = parser.ReadZId();
+		
+		Variable& v = conCls.AddVariable(name);
+		v.Name = name;
+		v.EntryPos = p;
+		v.IsReadOnly = ct;
+		v.IsStatic = st;
+	}
+	else
+		ScanToken(parser);
+}
+
 // TODO: fix
 void Scanner::ScanToken(ZParser& parser) {
 	parser.WS();

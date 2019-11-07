@@ -134,6 +134,7 @@ public:
 	bool IsDestructor = false;
 	bool IsVirtual = false;
 	bool IsInline = false;
+	bool IsStatic = false;
 	bool IsConst = false;
 	int  IsCons = 0;
 	
