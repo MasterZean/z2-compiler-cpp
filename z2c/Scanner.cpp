@@ -115,6 +115,7 @@ void Scanner::ScanClass(ZClass& conCls, ZParser& parser) {
 				Variable& v = conCls.AddVariable(name);
 				v.Name = name;
 				v.EntryPos = p;
+				v.IsStatic = true;
 			}
 			else
 				ScanToken(parser);
@@ -199,10 +200,9 @@ void Scanner::ScanToken(ZParser& parser) {
 			parser.Spaces();
 		    return;
 		}
+		
 		DUMP(parser.Identify());
 		ASSERT(0);
-		//Point p = parser.GetPoint();
-		//parser.Error(p, "syntax error: " + parser.Identify() + " found");
 	}
 	
 	parser.WS();

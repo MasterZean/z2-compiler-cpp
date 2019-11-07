@@ -255,7 +255,7 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 			ErrorReporter::CantCall(conCls.Name, p, ass, &m.OwnerClass, &m, params, 2);
 		
 		if (conOver)
-			conOver->DepOver.Add(found);
+			conOver->DepOver.FindAdd(found);
 		
 		CallNode* call = irg.call(*found);
 		FixupParams(*found, params);
@@ -268,7 +268,7 @@ Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver,
 	if (i != -1) {
 		parser.WSCurrentLine();
 		
-		if (!conCls.Variables[i].IsDefined)
+		if (!conCls.Variables[i].IsEvaluated)
 			ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
 		
 		return irg.mem(conCls.Variables[i]);
@@ -366,15 +366,15 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	if (cobj == ass.CCls)
 		cobj = &ass.Classes[(int)exp->IntVal];
 	
+	if (conOver)
+		conOver->DepClass.FindAdd(cobj);
+	
 	if (!cobj->IsEvaluated)
 		CompileClass(*cobj);
 	
 	int i = cobj->Variables.Find(s);
 	if (i != -1) {
 		Variable& v = cobj->Variables[i];
-		
-		//if (!v.IsEvaluated)
-		//	CompileVar(v);
 		
 		/*if (exp == nullptr) {
 			if (InConstMode)

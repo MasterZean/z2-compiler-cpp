@@ -78,6 +78,7 @@ public:
 	
 	void WriteClassVars(ZClass& cls);
 	void WriteVar(Variable& var);
+	void WriteVarValue(Variable& var);
 	
 	void WriteOverloadDefinition(Overload &over);
 	void WriteOverloadDeclaration(Overload &over);

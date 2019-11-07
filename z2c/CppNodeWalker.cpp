@@ -270,8 +270,20 @@ void CppNodeWalker::WalkNode(VarNode& node) {
 }
 
 void CppNodeWalker::WriteVar(Variable& var) {
-	stream << var.Class->BackendName << " " << var.Name << " = ";
+	if (var.IsStatic)
+		stream << "static ";
 	
+	stream << var.Class->BackendName << " " << var.Name;
+		
+	if (var.IsStatic)
+		return;
+	
+	stream << " = ";
+	
+	WriteVarValue(var);
+}
+
+void CppNodeWalker::WriteVarValue(Variable& var) {
 	if (var.Value->NT == NodeType::Cast) {
 		CastNode* cast = (CastNode*)var.Value;
 		if (cast->Object->C1 == cast->Class)
@@ -567,17 +579,63 @@ void CppNodeWalker::WriteClass(ZClass& cls) {
 }
 
 void CppNodeWalker::WriteClassVars(ZClass& cls) {
+	if (!cls.IsModule) {
+		SS();
+		stream << "class " << cls.BackendName << " {";
+		NL();
+		
+		SS();
+		stream << "public:";
+		NL();
+		
+		indent++;
+	}
+	else {
+		SS();
+		stream << "// ";
+		stream << cls.Namespace << cls.Name;
+		NL();
+	}
+	
 	for (int i = 0; i < cls.Variables.GetCount(); i++) {
 		Variable& var = cls.Variables[i];
 		
-		if (!var.IsDefined)
+		if (!var.IsValid)
 			continue;
 		
-		stream << "// ";
-		stream << cls.Namespace << cls.Name << "::" << var.Name;
-		NL();
-		
+		SS();
 		WriteVar(var);
+		stream << ";";
+		NL();
+	}
+	
+	if (!cls.IsModule) {
+		indent--;
+		
+		SS();
+		stream << "};";
+		NL();
+	}
+	
+	if (cls.Variables.GetCount())
+		NL();
+	
+	if (cls.IsModule)
+		return;
+		
+	for (int i = 0; i < cls.Variables.GetCount(); i++) {
+		Variable& var = cls.Variables[i];
+		
+		if (!var.IsValid)
+			continue;
+		
+		SS();
+		
+		stream << var.Class->BackendName << " " << var.OwnerClass->BackendName << "::" << var.Name;
+		stream << " = ";
+		
+		WriteVarValue(var);
+		
 		stream << ";";
 		NL();
 	}
@@ -608,6 +666,12 @@ void CppNodeWalker::WriteMethod(Method& m) {
 		
 		if ((IgnoreDupes && !dupe) || !IgnoreDupes) {
 			int written = 0;
+			
+			for (int k = 0; k < o.DepClass.GetCount(); k++)
+				if (o.DepClass[k]->MDecWritten != CompilationUnitIndex) {
+					WriteClassVars(*o.DepClass[k]);
+					o.DepClass[k]->MDecWritten = CompilationUnitIndex;
+				}
 			
 			for (int k = 0; k < o.DepOver.GetCount(); k++)
 				if (o.DepOver[k]->MDecWritten != CompilationUnitIndex) {

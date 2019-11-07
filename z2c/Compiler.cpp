@@ -27,9 +27,6 @@ Overload* Compiler::CompileSnipFunc(const String& snip) {
 }
 
 ZClass* Compiler::CompileModule(ZSource& src) {
-	//ZClass& tempClass = ass.AddClass("DummyClass");
-	//tempClass.BackendName = "DummyClass";
-	
 	Scanner scanner(ass);
 	scanner.Scan(src);
 	
@@ -460,14 +457,7 @@ void Compiler::CompileClass(ZClass& cls) {
 	if (cls.IsEvaluated)
 		return;
 	
-	/*cls.IsEvaluated = true;
-	
-	
-	ZParser parser;
-	parser.SetPos(cls.EntryPos);
-	parser.Path = cls.Name;
-	
-	CompileSourceLoop(cls, parser);*/
+	cls.IsEvaluated = true;
 	
 	ZParser parser;
 	parser.Path = cls.Name;
@@ -479,6 +469,7 @@ void Compiler::CompileClass(ZClass& cls) {
 		
 		try {
 			CompileVar(cls, nullptr, parser, false);
+			v.IsValid = true;
 		}
 		catch (ZSyntaxError& err) {
 			if (compileStack.GetCount())
@@ -499,13 +490,6 @@ void Compiler::CompileClass(ZClass& cls) {
 	}
 }
 
-/*void Compiler::CompileVar(Variable& v) {
-	if (!v.IsEvaluated)
-		return;
-	
-	v.IsEvaluated = true;
-}*/
-
 Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst) {
 	parser.WS();
 	
@@ -515,9 +499,11 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	
 	Variable* v = conOver ? nullptr : conCls.Variables.FindPtr(varName);
 	
-	if (v && v->IsDefined) {
-		parser.SetPos(v->ExitPos);
-		return irg.defineLocalVar(*v);
+	if (v) {
+		if (v->IsEvaluated) {
+			parser.SetPos(v->ExitPos);
+			return nullptr;
+		}
 	}
 	
 	parser.WS();
@@ -585,8 +571,8 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 	v->Class = varClass;
 	v->MIsMember = conOver == nullptr;
 	v->IsReadOnly = cst;
-	v->IsDefined = true;
 	v->ExitPos = exitPos;
+	v->IsEvaluated = true;
 	
 	ASSERT(v->Class);
 	
@@ -598,8 +584,8 @@ Node* Compiler::CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, b
 		
 		return irg.defineLocalVar(*v);
 	}
-	else
-		return irg.defineLocalVar(*v);
+	
+	return nullptr;
 }
 
 Node* Compiler::CompileIfWhile(ZClass& conCls, Overload* conOver, ZParser& parser, Vector<Node*>* nodePool, bool isIf) {
@@ -693,7 +679,7 @@ void Compiler::CheckLocalVar(ZClass& conCls, Overload* conOver, const String& va
 		ErrorReporter::Dup(conCls.Name, p, conOver->SourcePoint, varName);
 		
 	for (int i = 0; i < conCls.Variables.GetCount(); i++)
-		if (conCls.Variables[i].IsDefined && conCls.Variables[i].Name == varName)
+		if (conCls.Variables[i].IsEvaluated && conCls.Variables[i].Name == varName)
 			ErrorReporter::Warning(conCls.Name, p, "local '" + varName + "' hides a class member");
 		
 	if (conOver) {

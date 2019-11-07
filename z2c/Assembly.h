@@ -44,7 +44,7 @@ public:
 	bool IsEvaluated = false;
 	bool IsStatic = false;
 	bool InUse = false;
-	bool IsDefined = false;
+	bool IsValid = false;
 	
 	ParamType PType = Variable::tyAuto;
 	AccessType Access = Variable::atPublic;
@@ -85,6 +85,7 @@ public:
 	bool MIsFloat = false;
 	bool MIsNumeric = false;
 	int  MIndex = -1;
+	int  MDecWritten = -1;
 	
 	bool IsEvaluated = false;
 	
@@ -154,7 +155,8 @@ public:
 	WithDeepCopy<Array<Block>> Blocks;
 	
 	Vector<Node*> Nodes;
-	Vector<Overload*> DepOver;
+	Index<Overload*> DepOver;
+	Index<ZClass*> DepClass;
 	
 	Overload(Method& aMethod): OwnerClass(aMethod.OwnerClass), OwnerMethod(aMethod), BackendName(aMethod.BackendName) {
 	}

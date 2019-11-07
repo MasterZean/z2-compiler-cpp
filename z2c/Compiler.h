@@ -57,7 +57,6 @@ public:
 	
 	void  CompileClass(ZClass& cls);
 	Node* CompileVar(ZClass& conCls, Overload* conOver, ZParser& parser, bool cst);
-	//void  CompileVar(Variable& v);
 	void  CheckLocalVar(ZClass& conCls, Overload* conOver, const String& varName, const Point& p);
 	Node* GetVarDefault(ZClass* cls);
 	
