@@ -208,81 +208,6 @@ Node* Compiler::ParseAtom(ZClass& conCls, Overload* conOver, ZParser& parser) {
 	return exp;
 }
 
-Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser) {
-	Point p = parser.GetPoint();
-	String s = parser.ReadZId();
-	
-	// local variables and parameters
-	if (searchOver != nullptr) {
-		for (int j = 0; j < searchOver->Params.GetCount(); j++) {
-			if (searchOver->Params[j].Name == s)
-				return irg.mem(searchOver->Params[j]);
-		}
-
-		for (int j = 0; j < searchOver->Blocks.GetCount(); j++) {
-			Block& b = searchOver->Blocks[j];
-			for (int k = 0; k < b.Variables.GetCount(); k++)
-				if (b.Variables[k]->Name == s)
-					return irg.mem(*b.Variables[k]);
-		}
-	}
-	
-	int i = conCls.Methods.Find(s);
-	if (i != -1) {
-		parser.Expect('(');
-		Vector<Node*> params;
-		GetParams(params, conCls, conOver, parser);
-		
-		int goodOvers = 0;
-		Method& m = conCls.Methods[i];
-		for (int i = 0; i < m.Overloads.GetCount(); i++) {
-			if (m.Overloads[i].IsScanned == false)
-				BuildSignature(conCls, m.Overloads[i]);
-			if (m.Overloads[i].IsScanned == true)
-				goodOvers++;
-		}
-		
-		if (goodOvers != m.Overloads.GetCount())
-			ErrorReporter::SomeOverloadsBad(conCls.Name, p, s);
-			
-		OverloadResolver res(ass);
-		Overload* found = res.Resolve(m, params, 0);
-		
-		if (res.IsAmbig())
-			ErrorReporter::AmbigError(conCls.Name, p, ass, &m.OwnerClass, &m, params, res.Score());
-
-		if (!found)
-			ErrorReporter::CantCall(conCls.Name, p, ass, &m.OwnerClass, &m, params, 2);
-		
-		if (conOver)
-			conOver->DepOver.FindAdd(found);
-		
-		CallNode* call = irg.call(*found);
-		FixupParams(*found, params);
-		call->Params = pick(params);
-		
-		return call;
-	}
-	
-	i = conCls.Variables.Find(s);
-	if (i != -1) {
-		parser.WSCurrentLine();
-		
-		if (!conCls.Variables[i].IsEvaluated)
-			ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
-		if (!conCls.Variables[i].IsStatic)
-			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + conCls.Variables[i].Name + "' not static");
-		
-		return irg.mem(conCls.Variables[i]);
-	}
-	
-	ZClass* c = GetClass(s);
-	if (!c)
-		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
-	
-	return irg.constClass(c);
-}
-
 Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 	Node* exp = nullptr;
 	
@@ -320,18 +245,46 @@ Node* Compiler::ParseNumeric(ZClass& conCls, ZParser& parser) {
 	return exp;
 }
 
-Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parser, const Point p, ZClass& cls) {
-	if (parser.Char('}'))
-		return GetVarDefault(&cls);
-	else {
-		Node* exp = ParseExpression(conCls, conOver, parser);
-		parser.WS();
-		parser.Expect('}');
-		parser.WSCurrentLine();
-		parser.OpenCB--;
-		
-		return irg.cast(exp, &cls);
+Node* Compiler::ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser) {
+	Point p = parser.GetPoint();
+	String s = parser.ReadZId();
+	
+	// local variables and parameters
+	if (searchOver != nullptr) {
+		for (int j = 0; j < searchOver->Params.GetCount(); j++) {
+			if (searchOver->Params[j].Name == s)
+				return irg.mem(searchOver->Params[j]);
+		}
+
+		for (int j = 0; j < searchOver->Blocks.GetCount(); j++) {
+			Block& b = searchOver->Blocks[j];
+			for (int k = 0; k < b.Variables.GetCount(); k++)
+				if (b.Variables[k]->Name == s)
+					return irg.mem(*b.Variables[k]);
+		}
 	}
+	
+	int i = conCls.Methods.Find(s);
+	if (i != -1)
+		return ParseDef(conCls, conOver, parser, p, i);
+	
+	i = conCls.Variables.Find(s);
+	if (i != -1) {
+		parser.WSCurrentLine();
+		
+		if (!conCls.Variables[i].IsEvaluated)
+			ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
+		if (!conCls.Variables[i].IsStatic)
+			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + conCls.Variables[i].Name + "'");
+		
+		return irg.mem(conCls.Variables[i]);
+	}
+	
+	ZClass* c = GetClass(s);
+	if (!c)
+		ErrorReporter::UndeclaredIdentifier(conCls.Name, p, s);
+	
+	return irg.constClass(c);
 }
 
 Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Node* exp) {
@@ -374,12 +327,16 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	if (!cobj->IsEvaluated)
 		CompileClass(*cobj);
 	
-	int i = cobj->Variables.Find(s);
+	int i = cobj->Methods.Find(s);
+	if (i != -1)
+		return ParseDef(*cobj, conOver, parser, p, i);
+	
+	i = cobj->Variables.Find(s);
 	if (i != -1) {
 		Variable& v = cobj->Variables[i];
 		
 		if (!v.IsStatic)
-			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + v.Name + "' not static");
+			ErrorReporter::NotStatic(conCls.Name, p, "variable '" + v.Name + "'");
 		
 		/*if (exp == nullptr) {
 			if (InConstMode)
@@ -408,6 +365,62 @@ Node* Compiler::ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Nod
 	ErrorReporter::UndeclaredIdentifier(conCls.Name, p, ass.Classes[(int)exp->IntVal].Name, s);
 	
 	return nullptr;
+}
+
+Node* Compiler::ParseDef(ZClass& conCls, Overload* conOver, ZParser& parser, const Point& p, int methodIndex) {
+	parser.Expect('(');
+	Vector<Node*> params;
+	GetParams(params, conCls, conOver, parser);
+	
+	int goodOvers = 0;
+	Method& m = conCls.Methods[methodIndex];
+	for (int i = 0; i < m.Overloads.GetCount(); i++) {
+		if (m.Overloads[i].IsScanned == false)
+			BuildSignature(conCls, m.Overloads[i]);
+		if (m.Overloads[i].IsScanned == true)
+			goodOvers++;
+	}
+	
+	if (goodOvers != m.Overloads.GetCount())
+		ErrorReporter::SomeOverloadsBad(conCls.Name, p, m.Name);
+		
+	OverloadResolver res(ass);
+	Overload* found = res.Resolve(m, params, 0);
+	
+	if (res.IsAmbig())
+		ErrorReporter::AmbigError(conCls.Name, p, ass, &m.OwnerClass, &m, params, res.Score());
+
+	if (!found)
+		ErrorReporter::CantCall(conCls.Name, p, ass, &m.OwnerClass, &m, params, 2);
+	
+	if (!found->IsStatic)
+		ErrorReporter::NotStatic(conCls.Name, p, "function '" + found->Name() + "'");
+	
+	if (conOver)
+		conOver->DepOver.FindAdd(found);
+	
+	if (!found->IsEvaluated)
+		CompileOverloadJump(*found);
+	
+	CallNode* call = irg.call(*found);
+	FixupParams(*found, params);
+	call->Params = pick(params);
+	
+	return call;
+}
+
+Node* Compiler::ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parser, const Point p, ZClass& cls) {
+	if (parser.Char('}'))
+		return GetVarDefault(&cls);
+	else {
+		Node* exp = ParseExpression(conCls, conOver, parser);
+		parser.WS();
+		parser.Expect('}');
+		parser.WSCurrentLine();
+		parser.OpenCB--;
+		
+		return irg.cast(exp, &cls);
+	}
 }
 
 void Compiler::GetParams(Vector<Node*>& params, ZClass& conCls, Overload* conOver, ZParser& parser, char end) {

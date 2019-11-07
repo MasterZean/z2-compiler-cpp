@@ -71,6 +71,7 @@ public:
 	Node* ParseId(ZClass& conCls, Overload* conOver, Overload* searchOver, ZParser& parser);
 	Node* ParseNumeric(ZClass& conCls, ZParser& parser);
 	Node* ParseTemporary(ZClass& conCls, Overload* conOver, ZParser& parser, const Point p, ZClass& cls);
+	Node* ParseDef(ZClass& conCls, Overload* conOver, ZParser& parser, const Point& p, int methodIndex);
 	Node* ParseDot(ZClass& conCls, Overload* conOver, ZParser& parser, Node* exp);
 	
 	String GetResult() {

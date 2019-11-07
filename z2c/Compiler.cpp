@@ -169,6 +169,11 @@ bool Compiler::CompileOverload(Overload& overload, ZParser& parser) {
 }
 
 bool Compiler::CompileOverloadJump(Overload& overload) {
+	if (overload.IsEvaluated)
+		return true;
+	
+	overload.IsEvaluated = true;
+	
 	compileStack << &overload;
 	
 	ZParser parser;

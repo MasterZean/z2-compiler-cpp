@@ -27,9 +27,9 @@ void Scanner::Scan(ZSource& src) {
 			src.Namespace = total;
 		}
 		else if (parser.Id("def"))
-			ScanDef(src.Module, parser, false);
+			ScanDef(src.Module, parser, false, true);
 		else if (parser.Id("func"))
-			ScanDef(src.Module, parser, true);
+			ScanDef(src.Module, parser, true, true);
 		else if (parser.Id("val"))
 			ScanVar(src.Module, parser, false, true);
 		else if (parser.Id("const"))

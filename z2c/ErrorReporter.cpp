@@ -208,7 +208,7 @@ void ErrorReporter::CondNotBool(const String& path, const Point& p, const String
 }
 
 void ErrorReporter::NotStatic(const String& path, const Point& p, const String& c) {
-	Error(path, p, c);
+	Error(path, p, c + " is not static");
 }
 
 void ErrorReporter::DivisionByZero(const String& path, const Point& p) {
@@ -227,7 +227,7 @@ void ErrorReporter::SomeOverloadsBad(const String& path, const Point& p, const S
 	Error(path, p, "can't call method '" + f + "' because errors were encountered in at least one of its overloads");
 }
 
-void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons) {
+void ErrorReporter::CantCall(const String& path, const Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons) {
 	String s;
 	
 	if (cons) {
@@ -291,7 +291,7 @@ void ErrorReporter::CantCall(const String& path, Point& p, Assembly& ass, ZClass
 	Error(path, p, s);
 }
 
-void ErrorReporter::AmbigError(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score) {
+void ErrorReporter::AmbigError(const String& path, const Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score) {
 	String s;
 	
 	s << "class '\f" << ci->Name << "\f': when trying to match overload" << NL << "\t\t";

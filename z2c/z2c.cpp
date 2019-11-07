@@ -321,6 +321,9 @@ CONSOLE_APP_MAIN {
 	ZClass* cls = compiler.CompileModule(src);
 	compiler.Sanitize(*cls);
 	
+	for (int i = 0; i < ass.Classes.GetCount(); i++)
+		compiler.Sanitize(ass.Classes[i]);
+	
 	FileOut ss(K.OutPath);
 	
 	ss << LoadFile(AppendFileName(exeDir, "codegen\\cppcode2.h"));

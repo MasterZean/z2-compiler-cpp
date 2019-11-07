@@ -3,10 +3,12 @@ namespace miu.foo
 def @main() {
 	A.a + a
 	B.a + a
+
+	A.f() + B.f()
 }
 
 class A {
-	def f(): Int {
+	static def f(): Int {
 		return a
 	}
 
@@ -18,7 +20,7 @@ class A {
 }
 
 class B {
-	def f(): Int {
+	static def f(): Int {
 		return a
 	}
 

@@ -14,7 +14,24 @@ class ZClass;
 class Node;
 class Method;
 
-class Variable: Moveable<Variable> {
+class Entity: Moveable<Entity> {
+public:
+	enum AccessType {
+		atPublic,
+		atPrivate,
+		atProtected
+	};
+	
+	ZParser::Pos EntryPos;
+	ZParser::Pos ExitPos;
+	
+	bool IsStatic = false;
+		
+	bool IsEvaluated = false;
+	AccessType Access = Entity::atPublic;
+};
+
+class Variable: public Entity, Moveable<Variable> {
 public:
 	enum ParamType {
 		tyAuto,
@@ -23,31 +40,20 @@ public:
 		tyVal,
 		tyMove,
 	};
-	
-	enum AccessType {
-		atPublic,
-		atPrivate,
-		atProtected
-	};
-	
+		
 	String Name;
 	
 	Point SourcePoint = Point(-1, -1);
-	ZParser::Pos EntryPos;
-	ZParser::Pos ExitPos;
 	
 	bool MIsMember = false;
 	int  MIsParam = -1;
 	
 	bool IsReadOnly = false;
 	bool IsCT = false;
-	bool IsEvaluated = false;
-	bool IsStatic = false;
 	bool InUse = false;
 	bool IsValid = false;
 	
 	ParamType PType = Variable::tyAuto;
-	AccessType Access = Variable::atPublic;
 	
 	ZClass* OwnerClass = nullptr;
 	Node* Value = nullptr;
@@ -67,7 +73,7 @@ public:
 	}
 };
 
-class ZClass: Moveable<ZClass> {
+class ZClass: public Entity, Moveable<ZClass> {
 public:
 	String Name;
 	String Namespace;
@@ -86,11 +92,6 @@ public:
 	bool MIsNumeric = false;
 	int  MIndex = -1;
 	int  MDecWritten = -1;
-	
-	bool IsEvaluated = false;
-	
-	ZParser::Pos EntryPos;
-	ZParser::Pos PostPos;
 	
 	Method& GetAddMethod(const String& name);
 	
@@ -117,12 +118,11 @@ public:
 	Vector<int> OverloadCounts;
 };
 
-class Overload: Moveable<Overload> {
+class Overload: public Entity, Moveable<Overload> {
 public:
 	ZClass& OwnerClass;
 	Method& OwnerMethod;
 	
-	ZParser::Pos EntryPos;
 	ZParser::Pos ParamPos;
 	ZParser::Pos PostParamPos;
 	
@@ -134,7 +134,6 @@ public:
 	bool IsDestructor = false;
 	bool IsVirtual = false;
 	bool IsInline = false;
-	bool IsStatic = false;
 	bool IsConst = false;
 	int  IsCons = 0;
 	

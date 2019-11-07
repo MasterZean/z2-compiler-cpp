@@ -60,8 +60,8 @@ public:
 	static void CondNotBool(const String& path, const Point& p, const String& c);
 	static void NotStatic(const String& path, const Point& p, const String& c);
 	
-	static void CantCall(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons = false);
-	static void AmbigError(const String& path, Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score);
+	static void CantCall(const String& path, const Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int limit, bool cons = false);
+	static void AmbigError(const String& path, const Point& p, Assembly& ass, ZClass* ci, Method* def, Vector<Node*>& params, int score);
 	static void SomeOverloadsBad(const String& path, const Point& p, const String& f);
 	
 	static void DivisionByZero(const String& path, const Point& p);
